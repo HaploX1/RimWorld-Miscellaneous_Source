@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{F461B587-657E-416B-9E9B-8FEC7C4F8C09}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>AIPawn</RootNamespace>
+    <AssemblyName>AIPawn</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\..\Mods\Miscellaneous_MAI\Assemblies\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine">
+      <HintPath>..\_RimWorldDLLs\UnityEngine.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AIPawn.cs" />
+    <Compile Include="Building_AIPawnCreatorEnhanced_male.cs" />
+    <Compile Include="Building_AIPawnCreator_male.cs" />
+    <Compile Include="CompNeedMaximizing.cs" />
+    <Compile Include="CompProperties_NeedMaximizing.cs" />
+    <Compile Include="JobGiver_RechargeEnergy.cs" />
+    <Compile Include="JobGiver_SatisfyNeeds.cs" />
+    <Compile Include="BackstoryHelper.cs" />
+    <Compile Include="Building_AIPawnCreatorEnhanced.cs" />
+    <Compile Include="Building_AIPawnCreator.cs" />
+    <Compile Include="Building_AIPawnConstructionStation.cs" />
+    <Compile Include="AIPawnGenerator.cs" />
+    <Compile Include="Building_AIPawnInactive.cs" />
+    <Compile Include="Building_AIRechargeStation.cs" />
+    <Compile Include="HelperAIPawn.cs" />
+    <Compile Include="JobDriver_SedatePawn.cs" />
+    <Compile Include="JobDriver_SedateAndRescueAIPawn.cs" />
+    <Compile Include="JobDriver_GotoTarget.cs" />
+    <Compile Include="PlacementRestrictor_NextToAIRechargeStation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="PawnKindDef_AIPawn.cs" />
+    <Compile Include="ThingDef_Building_AIPawnConstructionStation.cs" />
+    <Compile Include="ThingDef_AIPawn.cs" />
+    <Compile Include="ThingDef_Building_RechargeStation.cs" />
+    <Compile Include="_Test.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CommonFunctionsMisc\CommonMisc.csproj">
+      <Project>{d1e15ad4-b68e-4358-babf-676f8256f008}</Project>
+      <Name>CommonMisc</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>"C:\Program Files (x86)\Mono\bin\pdb2mdb.bat" "$(TargetPath)"</PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
