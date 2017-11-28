@@ -46,7 +46,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BlueprintHandler_Backup.cs" />
     <Compile Include="BlueprintHandler.cs" />
     <Compile Include="Genstep_CreateBlueprintBase.cs" />
     <Compile Include="MapGeneratorBaseBlueprintDef.cs" />

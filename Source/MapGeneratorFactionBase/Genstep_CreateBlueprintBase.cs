@@ -36,7 +36,7 @@ namespace MapGenerator
             Faction faction;
             if (map.info.parent == null || map.info.parent.Faction == null || map.info.parent.Faction == Faction.OfPlayer)
             {
-                faction = Find.FactionManager.RandomEnemyFaction(false, false);
+                faction = Find.FactionManager.RandomEnemyFaction(false, false, false);
             }
             else
             {
@@ -110,7 +110,7 @@ namespace MapGenerator
             if (!blueprint.createdBy.NullOrEmpty()) {
                 string label = "MapGenerator_FactionBase_Header_ProvidedBy".Translate();
                 string text = "MapGenerator_FactionBase_Body_ProvidedBy".Translate(new object[] { blueprint.createdBy });
-                Find.LetterStack.ReceiveLetter(label, text, LetterDefOf.Good, new GlobalTargetInfo(c, map));
+                Find.LetterStack.ReceiveLetter(label, text, LetterDefOf.PositiveEvent, new GlobalTargetInfo(c, map));
             }
         }
 
@@ -130,6 +130,7 @@ namespace MapGenerator
         {
 
             GenStep_FactionBase gs = new GenStep_FactionBase();
+            //gs.ForceScatterAt(c, map);
             gs.ReflectCall("ScatterAt", c, map, stackCount);
             
             return;

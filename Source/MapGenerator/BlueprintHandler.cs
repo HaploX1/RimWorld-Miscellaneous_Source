@@ -80,16 +80,26 @@ namespace MapGenerator
 
                 if (blueprint.createTrigger)
                 {
-                    RectTrigger_UnfogArea rectTrigger = (RectTrigger_UnfogArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogArea"), null);
-                    rectTrigger.destroyIfUnfogged = true;
-                    rectTrigger.Rect = mapRect;
+                    int nextSignalTagID = Find.UniqueIDsManager.GetNextSignalTagID();
+                    string signalTag = "unfogTriggerSignal-" + nextSignalTagID;
+                    SignalAction_Letter signalAction_Letter = (SignalAction_Letter)ThingMaker.MakeThing(ThingDefOf.SignalAction_Letter, null);
+                    signalAction_Letter.signalTag = signalTag;
+
                     if (blueprint.TriggerLetterMessageText != null)
                     {
                         if (blueprint.TriggerLetterLabel != null)
-                            rectTrigger.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                            signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
                         else
-                            rectTrigger.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                            signalAction_Letter.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+
+                        GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
                     }
+
+                    RectTrigger_UnfogArea rectTrigger = (RectTrigger_UnfogArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogArea"), null);
+                    rectTrigger.signalTag = signalTag;
+                    rectTrigger.destroyIfUnfogged = true;
+                    rectTrigger.Rect = mapRect;
+
                     GenSpawn.Spawn(rectTrigger, mapRect.CenterCell, map);
                 }
 
@@ -557,10 +567,10 @@ namespace MapGenerator
                             faction = (from fac in Find.FactionManager.AllFactions
                                        where !fac.HostileTo(Faction.OfPlayer) && fac.PlayerGoodwill > 0 && !(fac == Faction.OfPlayer)
                                        select fac)
-                                      .RandomElementByWeight((Faction fac) => 101 - fac.def.raidCommonality);
+                                      .RandomElementByWeight((Faction fac) => 101 - fac.def.RaidCommonalityFromPoints(1));
 
                             if (faction == null)
-                                faction = Find.FactionManager.AllFactions.RandomElementByWeight((Faction fac) => fac.def.raidCommonality);
+                                faction = Find.FactionManager.AllFactions.RandomElementByWeight((Faction fac) => fac.def.RaidCommonalityFromPoints(1));
 
                             break;
 
@@ -568,7 +578,7 @@ namespace MapGenerator
                             faction = (from fac in Find.FactionManager.AllFactions
                                        where fac.HostileTo(Faction.OfPlayer)
                                        select fac)
-                                      .RandomElementByWeight((Faction fac) => 101 - fac.def.raidCommonality);
+                                      .RandomElementByWeight((Faction fac) => 101 - fac.def.RaidCommonalityFromPoints(1));
 
                             if (faction == null)
                                 faction = Faction.OfMechanoids;
@@ -577,7 +587,7 @@ namespace MapGenerator
 
                         case FactionSelection.none:
                             faction = Find.FactionManager.AllFactions
-                                      .RandomElementByWeight((Faction fac) => fac.def.raidCommonality);
+                                      .RandomElementByWeight((Faction fac) => fac.def.RaidCommonalityFromPoints(1));
 
                             if (faction == null)
                                 faction = Faction.OfMechanoids;

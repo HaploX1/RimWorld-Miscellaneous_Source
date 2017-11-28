@@ -39,7 +39,7 @@ namespace MapGenerator
                         }
                     }
 
-                    if (destroyIfUnfogged && IsRectUnfogged(Map))// !Rect.Center.Fogged())
+                    if (destroyIfUnfogged && IsRectUnfogged(Map))
                     {
                         Destroy(DestroyMode.Vanish);
                         return;
@@ -50,11 +50,8 @@ namespace MapGenerator
 
         private void ActivatedBy(Pawn p, Map map)
         {
-            if (letter != null)
-            {
-                (letter as ChoiceLetter).text = string.Format((letter as ChoiceLetter).text, p.NameStringShort).AdjustedFor(p);
-                Find.LetterStack.ReceiveLetter(letter, null);
-            }
+            if (signalTag != null && signalTag != "")
+                Find.SignalManager.SendSignal(new Signal(signalTag, new object[]{p}));
 
             FloodFillerFog.FloodUnfog(p.Position, map);
             p.Position.GetRoom(map).Notify_RoomShapeOrContainedBedsChanged();

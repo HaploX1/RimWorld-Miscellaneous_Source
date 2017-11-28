@@ -85,16 +85,26 @@ namespace MapGenerator
 
                 if (blueprint.createTrigger)
                 {
-                    RectTrigger_UnfogBaseArea rectTrigger = (RectTrigger_UnfogBaseArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogBaseArea"), null);
-                    rectTrigger.destroyIfUnfogged = true;
-                    rectTrigger.Rect = mapRect;
+                    int nextSignalTagID = Find.UniqueIDsManager.GetNextSignalTagID();
+                    string signalTag = "unfogBaseAreaTriggerSignal-" + nextSignalTagID;
+                    SignalAction_Letter signalAction_Letter = (SignalAction_Letter)ThingMaker.MakeThing(ThingDefOf.SignalAction_Letter, null);
+                    signalAction_Letter.signalTag = signalTag;
+
                     if (blueprint.TriggerLetterMessageText != null)
                     {
                         if (blueprint.TriggerLetterLabel != null)
-                            rectTrigger.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                            signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
                         else
-                            rectTrigger.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                            signalAction_Letter.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+
+                        GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
                     }
+
+                    RectTrigger_UnfogBaseArea rectTrigger = (RectTrigger_UnfogBaseArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogBaseArea"), null);
+                    rectTrigger.signalTag = signalTag;
+                    rectTrigger.destroyIfUnfogged = true;
+                    rectTrigger.Rect = mapRect;
+
                     GenSpawn.Spawn(rectTrigger, mapRect.CenterCell, map);
                 }
 
@@ -230,7 +240,7 @@ namespace MapGenerator
                                     TrySetCell_3_SetNonThing(spawnCell, map, nonthingDef);
                                     break;
                                 case 3: // Building
-                                    TrySetCell_2_SetThing(spawnCell, map, thingDef, thingRot, stuffDef);
+                                    TrySetCell_2_SetThing(spawnCell, map, faction, thingDef, thingRot, stuffDef);
                                     break;
                                 case 4: // Item
                                     TrySetCell_4_SetItem(spawnCell, map, itemDef, blueprint);
@@ -468,7 +478,7 @@ namespace MapGenerator
         }
         
         // Fill the cell with Thing (Building)
-        private static void TrySetCell_2_SetThing(IntVec3 c, Map map, ThingDef thingDef, Rot4 thingRot, ThingDef stuffDef = null)
+        private static void TrySetCell_2_SetThing(IntVec3 c, Map map, Faction faction, ThingDef thingDef, Rot4 thingRot, ThingDef stuffDef = null)
         {
             //Note: Here is no functionality to clear the cell by design, because it is possible to place items that are larger than 1x1
 
@@ -482,9 +492,13 @@ namespace MapGenerator
 
                 Thing newThing = ThingMaker.MakeThing(thingDef, stuffDef1);
                 if (thingRot == null || thingRot == Rot4.Invalid)
-                    GenSpawn.Spawn(newThing, c, map);
+                    newThing = GenSpawn.Spawn(newThing, c, map);
                 else
-                    GenSpawn.Spawn(newThing, c, map, thingRot);
+                    newThing = GenSpawn.Spawn(newThing, c, map, thingRot);
+
+                // Set it to the current faction
+                newThing.SetFactionDirect( faction );
+
 
                 // If CompGatherSpot -> disable it! 
                 CompGatherSpot compGathering = newThing.TryGetComp<CompGatherSpot>();
@@ -586,7 +600,7 @@ namespace MapGenerator
                 {
                     if ((from fac in Find.FactionManager.AllFactions
                                                      where fac.HostileTo(Faction.OfPlayer)
-                                                     select fac).TryRandomElementByWeight((Faction fac) => 101 - fac.def.raidCommonality, out faction)
+                                                     select fac).TryRandomElementByWeight((Faction fac) => 101 - fac.def.RaidCommonalityFromPoints(map.IncidentPointsRandomFactorRange.RandomInRange), out faction)
                                                      == false)
                     {
                         faction = Faction.OfMechanoids;

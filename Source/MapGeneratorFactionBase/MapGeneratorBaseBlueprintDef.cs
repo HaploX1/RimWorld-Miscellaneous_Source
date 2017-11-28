@@ -24,7 +24,7 @@ namespace MapGenerator
         public bool createTrigger;
         public string TriggerLetterLabel = null;
         public string TriggerLetterMessageText = null;
-        public LetterDef TriggerLetterDef = LetterDefOf.BadNonUrgent;
+        public LetterDef TriggerLetterDef = LetterDefOf.ThreatSmall;
         public Dictionary<string, ThingDef> buildingLegend;
         public Dictionary<string, ThingDef> nonbuildingLegend;
         public Dictionary<string, Rot4> rotationLegend;
