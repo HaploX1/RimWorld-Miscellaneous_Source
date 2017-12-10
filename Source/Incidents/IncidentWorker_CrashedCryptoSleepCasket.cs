@@ -42,7 +42,10 @@ namespace Incidents
 
                 // Valid position
                 if (IsMapRectClear(mapRect, map))
+                {
+                    ClearMapRect(mapRect, map);
                     break;
+                }
 
                 count++;
                 if (count > 100)
@@ -66,9 +69,14 @@ namespace Incidents
                 MakeCasketContents(casket);
             }
 
-            GenSpawn.Spawn(casket, casket.Position, map);
+            casket = GenSpawn.Spawn(casket, casket.Position, map) as Building_CryptosleepCasket;
 
-            Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.ThreatSmall, casket);
+            if (casket.DestroyedOrNull())
+                return false;
+
+            Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.NeutralEvent, casket);
+            //Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.NeutralEvent, new TargetInfo(mapRect.CenterCell, map, false));
+            
             Find.LetterStack.ReceiveLetter(letter);
 
             return true;
@@ -86,13 +94,28 @@ namespace Incidents
                 List<Thing> thingList = cell.GetThingList(map);
                 for (int i = 0; i < thingList.Count; i++)
                 {
-                    if (thingList[i].def.category == ThingCategory.Item || thingList[i].def.category == ThingCategory.Building || thingList[i].def.category == ThingCategory.Pawn)
+                    //if (thingList[i].def.category == ThingCategory.Item || thingList[i].def.category == ThingCategory.Building || thingList[i].def.category == ThingCategory.Pawn || thingList[i].def.category == ThingCategory.Ethereal)
+                    //{
+                    //    return false;
+                    //}
+                    if (thingList[i].def.category == ThingCategory.Building || thingList[i].def.category == ThingCategory.Pawn || thingList[i].def.category == ThingCategory.Ethereal)
                     {
                         return false;
                     }
                 }
             }
             return true;
+        }
+        private static void ClearMapRect(CellRect mapRect, Map map)
+        {
+            foreach (IntVec3 cell in mapRect)
+            {
+                List<Thing> thingList = cell.GetThingList(map);
+                for (int i = 0; i < thingList.Count; i++)
+                {
+                    thingList[i].Destroy(DestroyMode.Vanish);
+                }
+            }
         }
 
         private static Building_CryptosleepCasket TryMakeCasket(CellRect mapRect, Map map, ThingDef thingDef)
@@ -126,19 +149,36 @@ namespace Incidents
         private static void MakeCasketContents(Building_CryptosleepCasket casket)
         {
             //Source from http://akshaya-m.blogspot.de/2015/03/elegant-way-to-switch-if-else.html
-            // Definition:
-            var newSwitch = new Dictionary<Func<int, bool>, Action>
-            {
-             { x => x < 10  ,   () =>  GenerateFriendlyAnimal(casket)   },  
-             { x => x < 20  ,   () =>  GenerateFriendlySpacer(casket)   },
-             { x => x < 30  ,   () =>  GenerateIncappedSpacer(casket)   },
-             { x => x < 45  ,   () =>  GenerateSlave(casket)            },
-             { x => x < 50  ,   () =>  GenerateHalfEatenSpacer(casket)  },
-             { x => x >= 50 ,   () =>  GenerateAngrySpacer(casket)      } 
-            };
-            // Call:
-            newSwitch.First(sw => sw.Key( Rand.RangeInclusive(0, 100) )).Value();
-            
+            /// NOTE: Throws Errors sometimes!!!
+            //// Definition:
+            //var newSwitch = new Dictionary<Func<int, bool>, Action>
+            //{
+            // { x => x < 10  ,   () =>  GenerateFriendlyAnimal(casket)   },  
+            // { x => x < 20  ,   () =>  GenerateFriendlySpacer(casket)   },
+            // { x => x < 30  ,   () =>  GenerateIncappedSpacer(casket)   },
+            // { x => x < 45  ,   () =>  GenerateSlave(casket)            },
+            // { x => x < 65  ,   () =>  GenerateHalfEatenSpacer(casket)  },
+            // { x => x >= 65 ,   () =>  GenerateAngrySpacer(casket)      } 
+            //};
+            //// Call:
+            //newSwitch.First(sw => sw.Key( Rand.RangeInclusive(0, 100) )).Value();
+
+
+
+            int rnd = Rand.RangeInclusive(0, 100);
+            if (rnd < 10)
+                GenerateFriendlyAnimal(casket);
+            else if (rnd < 20)
+                GenerateFriendlySpacer(casket);
+            else if (rnd < 30)
+                GenerateIncappedSpacer(casket);
+            else if (rnd < 45)
+                GenerateSlave(casket);
+            else if (rnd < 65)
+                GenerateHalfEatenSpacer(casket);
+            else
+                GenerateAngrySpacer(casket);
+
         }
 
         private static void GenerateFriendlyAnimal(Building_CryptosleepCasket pod)
@@ -223,34 +263,37 @@ namespace Incidents
             }
             GiveRandomLootInventoryForTombPawn(pawn);
 
-            Pawn pawn2;
+            List<Pawn> pawn2 = new List<Pawn>();
             int pawnCount;
             float rnd2 = Rand.Value;
-            if (rnd2 < 0.05)
+            if (rnd2 < 0.1)
             {
-                pawn2 = PawnGenerator.GeneratePawn(PawnKindDefOf.Spelopede, null);
+                pawn2.Add( PawnGenerator.GeneratePawn(PawnKindDefOf.Spelopede, null));
                 pawnCount = 1;
             }
-            else if (rnd2 < 0.15) 
+            else if (rnd2 < 0.35) 
             {
-                pawn2 = PawnGenerator.GeneratePawn(PawnKindDefOf.Megaspider, null);
+                pawn2.Add(PawnGenerator.GeneratePawn(PawnKindDefOf.Megaspider, null));
                 pawnCount = 1;
             }
             else
             {
-                pawn2 = PawnGenerator.GeneratePawn(PawnKindDefOf.Megascarab, null);
                 pawnCount = Rand.Range(3, 6);
+                for (int k = 0; k < pawnCount; k++)
+                    pawn2.Add(PawnGenerator.GeneratePawn(PawnKindDefOf.Megascarab, null));
             }
 
             for (int j = 0; j < pawnCount; j++)
             {
-                if (!pod.TryAcceptThing(pawn2, false))
+                Pawn pawn3 = pawn2[j];
+                if (!pod.TryAcceptThing(pawn3, false))
                 {
-                    Find.WorldPawns.PassToWorld(pawn2, PawnDiscardDecideMode.Discard);
+                    Find.WorldPawns.PassToWorld(pawn3, PawnDiscardDecideMode.Discard);
                     return;
                 }
-                pawn2.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Manhunter, null, false);
+                pawn3.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Manhunter, null, false);
             }
+            pawn2 = null;
         }
 
         // from RimWorld.ItemCollectionGenerator_AncientPodContents
