@@ -17,13 +17,12 @@ namespace TacticalComputer
     public class PlaceWorker_NeedTacticalComputerToBeBuilt : PlaceWorker
     {
         private string txtNoTacticalComputerFound = "TacticalComputer_PlacementRestricter_NoTacticalComputerFound";
-
-
-        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc,  Rot4 rot, Thing thingToIgnore = null)
+        
+        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc,  Rot4 rot, Map map, Thing thingToIgnore = null)
         {
             AcceptanceReport acceptanceReport;
 
-            IEnumerable<Building_TacticalComputer> foundScanners = base.Map.listerBuildings.AllBuildingsColonistOfClass<Building_TacticalComputer>();
+            IEnumerable<Building_TacticalComputer> foundScanners = map.listerBuildings.AllBuildingsColonistOfClass<Building_TacticalComputer>();
 
             if (foundScanners != null && foundScanners.Count() > 0)
             {

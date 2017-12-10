@@ -35,7 +35,7 @@ namespace ArtefactFound
         }
 
 
-        public override bool TryExecute(IncidentParms parms)
+        protected override bool TryExecuteWorker(IncidentParms parms)
         {
             Map map = (Map)parms.target;
             // Find random free colonist (Who's outside)
@@ -78,7 +78,7 @@ namespace ArtefactFound
             buildingArtefact.pointsToSpend = parms.points;
             
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.BadNonUrgent, new GlobalTargetInfo(artefactPos, map));
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.ThreatSmall, new GlobalTargetInfo(artefactPos, map));
 
             //Log.Error("Points to Spent: " + parms.threatPoints.ToString() + "// Max Squad Cost: " + parms.raidMaxSquadCost.ToString());
 

@@ -14,12 +14,14 @@ namespace TacticalComputer
         private static readonly int AnomalyDistanceMin = 3;
         private static readonly IntRange ThingsCountRange = new IntRange(5, 9);
         private static readonly FloatRange TotalMarketValueRange = new FloatRange(2000f, 4000f);
-        
+        private static readonly IntRange NeurotrainersCountRange = new IntRange(3, 5);
+        private const float AIPersonaCoreExtraChance = 0.25f;
+
         private static readonly string railgunDefName = "Gun_RailgunMKI";
 
         private static readonly string defName_ItemStash = "Anomaly_ItemStash";
         private static readonly string defName_Nothing = "Anomaly_Nothing";
-        //private static readonly string defName_PreciousLumb = "Anomaly_PreciousLump";
+        private static readonly string defName_PreciousLumb = "Anomaly_PreciousLump";
 
         private CompPowerTrader powerComp;
 
@@ -36,7 +38,7 @@ namespace TacticalComputer
         }
 
         private List<SitePartDef> possibleSitePartsInt = null;
-        private List<SitePartDef> PossibleSiteParts
+        private List<SitePartDef> GetRandomSitePartDefs
         {
             get
             {
@@ -46,9 +48,17 @@ namespace TacticalComputer
                     possibleSitePartsInt.Add(SitePartDefOf.Manhunters);
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Turrets);
-                    possibleSitePartsInt.Add(null);
+                    possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
                 }
-                return possibleSitePartsInt;
+                List<SitePartDef> list = new List<SitePartDef>();
+                SitePartDef sitePartDef = possibleSitePartsInt.RandomElement();
+                list.Add(sitePartDef);
+
+                // Outpost may also have turrets
+                if (sitePartDef == SitePartDefOf.Outpost && Rand.Value > 0.6f)
+                    list.Add(SitePartDefOf.Turrets);
+
+                return list;
             }
         }
 
@@ -61,7 +71,11 @@ namespace TacticalComputer
                 siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_Nothing));
                 siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
                 siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
-                //siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_PreciousLumb));
+                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_PreciousLumb));
+                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_PreciousLumb));
             }
 
             return siteCoreDefs.RandomElement();
@@ -151,14 +165,16 @@ namespace TacticalComputer
             Site site;
             bool spacerUsable = false;
 
-            if (Rand.Chance( Props.chanceForNoSitePart ))
+            if (Rand.Chance(Props.chanceForNoSitePart))
             {
+
                 site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), null, false, null);
                 spacerUsable = true;
             }
             else
             {
-                site = SiteMaker.TryMakeRandomSite(GetRandomSiteCoreDef(), PossibleSiteParts, null, true, null);
+                
+                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), GetRandomSitePartDefs, true, null);
             }
 
             // if spacerUsable -> 35% chance that the faction is spacer
@@ -195,7 +211,7 @@ namespace TacticalComputer
                     if (itemStash != null && site.core.defName == defName_ItemStash)
                     {
                         items = GenerateItems(site.Faction);
-                        itemStash.contents.TryAddRange(items);
+                        itemStash.contents.TryAddRangeOrTransfer(items);
 
                         if (railgun != null)
                             itemStash.contents.TryAdd(railgun);
@@ -205,7 +221,7 @@ namespace TacticalComputer
 
                 site.Tile = tile;
                 Find.WorldObjects.Add(site);
-                Find.LetterStack.ReceiveLetter("TacticalComputer_LetterLabel_AnomalyFound".Translate(), "TacticalComputer_Message_AnomalyFound".Translate(), LetterDefOf.Good, site);
+                Find.LetterStack.ReceiveLetter("TacticalComputer_LetterLabel_AnomalyFound".Translate(), "TacticalComputer_Message_AnomalyFound".Translate(), LetterDefOf.PositiveEvent, site);
 
                 // Add a site timeout ???
                 site.GetComponent<TimeoutComp>().StartTimeout(Rand.RangeInclusive(15, 60) * 60000);
@@ -236,7 +252,7 @@ namespace TacticalComputer
                 site.GetComponent<TimeoutComp>().StartTimeout(days * 60000);
 
             if (items != null && items.Count > 0)
-                site.GetComponent<ItemStashContentsComp>().contents.TryAddRange(items);
+                site.GetComponent<ItemStashContentsComp>().contents.TryAddRangeOrTransfer(items);
 
             //Find.WorldObjects.Add(site);
             return site;
@@ -247,7 +263,7 @@ namespace TacticalComputer
         private bool TryFindNewAnomalyTile(out int tile)
         {
             int rootTile;
-            if (!TileFinder.TryFindRandomPlayerTile(out rootTile))
+            if (!TileFinder.TryFindRandomPlayerTile(out rootTile, true))
             {
                 tile = -1;
                 return false;
@@ -374,42 +390,100 @@ namespace TacticalComputer
 
 
         // from IncidentWorker_QuestItemStash
+
         private List<Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>> possibleItemCollectionGenerators = new List<Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>>();
         
         private List<Thing> GenerateItems(Faction siteFaction)
         {
-            this.CalculatePossibleItemCollectionGenerators(siteFaction);
+            TechLevel? techLevel = siteFaction != null ? siteFaction.def.techLevel : TechLevel.Undefined;
+            TechLevel techLevel2 = (techLevel == TechLevel.Undefined) ? TechLevel.Spacer : techLevel.Value;
+            this.CalculatePossibleItemCollectionGenerators(techLevel2);
             Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams> pair = this.possibleItemCollectionGenerators.RandomElement<Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>>();
             return pair.First.Worker.Generate(pair.Second);
         }
-        private void CalculatePossibleItemCollectionGenerators(Faction siteFaction)
+        private void CalculatePossibleItemCollectionGenerators(TechLevel techLevel)
         {
-            TechLevel techLevel = (siteFaction == null) ? TechLevel.Spacer : siteFaction.def.techLevel;
             this.possibleItemCollectionGenerators.Clear();
-            if (Rand.Chance(0.25f) && techLevel >= ThingDefOf.AIPersonaCore.techLevel)
+            if (techLevel >= ThingDefOf.AIPersonaCore.techLevel)
             {
-                ItemCollectionGeneratorDef aIPersonaCores = ItemCollectionGeneratorDefOf.AIPersonaCores;
+                ItemCollectionGeneratorDef standard = ItemCollectionGeneratorDefOf.Standard;
                 ItemCollectionGeneratorParams second = default(ItemCollectionGeneratorParams);
-                second.count = 1;
-                this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(aIPersonaCores, second));
+                second.extraAllowedDefs = Gen.YieldSingle<ThingDef>(ThingDefOf.AIPersonaCore);
+                second.count = new int?(1);
+                this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(standard, second));
+                if (Rand.Chance(0.25f) && !this.PlayerOrItemStashHasAIPersonaCore())
+                {
+                    return;
+                }
             }
-            //if (techLevel >= ThingDefOf.Neurotrainer.techLevel)
+            //if (techLevel >= ThingDefOf.MechSerumNeurotrainer.techLevel)
             //{
-            //    ItemCollectionGeneratorDef neurotrainers = ItemCollectionGeneratorDefOf.Neurotrainers;
+            //    ItemCollectionGeneratorDef standard2 = ItemCollectionGeneratorDefOf.Standard;
             //    ItemCollectionGeneratorParams second2 = default(ItemCollectionGeneratorParams);
-            //    second2.count = NeurotrainersCountRange.RandomInRange;
-            //    this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(neurotrainers, second2));
+            //    second2.extraAllowedDefs = Gen.YieldSingle<ThingDef>(ThingDefOf.MechSerumNeurotrainer);
+            //    second2.count = new int?(ItemCollectionGenerator_ItemStashQuest.NeurotrainersCountRange.RandomInRange);
+            //    this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(standard2, second2));
             //}
-            ItemCollectionGeneratorParams second3 = default(ItemCollectionGeneratorParams);
-            second3.count = ThingsCountRange.RandomInRange;
-            second3.totalMarketValue = TotalMarketValueRange.RandomInRange;
-            second3.techLevel = techLevel;
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.Weapons, second3));
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.RawResources, second3));
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.Apparel, second3));
-
+            List<ThingDef> allGeneratableItems = ItemCollectionGeneratorUtility.allGeneratableItems;
+            for (int i = 0; i < allGeneratableItems.Count; i++)
+            {
+                ThingDef thingDef = allGeneratableItems[i];
+                if (techLevel >= thingDef.techLevel && thingDef.itemGeneratorTags != null && thingDef.itemGeneratorTags.Contains(ItemCollectionGeneratorUtility.SpecialRewardTag))
+                {
+                    ItemCollectionGeneratorDef standard3 = ItemCollectionGeneratorDefOf.Standard;
+                    ItemCollectionGeneratorParams second3 = default(ItemCollectionGeneratorParams);
+                    second3.extraAllowedDefs = Gen.YieldSingle<ThingDef>(thingDef);
+                    second3.count = new int?(1);
+                    this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(standard3, second3));
+                }
+            }
+            ItemCollectionGeneratorParams second4 = default(ItemCollectionGeneratorParams);
+            second4.count = new int?(ThingsCountRange.RandomInRange);
+            second4.totalMarketValue = new float?(TotalMarketValueRange.RandomInRange);
+            second4.techLevel = new TechLevel?(techLevel);
+            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.Weapons, second4));
+            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.RawResources, second4));
+            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.Apparel, second4));
             // Added !!!
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.AncientTempleContents, second3));
+            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.AncientTempleContents, second4));
+
+        }
+
+        private bool PlayerOrItemStashHasAIPersonaCore()
+        {
+            List<Map> maps = Find.Maps;
+            for (int i = 0; i < maps.Count; i++)
+            {
+                if (maps[i].listerThings.ThingsOfDef(ThingDefOf.AIPersonaCore).Count > 0)
+                {
+                    return true;
+                }
+            }
+            List<Caravan> caravans = Find.WorldObjects.Caravans;
+            for (int j = 0; j < caravans.Count; j++)
+            {
+                if (caravans[j].IsPlayerControlled && CaravanInventoryUtility.HasThings(caravans[j], ThingDefOf.AIPersonaCore, 1, null))
+                {
+                    return true;
+                }
+            }
+            List<Site> sites = Find.WorldObjects.Sites;
+            for (int k = 0; k < sites.Count; k++)
+            {
+                ItemStashContentsComp component = sites[k].GetComponent<ItemStashContentsComp>();
+                if (component != null)
+                {
+                    ThingOwner contents = component.contents;
+                    for (int l = 0; l < contents.Count; l++)
+                    {
+                        if (contents[l].def == ThingDefOf.AIPersonaCore)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
         }
 
 

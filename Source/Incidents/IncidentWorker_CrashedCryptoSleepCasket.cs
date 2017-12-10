@@ -23,7 +23,7 @@ namespace Incidents
             return base.CanFireNowSub(target);
         }
 
-        public override bool TryExecute(IncidentParms parms)
+        protected override bool TryExecuteWorker(IncidentParms parms)
         {
             Map map = (Map)parms.target;
 
@@ -68,7 +68,7 @@ namespace Incidents
 
             GenSpawn.Spawn(casket, casket.Position, map);
 
-            Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.BadNonUrgent, casket);
+            Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.ThreatSmall, casket);
             Find.LetterStack.ReceiveLetter(letter);
 
             return true;

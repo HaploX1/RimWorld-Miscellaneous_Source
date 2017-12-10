@@ -27,6 +27,12 @@ namespace TacticalComputer
 
         public JobDriver_GotoCellAndDraft() { }
 
+        public override bool TryMakePreToilReservations()
+        {
+            this.pawn.Map.pawnDestinationReservationManager.Reserve(pawn, job, job.targetA.Cell);
+            return true;
+        }
+
         protected override IEnumerable<Toil> MakeNewToils()
         {
             // Goto Target

@@ -268,10 +268,10 @@ namespace ArtefactFound
             // Create Lord
             string empty = string.Empty;
             string empty2 = string.Empty;
-            PawnRelationUtility.Notify_PawnsSeenByPlayer(pawns, ref empty, ref empty2, "LetterFamilyMembersRaidFriendly".Translate(), false);
+            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref empty, ref empty2, "LetterFamilyMembersRaidFriendly".Translate(), false);
             if (!empty2.NullOrEmpty())
             {
-                Find.LetterStack.ReceiveLetter(empty, empty2, LetterDefOf.Good, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
+                Find.LetterStack.ReceiveLetter(empty, empty2, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
             }
 
             LordJob lordJob = new LordJob_AssaultColony(faction, true, false, false);
@@ -283,7 +283,7 @@ namespace ArtefactFound
             string label = labelLetterArtefact.Translate();
 
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.BadNonUrgent, pawns[0], null);
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.ThreatSmall, pawns[0], null);
 
             // add raid to story watcher
             StatsRecord storyWatcher = Find.StoryWatcher.statsRecord;
@@ -344,9 +344,9 @@ namespace ArtefactFound
             // Create Lord
             string empty = string.Empty;
             string empty2 = string.Empty;
-            PawnRelationUtility.Notify_PawnsSeenByPlayer(pawns, ref empty, ref empty2, "LetterFamilyMembersRaidFriendly".Translate(), false);
+            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref empty, ref empty2, "LetterFamilyMembersRaidFriendly".Translate(), false);
             if (!empty2.NullOrEmpty())
-                Find.LetterStack.ReceiveLetter(empty, empty2, LetterDefOf.Good, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
+                Find.LetterStack.ReceiveLetter(empty, empty2, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
 
             LordJob lordJob = new LordJob_AssaultColony(faction, false, false, false);
             Lord lord = LordMaker.MakeNewLord(faction, lordJob, Map, pawns);
@@ -357,7 +357,7 @@ namespace ArtefactFound
             string label = labelLetterArtefact.Translate();
 
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.BadNonUrgent, pawns[0], null);
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.ThreatSmall, pawns[0], null);
 
 
             // add raid to story watcher
@@ -417,7 +417,7 @@ namespace ArtefactFound
             string label = labelLetterArtefact.Translate();
 
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.Good, new GlobalTargetInfo( startPos, Map ), null);
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.PositiveEvent, new GlobalTargetInfo( startPos, Map ), null);
 
         }
 
@@ -474,7 +474,7 @@ namespace ArtefactFound
             string label = labelLetterArtefact.Translate();
 
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.Good, pawn, null);
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.PositiveEvent, pawn, null);
 
         }
 
@@ -486,7 +486,7 @@ namespace ArtefactFound
             string label = labelLetterArtefact.Translate();
 
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.Good, null);
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.NeutralEvent, null);
         }
 
 

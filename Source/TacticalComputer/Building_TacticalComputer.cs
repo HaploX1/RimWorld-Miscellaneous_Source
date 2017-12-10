@@ -364,6 +364,8 @@ namespace TacticalComputer
             if (foundPawns == null || foundPawns.Count() == 0)
                 return;
 
+            Pawn lookTarget = null;
+
             int countPawnsCalled = 0;
             foreach (Pawn workPawn in foundPawns)
             {
@@ -382,10 +384,13 @@ namespace TacticalComputer
                 Job job = new Job(DefDatabase<JobDef>.GetNamed(JobDefName_CallToArms), thing);
                 workPawn.jobs.TryTakeOrderedJob(job);
                 countPawnsCalled++;
+
+                if (lookTarget == null)
+                    lookTarget = workPawn;
             }
 
             if (countPawnsCalled > 0)
-                Messages.Message("TacticalComputer_MessageCalledColonists".Translate(new object[] { countPawnsCalled.ToString() }), MessageSound.Standard);
+                Messages.Message("TacticalComputer_MessageCalledColonists".Translate(new object[] { countPawnsCalled.ToString() }), lookTarget, MessageTypeDefOf.NeutralEvent);
 
 
         }
