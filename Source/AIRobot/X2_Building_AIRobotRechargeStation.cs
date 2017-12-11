@@ -317,6 +317,8 @@ namespace AIRobot
             if (!Gen.IsHashIntervalTick(robot, 250))
                 return;
 
+            TryUpdateAllowedArea(robot);
+
             if (calcDistanceRestCheck == -1)
                 calcDistanceRestCheck = AIRobot_Helper.GetSlopePoint(robot.GetStatValue(StatDefOf.MoveSpeed, true), 1f, 6f, 15f, 40f); // movementspeed slope: speed 1 -> 30 cells, speed 6 -> 50 cells
 
@@ -363,7 +365,18 @@ namespace AIRobot
                 //MoteMaker.ThrowMetaIcon(this.Position, DefDatabase<ThingDef>.GetNamed("Mote_BatteryRed"));
                 MoteThrowHelper.ThrowBatteryRed(this.Position.ToVector3(), Map, 0.8f);
         }
+        private void TryUpdateAllowedArea(X2_AIRobot robot)
+        {
+            if (robot.DestroyedOrNull() || !robot.Spawned)
+                return;
+            if (ForbidUtility.InAllowedArea(this.Position, robot))
+                return;
 
+            Messages.Message("AIRobot_MessageRechargeStationOutsideAreaRestriction".Translate(), robot, MessageTypeDefOf.RejectInput);
+
+            //Remove area from robot
+            robot.playerSettings.Notify_AreaRemoved(robot.playerSettings.AreaRestriction);
+        }
 
         #endregion
 
