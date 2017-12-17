@@ -47,6 +47,7 @@ namespace Incidents
                     break;
                 }
 
+
                 count++;
                 if (count > 100)
                     return false;
@@ -91,6 +92,9 @@ namespace Incidents
         {
             foreach (IntVec3 cell in mapRect)
             {
+                if (!map.pathGrid.WalkableFast(cell))
+                    return false;
+
                 List<Thing> thingList = cell.GetThingList(map);
                 for (int i = 0; i < thingList.Count; i++)
                 {

@@ -29,6 +29,12 @@ namespace Jobs
         public TEMPLATE_JobDriver_GotoCellAndDoX() { }
 
 
+        public override bool TryMakePreToilReservations()
+        {
+            this.pawn.Map.pawnDestinationReservationManager.Reserve(this.pawn, this.job, this.job.targetA.Cell);
+            return true;
+        }
+
 
         // Toils: These are the parts of the job. 
         // This is something like: Go there, reserve that and then haul it over there

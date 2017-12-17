@@ -28,6 +28,11 @@ namespace TurretWeaponBase
 
         public JobDriver_HaulToCellAndDoWork() { }
 
+        public override bool TryMakePreToilReservations()
+        {
+            return pawn.Reserve(job.GetTarget(TargetIndex.B), job, 1, -1, null) && pawn.Reserve(job.GetTarget(TargetIndex.A), job, 1, -1, null);
+        }
+
         public override string GetReport()
         {
             IntVec3 destCell = pawn.jobs.curJob.targetB.Cell;
@@ -103,7 +108,7 @@ namespace TurretWeaponBase
             // Start hauling to 
             yield return Toils_Haul.StartCarryThing(HaulableInd, false, false);
 
-            if (CurJob.haulOpportunisticDuplicates)
+            if (this.job.haulOpportunisticDuplicates)
                 yield return Toils_Haul.CheckForGetOpportunityDuplicate(reserveTargetA, HaulableInd, CellInd);
 
             Toil carryToCell = Toils_Haul.CarryHauledThingToCell(CellInd);

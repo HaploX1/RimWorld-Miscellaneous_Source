@@ -99,7 +99,7 @@ namespace AIRobot
                             {
                                 Predicate<Thing> predicate = (Thing t) => !t.IsForbidden(pawn) && scanner.HasJobOnThing(pawn, t, false);
                                 IEnumerable<Thing> enumerable = scanner.PotentialWorkThingsGlobal(pawn);
-                                Thing thing;
+                                Thing thing = null;
                                 if (scanner.Prioritized)
                                 {
                                     IEnumerable<Thing> enumerable2 = enumerable;
@@ -112,7 +112,24 @@ namespace AIRobot
                                         IntVec3 position = pawn.Position;
                                         IEnumerable<Thing> searchSet = enumerable2;
                                         Predicate<Thing> validator = predicate;
-                                        thing = GenClosest.ClosestThing_Global(position, searchSet, 99999f, validator, (Thing x) => scanner.GetPriority(pawn, x));
+
+                                        try
+                                        {
+                                            thing = GenClosest.ClosestThing_Global(position, searchSet, 99999f, validator, (Thing x) => scanner.GetPriority(pawn, x));
+                                        }
+                                        catch //(Exception ex)
+                                        {
+                                            //Log.Warning(string.Concat(new object[]
+                                            //{
+                                            //    pawn,
+                                            //    " threw exception in WorkGiver ",
+                                            //    workGiver.def.defName,
+                                            //    ": ",
+                                            //    ex.ToString()
+                                            //}));
+
+                                            thing = null;
+                                        }
                                     }
                                     else
                                     {
@@ -122,10 +139,26 @@ namespace AIRobot
                                         PathEndMode pathEndMode = scanner.PathEndMode;
                                         TraverseParms traverseParams = TraverseParms.For(pawn, scanner.MaxPathDanger(pawn), TraverseMode.ByPawn, false);
                                         Predicate<Thing> validator = predicate;
-                                        thing = GenClosest.ClosestThing_Global_Reachable(position, map, searchSet, pathEndMode, traverseParams, 9999f, validator, (Thing x) => scanner.GetPriority(pawn, x));
+                                        try
+                                        {
+                                            thing = GenClosest.ClosestThing_Global_Reachable(position, map, searchSet, pathEndMode, traverseParams, 9999f, validator, (Thing x) => scanner.GetPriority(pawn, x));
+                                        }
+                                        catch //(Exception ex)
+                                        {
+                                            //Log.Warning(string.Concat(new object[]
+                                            //{
+                                            //    pawn,
+                                            //    " threw exception in WorkGiver ",
+                                            //    workGiver.def.defName,
+                                            //    ": ",
+                                            //    ex.ToString()
+                                            //}));
+
+                                            thing = null;
+                                        }
                                     }
                                 }
-                                else if (scanner.AllowUnreachable)
+                                if (!scanner.Prioritized && scanner.AllowUnreachable)
                                 {
                                     IEnumerable<Thing> enumerable3 = enumerable;
                                     if (enumerable3 == null)
@@ -135,9 +168,24 @@ namespace AIRobot
                                     IntVec3 position = pawn.Position;
                                     IEnumerable<Thing> searchSet = enumerable3;
                                     Predicate<Thing> validator = predicate;
-                                    thing = GenClosest.ClosestThing_Global(position, searchSet, 99999f, validator, null);
+                                    try { 
+                                        thing = GenClosest.ClosestThing_Global(position, searchSet, 99999f, validator, null);
+                                    }
+                                    catch //(Exception ex)
+                                    {
+                                        //Log.Warning(string.Concat(new object[]
+                                        //{
+                                        //    pawn,
+                                        //    " threw exception in WorkGiver ",
+                                        //    workGiver.def.defName,
+                                        //    ": ",
+                                        //    ex.ToString()
+                                        //}));
+
+                                        thing = null;
+                                    }
                                 }
-                                else
+                                if (!scanner.AllowUnreachable || thing == null)
                                 {
                                     IntVec3 position = pawn.Position;
                                     Map map = pawn.Map;
@@ -146,7 +194,32 @@ namespace AIRobot
                                     TraverseParms traverseParams = TraverseParms.For(pawn, scanner.MaxPathDanger(pawn), TraverseMode.ByPawn, false);
                                     Predicate<Thing> validator = predicate;
                                     bool forceGlobalSearch = enumerable != null;
-                                    thing = GenClosest.ClosestThingReachable(position, map, potentialWorkThingRequest, pathEndMode, traverseParams, 9999f, validator, enumerable, 0, scanner.LocalRegionsToScanFirst, forceGlobalSearch, RegionType.Set_Passable, false);
+
+                                    try
+                                    { 
+                                        thing = GenClosest.ClosestThingReachable(position, map, potentialWorkThingRequest, pathEndMode, traverseParams, 9999f, validator, enumerable, 0, scanner.LocalRegionsToScanFirst, forceGlobalSearch, RegionType.Set_Passable, false);
+                                    }
+                                    // Added try-catch for a try of error handling
+                                    catch //(Exception ex)
+                                    {
+                                        Log.Warning(string.Concat(new object[]
+                                        {
+                                                pawn,
+                                                " threw exception in X2_JobGiver_Work ",
+                                                workGiver.def.defName,
+                                                " but we'll try again.. "
+                                                //ex.ToString()
+
+                                        }));
+                                        if (enumerable != null)
+                                            try {
+                                                thing = GenClosest.ClosestThing_Global(position, enumerable, 40f, validator, null);
+                                            } catch {
+                                                thing = null;
+                                            }
+                                        else
+                                            thing = null;
+                                    }
                                 }
                                 if (thing != null)
                                 {
@@ -251,7 +324,7 @@ namespace AIRobot
         {
             try
             {
-                return giver.MissingRequiredCapacity(pawn) == null && !giver.ShouldSkip(pawn);
+                return !pawn.DestroyedOrNull() && pawn.Spawned && giver.MissingRequiredCapacity(pawn) == null && !giver.ShouldSkip(pawn);
             }
             catch
             {

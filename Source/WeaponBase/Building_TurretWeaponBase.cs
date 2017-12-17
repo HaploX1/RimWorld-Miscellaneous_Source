@@ -506,19 +506,23 @@ namespace TurretWeaponBase
 				stringBuilder.Append(string.Concat("GunInstalled".Translate(), ": ---")).AppendLine();
 
 
-			if (this.def.building.turretShellDef != null)
-			{
-				if (this.loaded)
-				{
-					stringBuilder.Append("ShellLoaded".Translate()).AppendLine();
-				}
-				else
-				{
-					stringBuilder.Append("ShellNotLoaded".Translate()).AppendLine();
-				}
-			}
-			return stringBuilder.ToString().TrimEndNewlines();
-		}
+            CompChangeableProjectile compChangeableProjectile = this.gun.TryGetComp<CompChangeableProjectile>();
+            if (compChangeableProjectile != null)
+            {
+                if (compChangeableProjectile.Loaded)
+                {
+                    stringBuilder.AppendLine("ShellLoaded".Translate(new object[]
+                    {
+                        compChangeableProjectile.LoadedShell.LabelCap
+                    }));
+                }
+                else
+                {
+                    stringBuilder.AppendLine("ShellNotLoaded".Translate());
+                }
+            }
+            return stringBuilder.ToString().TrimEndNewlines();
+        }
 
 
 		public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn pawn)
@@ -620,7 +624,7 @@ namespace TurretWeaponBase
 						haulMode = HaulMode.ToCellNonStorage
 					};
 					pawn.jobs.TryTakeOrderedJob(job);
-					pawn.Reserve(this, 1);
+					pawn.Reserve(this, job, 1);
 
 
 					// Allow this building to search for a gun
@@ -743,20 +747,28 @@ namespace TurretWeaponBase
 			if (gun == null)
 				return false;
 
-			Pawn pawn = t as Pawn;
-			if (pawn == null)
-				return true;
-
-			if (GunCompEq.PrimaryVerb.verbProps.projectileDef.projectile.flyOverhead)
-			{
-				RoofDef roofDef = t.Map.roofGrid.RoofAt(t.Position);
-				if (roofDef != null && roofDef.isThickRoof)
-				{
-					return false;
-				}
-			}
-			return !GenAI.MachinesLike(Faction, pawn);
-		}
+            Pawn pawn = t as Pawn;
+            if (pawn != null)
+            {
+                if (this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead())
+                {
+                    RoofDef roofDef = base.Map.roofGrid.RoofAt(t.Position);
+                    if (roofDef != null && roofDef.isThickRoof)
+                    {
+                        return false;
+                    }
+                }
+                if (this.mannableComp == null)
+                {
+                    return !GenAI.MachinesLike(base.Faction, pawn);
+                }
+                if (pawn.RaceProps.Animal && pawn.Faction == Faction.OfPlayer)
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
 
 		public override void OrderAttack(LocalTargetInfo targ)
 		{
@@ -771,13 +783,13 @@ namespace TurretWeaponBase
 			}
 			if ((targ.Cell - base.Position).LengthHorizontal < this.GunCompEq.PrimaryVerb.verbProps.minRange)
 			{
-				Messages.Message("MessageTargetBelowMinimumRange".Translate(), this, MessageSound.RejectInput);
-				return;
+				Messages.Message("MessageTargetBelowMinimumRange".Translate(), this, MessageTypeDefOf.RejectInput);
+                return;
 			}
 			if ((targ.Cell - base.Position).LengthHorizontal > this.GunCompEq.PrimaryVerb.verbProps.range)
 			{
-				Messages.Message("MessageTargetBeyondMaximumRange".Translate(), this, MessageSound.RejectInput);
-				return;
+				Messages.Message("MessageTargetBeyondMaximumRange".Translate(), this, MessageTypeDefOf.RejectInput);
+                return;
 			}
 			if (this.forcedTarget != targ)
 			{
@@ -805,7 +817,7 @@ namespace TurretWeaponBase
 			float range = this.GunCompEq.PrimaryVerb.verbProps.range;
 			float minRange = this.GunCompEq.PrimaryVerb.verbProps.minRange;
 			Building t;
-			if (Rand.Value < 0.5f && this.GunCompEq.PrimaryVerb.verbProps.projectileDef.projectile.flyOverhead && faction.HostileTo(Faction.OfPlayer) && base.Map.listerBuildings.allBuildingsColonist.Where(delegate (Building x)
+			if (Rand.Value < 0.5f && this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && faction.HostileTo(Faction.OfPlayer) && base.Map.listerBuildings.allBuildingsColonist.Where(delegate (Building x)
 			{
 				float num = (float)x.Position.DistanceToSquared(this.Position);
 				return num > minRange * minRange && num < range * range;
@@ -815,13 +827,13 @@ namespace TurretWeaponBase
 			}
 
 			TargetScanFlags targetScanFlags = TargetScanFlags.NeedThreat;
-			if (!this.GunCompEq.PrimaryVerb.verbProps.projectileDef.projectile.flyOverhead)
+			if (!this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead())
 			{
 				targetScanFlags |= TargetScanFlags.NeedLOSToAll;
 				targetScanFlags |= TargetScanFlags.LOSBlockableByGas;
 			}
-			if (this.GunCompEq.PrimaryVerb.verbProps.ai_IsIncendiary)
-			{
+			if (this.GunCompEq.PrimaryVerb.IsIncendiary())
+            {
 				targetScanFlags |= TargetScanFlags.NeedNonBurning;
 			}
 			return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, new Predicate<Thing>(this.IsValidTarget), range, minRange, targetScanFlags);
@@ -854,7 +866,7 @@ namespace TurretWeaponBase
 			if (gun == null)
 				return;
 
-			if (!base.Spawned || (this.holdFire && this.CanToggleHoldFire) || (this.GunCompEq.PrimaryVerb.verbProps.projectileDef.projectile.flyOverhead && base.Map.roofGrid.Roofed(base.Position)))
+			if (!base.Spawned || (this.holdFire && this.CanToggleHoldFire) || (this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && base.Map.roofGrid.Roofed(base.Position)))
 			{
 				ResetCurrentTarget();
 				return;

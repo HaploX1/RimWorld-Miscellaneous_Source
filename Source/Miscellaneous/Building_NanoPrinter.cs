@@ -814,7 +814,7 @@ namespace NanoPrinter
             {
                 if (!onlyScanning)
                 {
-                    Messages.Message(txtScanningNoHoppersFound.Translate(), MessageSound.RejectInput);
+                    Messages.Message(txtScanningNoHoppersFound.Translate(), MessageTypeDefOf.RejectInput);
                     status = NanoPrinterStatus.Idle;
                 }
                 return false;
@@ -827,7 +827,7 @@ namespace NanoPrinter
             {
                 if (!onlyScanning)
                 {
-                    Messages.Message(txtScanningNoItemsFound.Translate(), MessageSound.RejectInput);
+                    Messages.Message(txtScanningNoItemsFound.Translate(), MessageTypeDefOf.RejectInput);
                     status = NanoPrinterStatus.Idle;
                 }
                 return false;
