@@ -136,7 +136,7 @@ namespace AIPawn
 
             Letter letter = LetterMaker.MakeLetter("AIPawn_LetterLabel_BuildRechargeStationSoon".Translate(), 
                                                     "AIPawn_LetterText_BuildRechargeStationSoon".Translate().AdjustedFor(pawn), 
-                                                    LetterDefOf.Good, 
+                                                    LetterDefOf.PositiveEvent, 
                                                     pawn);
             Find.LetterStack.ReceiveLetter(letter);
             

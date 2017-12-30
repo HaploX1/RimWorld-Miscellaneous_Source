@@ -14,23 +14,29 @@ namespace AIRobot
     public class X2_JobDriver_RepairDamagedRobot : JobDriver
     {
         //This jobdriver takes the robot and the resources and activates the station
-        
+
         public const TargetIndex StationIndex = TargetIndex.A;
+        public const TargetIndex RobotIndex = TargetIndex.B;
         public const TargetIndex IngredientIndex = TargetIndex.B;
-        public const TargetIndex RobotIndex = TargetIndex.C;
-        
+        public const TargetIndex IngredientPlaceCellIndex = TargetIndex.C;
+        public const PathEndMode GotoIngredientPathEndMode = PathEndMode.ClosestTouch;
+
+        X2_AIRobot_disabled robot;
+
         private List<Thing> ingredients = new List<Thing>();
 
         public X2_JobDriver_RepairDamagedRobot() {  }
 
         public override bool TryMakePreToilReservations()
         {
-            pawn.ReserveAsManyAsPossible(job.GetTargetQueue(IngredientIndex), this.job, 1, -1, null);
-            return pawn.Reserve(job.targetA, job, 1, -1, null) && pawn.Reserve(job.GetTarget(IngredientIndex), job) && pawn.Reserve(job.targetC, job, 1, 1, null);
+            pawn.ReserveAsManyAsPossible(job.GetTargetQueue(IngredientIndex), this.job);
+            return pawn.Reserve(job.targetA, job, 1, 1, null) && pawn.Reserve(job.targetC, job, 1, 1, null);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
+            robot = this.job.GetTarget(RobotIndex).Thing as X2_AIRobot_disabled;
+
             //Workbench giver destroyed (only in bill using phase! Not in carry phase)
             this.AddEndCondition(() =>
             {
@@ -43,57 +49,16 @@ namespace AIRobot
 
             this.FailOn(() =>
             {
-                X2_Building_AIRobotRechargeStation workbench = GetActor().jobs.curJob.GetTarget(StationIndex).Thing as X2_Building_AIRobotRechargeStation;
+                X2_Building_AIRobotRechargeStation workbench = job.GetTarget(StationIndex).Thing as X2_Building_AIRobotRechargeStation;
 
                 //conditions only apply during the billgiver-use phase
-                if (workbench != null)
-                {
+                if (workbench == null)
                     return true;
-                }
-
                 return false;
             });
 
-            //Reserve the workbench and the ingredients
-            yield return Toils_Reserve.Reserve(StationIndex);
-            yield return Toils_Reserve.Reserve(RobotIndex);
-            yield return Toils_Reserve.ReserveQueue(IngredientIndex);
-
-            // Goto Target
-            //yield return Toils_Goto.GotoCell(TargetIndex.A, PathEndMode.Touch);
-
-            //Go to the recharge station, this is returned later, but needed here!
+            //Go to the recharge station, this is yielded later, but needed here!
             Toil gotoStation = Toils_Goto.GotoThing(StationIndex, PathEndMode.Touch);
-
-            {
-                //Get to robot and pick it up
-                //Note that these fail cases must be on these toils, otherwise the recipe work fails if you stacked
-                //   your targetB into another object on the bill giver square.
-                var getToHaulTarget = Toils_Goto.GotoThing(RobotIndex, PathEndMode.Touch)
-                            .FailOnDespawnedNullOrForbidden(RobotIndex)
-                            .FailOnSomeonePhysicallyInteracting(RobotIndex);
-                yield return getToHaulTarget;
-
-                //// save the robot
-                //Toil saveRobot = new Toil();
-                //saveRobot.initAction = delegate { this.robot = GetActor().jobs.curJob.GetTarget(RobotIndex).Thing as X2_AIRobot_disabled; };
-                //saveRobot.defaultCompleteMode = ToilCompleteMode.Instant;
-                //yield return saveRobot;
-
-                //Carry ingredient to the workbench
-                yield return Toils_Haul.StartCarryThing(RobotIndex);
-
-                //Carry ingredient to the workbench
-                yield return Toils_Goto.GotoThing(StationIndex, PathEndMode.Touch)
-                                        .FailOnDestroyedOrNull(RobotIndex);
-
-                //Place ingredient on the appropriate cell
-                Toil findPlaceTarget = Toils_JobTransforms.SetTargetToIngredientPlaceCell(StationIndex, RobotIndex, RobotIndex);
-                yield return findPlaceTarget;
-                yield return Toils_Haul.PlaceHauledThingInCell(RobotIndex,
-                                                                nextToilOnPlaceFailOrIncomplete: findPlaceTarget,
-                                                                storageMode: false);
-            }
 
             //Jump over ingredient gathering if there are no ingredients needed 
             yield return Toils_Jump.JumpIf(gotoStation, () => this.job.GetTargetQueue(IngredientIndex).NullOrEmpty());
@@ -108,16 +73,12 @@ namespace AIRobot
                 Toil extract = Toils_JobTransforms.ExtractNextTargetFromQueue(IngredientIndex);
                 yield return extract;
 
+                //Note that these fail cases must be on these toils, otherwise the recipe work fails if you stacked
+                //   your targetB into another object on the bill giver square.
                 var getToHaulTarget2 = Toils_Goto.GotoThing(IngredientIndex, PathEndMode.Touch)
                             .FailOnDespawnedNullOrForbidden(IngredientIndex)
                             .FailOnSomeonePhysicallyInteracting(IngredientIndex);
                 yield return getToHaulTarget2;
-
-                // save the robot
-                Toil saveIngredient = new Toil();
-                saveIngredient.initAction = delegate { this.ingredients.Add(GetActor().jobs.curJob.GetTarget(IngredientIndex).Thing); };
-                saveIngredient.defaultCompleteMode = ToilCompleteMode.Instant;
-                yield return saveIngredient;
 
                 //Carry ingredient to the workbench
                 yield return Toils_Haul.StartCarryThing(IngredientIndex, true);
@@ -130,17 +91,17 @@ namespace AIRobot
                                         .FailOnDestroyedOrNull(IngredientIndex);
 
                 //Place ingredient on the appropriate cell
-                Toil findPlaceTarget2 = Toils_JobTransforms.SetTargetToIngredientPlaceCell(StationIndex, IngredientIndex, IngredientIndex);
+                Toil findPlaceTarget2 = SetTargetToIngredientPlaceCell(StationIndex, IngredientIndex, IngredientPlaceCellIndex);
                 yield return findPlaceTarget2;
-                yield return Toils_Haul.PlaceHauledThingInCell(IngredientIndex,
+                yield return Toils_Haul.PlaceHauledThingInCell(IngredientPlaceCellIndex,
                                                                 nextToilOnPlaceFailOrIncomplete: findPlaceTarget2,
                                                                 storageMode: false);
 
-                //// reset the weapon as index
-                //Toil setWeapon2 = new Toil();
-                //setWeapon2.initAction = delegate { GetActor().jobs.curJob.SetTarget(IngredientsIndex, this.weaponIngredient); };
-                //setWeapon2.defaultCompleteMode = ToilCompleteMode.Instant;
-                //yield return setWeapon2;
+                // save the ingredient, so that it can be deleted later on!
+                Toil saveIngredient = new Toil();
+                saveIngredient.initAction = delegate { this.ingredients.Add(GetActor().jobs.curJob.GetTarget(IngredientIndex).Thing); };
+                saveIngredient.defaultCompleteMode = ToilCompleteMode.Instant;
+                yield return saveIngredient;
 
                 //Jump back if another ingredient is queued, or you didn't finish carrying your current ingredient target
                 yield return Toils_Jump.JumpIfHaveTargetInQueue(IngredientIndex, extract);
@@ -151,7 +112,7 @@ namespace AIRobot
 
             
             //Do the repair work
-            yield return DoRepairWork(500, "Interact_ConstructMetal")
+            yield return DoRepairWork(500, "Interact_ConstructMetal", robot)
                                      .FailOnDespawnedNullOrForbiddenPlacedThings()
                                      .FailOnCannotTouch(StationIndex, PathEndMode.Touch);
 
@@ -161,7 +122,7 @@ namespace AIRobot
 
 
 
-        public Toil DoRepairWork(int duration, string soundDefName)
+        public Toil DoRepairWork(int duration, string soundDefName, X2_AIRobot_disabled robot)
         {
             float expPerSecond = 25f;
             SkillDef skillDef = SkillDefOf.Crafting;
@@ -191,7 +152,7 @@ namespace AIRobot
 
                 // Get the partitians
                 X2_Building_AIRobotRechargeStation station = curJob.GetTarget(StationIndex).Thing as X2_Building_AIRobotRechargeStation;
-                X2_AIRobot_disabled robot = curJob.GetTarget(RobotIndex).Thing as X2_AIRobot_disabled;
+                //X2_AIRobot_disabled robot = curJob.GetTarget(RobotIndex).Thing as X2_AIRobot_disabled;
                 
                 // vanish ...
                 for (int i = this.ingredients.Count - 1; i >= 0; i--)
@@ -202,7 +163,7 @@ namespace AIRobot
                 ingredients.Clear();
                 ingredients = null;
 
-                robot.Destroy(DestroyMode.Vanish);
+                //robot.Destroy(DestroyMode.Vanish);
 
                 actor.Map.resourceCounter.UpdateResourceCounts();
 
@@ -293,6 +254,62 @@ namespace AIRobot
             };
 
             return toil;
+        }
+
+
+
+
+        public static Toil SetTargetToIngredientPlaceCell(TargetIndex targetInd, TargetIndex carryItemInd, TargetIndex cellTargetInd)
+        {
+            Toil toil = new Toil();
+            toil.initAction = delegate
+            {
+                Pawn actor = toil.actor;
+                Job curJob = actor.jobs.curJob;
+                Thing carryThing = curJob.GetTarget(carryItemInd).Thing;
+                Thing targetThing = curJob.GetTarget(targetInd).Thing;
+                IntVec3 c = FindPlaceSpotAtOrNear(targetThing.Position, targetThing.Map, carryThing);
+
+                curJob.SetTarget(cellTargetInd, c);
+            };
+            return toil;
+        }
+        private static IntVec3 FindPlaceSpotAtOrNear(IntVec3 center, Map map, Thing thing)
+        {
+            bool placePossible = false;
+            IntVec3 bestSpot = IntVec3.Invalid;
+            for (int i = 0; i < 9; i++)
+            {
+                IntVec3 intVec = center + GenRadial.RadialPattern[i];
+                placePossible = PossiblePlacementSpot(intVec, map, center, thing);
+                if (placePossible)
+                {
+                    bestSpot = intVec;
+                    break;
+                }
+            }
+            return bestSpot;
+        }
+        private static bool PossiblePlacementSpot(IntVec3 c, Map map, IntVec3 center, Thing thing)
+        {
+            if (!c.InBounds(map) || !c.Walkable(map))
+                return false;
+
+            List<Thing> list = map.thingGrid.ThingsListAt(c);
+            for (int i = 0; i < list.Count; i++)
+            {
+                Thing thing2 = list[i];
+                if (thing.def.saveCompressible && thing2.def.saveCompressible)
+                    return false;
+
+                if (thing.def.category == ThingCategory.Item && thing2.def.category == ThingCategory.Item && (!thing2.CanStackWith(thing) || thing2.stackCount >= thing.def.stackLimit))
+                    return false;
+            }
+
+            if (!map.reachability.CanReach(center, c, PathEndMode.OnCell, TraverseMode.PassDoors, Danger.Deadly))
+                return false;
+
+            return true;
         }
 
     }

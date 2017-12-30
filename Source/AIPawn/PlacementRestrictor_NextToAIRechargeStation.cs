@@ -20,14 +20,14 @@ namespace AIPawn
         private string NextToThingDef2 = "AIPawn_RechargeStation2x";
         private string txtMustPlaceNextToAIRechargeStation = "AIPawn_MustPlaceNextToAIPawnRechargeStation";
 
-        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 cell, Rot4 rot, Thing thingToIgnore = null)
+        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 cell, Rot4 rot, Map map, Thing thingToIgnore = null)
         {
             for (int i = 0; i < 4; i++)
             {
                 IntVec3 intVec3 = cell + GenAdj.CardinalDirections[i];
-                if (intVec3.InBounds(Map))
+                if (intVec3.InBounds(map))
                 {
-                    List<Thing> thingList = intVec3.GetThingList(Map);
+                    List<Thing> thingList = intVec3.GetThingList(map);
                     for (int j = 0; j < thingList.Count; j++)
                     {
                         Thing item = thingList[j];

@@ -13,10 +13,15 @@ namespace AIPawn
     public class JobDriver_SedateAndRescueAIPawn : JobDriver
     {
         //Shortcut properties
-        public AIPawn Takee { get { return (AIPawn)CurJob.targetA.Thing; } }
-        public Building_AIPawnRechargeStation DropBed { get { return CurJob.targetB.Thing as Building_AIPawnRechargeStation; } }
+        public AIPawn Takee { get { return (AIPawn)this.job.targetA.Thing; } }
+        public Building_AIPawnRechargeStation DropBed { get { return this.job.targetB.Thing as Building_AIPawnRechargeStation; } }
 
         public JobDriver_SedateAndRescueAIPawn() { }
+
+        public override bool TryMakePreToilReservations()
+        {
+            return pawn.Reserve(job.GetTarget(TargetIndex.A), job);
+        }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
@@ -51,7 +56,7 @@ namespace AIPawn
                                        .FailOnDestroyedNullOrForbidden(TargetIndex.A)
                                        .FailOnDestroyedNullOrForbidden(TargetIndex.B)
                                        .FailOn(ownershipFail) //Abandon if takee loses bed ownership
-                                       .FailOn(() => CurJob.def == JobDefOf.Arrest && !Takee.CanBeArrested())//Abandon arrest if takee is not of a team who is willing to be arrested
+                                       .FailOn(() => this.job.def == JobDefOf.Arrest && !Takee.CanBeArrestedBy(this.pawn))//Abandon arrest if takee is not of a team who is willing to be arrested
                                        .FailOn(() => !pawn.CanReach(DropBed, PathEndMode.OnCell, Danger.Deadly));
             //.FailOn(()=>!pawn.CanReach( DropBed, PathEndMode.OnCell, Danger.Deadly ) ); // From Alpha 8
 
@@ -75,7 +80,7 @@ namespace AIPawn
             Toil makePrisoner = new Toil();
             makePrisoner.initAction = () =>
             {
-                if (CurJob.def == JobDefOf.Arrest || CurJob.def == JobDefOf.Capture || CurJob.def == JobDefOf.TakeWoundedPrisonerToBed)
+                if (this.job.def == JobDefOf.Arrest || this.job.def == JobDefOf.Capture || this.job.def == JobDefOf.TakeWoundedPrisonerToBed)
                 {
                     if (Takee.HostFaction != Faction.OfPlayer)
                     {

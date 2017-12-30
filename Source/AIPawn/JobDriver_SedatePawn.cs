@@ -13,9 +13,14 @@ namespace AIPawn
     public class JobDriver_SedatePawn : JobDriver
     {
         //Shortcut properties
-        public Pawn Takee { get { return CurJob.targetA.Thing as Pawn; } }
+        public Pawn Takee { get { return this.job.targetA.Thing as Pawn; } }
 
         public JobDriver_SedatePawn() { }
+
+        public override bool TryMakePreToilReservations()
+        {
+            return pawn.Reserve(job.GetTarget(TargetIndex.A), job);
+        }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
@@ -25,15 +30,12 @@ namespace AIPawn
             //Goto takee
             yield return Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.ClosestTouch)
                                        .FailOnDestroyedNullOrForbidden(TargetIndex.A)
-                                       .FailOn(() => CurJob.def == JobDefOf.Arrest && !Takee.CanBeArrested());//Abandon arrest if takee is not of a team who is willing to be arrested
+                                       .FailOn(() => this.job.def == JobDefOf.Arrest && !Takee.CanBeArrestedBy(this.pawn));//Abandon arrest if takee is not of a team who is willing to be arrested
 
             //Apply Anesthetic
             Toil makeUnconscious = new Toil();
             makeUnconscious.initAction = () =>
             {
-                //Log.Error("Applying Anesthetic");
-                //Takee.healthTracker.ApplyAnesthetic(); Does not work with AIPawn
-
                 Takee.health.forceIncap = true;
                 Takee.health.AddHediff(HediffDefOf.Anesthetic, null, null);
                 Takee.health.forceIncap = false;

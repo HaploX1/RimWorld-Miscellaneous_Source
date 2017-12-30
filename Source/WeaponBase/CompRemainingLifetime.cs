@@ -45,7 +45,13 @@ namespace WeaponBase
         }
         public override string CompInspectStringExtra()
         {
-            return base.CompInspectStringExtra() + "\n" + "TimeLeft".Translate() + ": " + GetRemainingSeconds() + "s";
+            string s = base.CompInspectStringExtra().TrimEndNewlines().TrimEnd();
+
+            if (s != "")
+                s = s + "\n";
+
+            s = s + "TimeLeft".Translate() + ": " + GetRemainingSeconds() + "s";
+            return s.TrimEndNewlines();
         }
 
         private int GetRemainingSeconds()

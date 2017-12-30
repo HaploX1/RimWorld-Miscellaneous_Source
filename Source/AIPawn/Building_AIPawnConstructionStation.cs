@@ -550,7 +550,7 @@ namespace AIPawn
         {
             if (!CheckProductionOutletFree())
             {
-                Messages.Message(txtOutputBlocked, MessageSound.RejectInput);
+                Messages.Message(txtOutputBlocked, MessageTypeDefOf.RejectInput);
                 return;
             }
 

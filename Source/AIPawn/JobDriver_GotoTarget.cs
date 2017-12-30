@@ -28,6 +28,13 @@ namespace AIPawn
 
         public JobDriver_GotoTarget() { }
 
+        public override bool TryMakePreToilReservations()
+        {
+            pawn.Map.pawnDestinationReservationManager.Reserve(pawn, job, job.targetA.Cell);
+
+            return true;
+        }
+
         protected override IEnumerable<Toil> MakeNewToils()
         {
             // Go next to target
