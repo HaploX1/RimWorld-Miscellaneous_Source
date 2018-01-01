@@ -61,6 +61,11 @@ namespace MapGenerator
                     {
                         if (list[i].def == ThingDefOf.AncientCryptosleepCasket)
                             return;
+
+                        // Don't do anything if there is a pawn (mechanoid? insect?) here
+                        foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+                            if (pawn != null && pawn.Spawned && pawn.Position == current)
+                                return;
                     }
 
                     if (usedSpots != null)
@@ -72,11 +77,22 @@ namespace MapGenerator
                 if (blueprint.buildingMaterial != null)
                     wallStuff = blueprint.buildingMaterial;
 
-                // Make all buildings from the same random stuff
-                if (wallStuff == null)
-                    wallStuff = BaseGenUtility.RandomCheapWallStuff(faction, false);
+                int w = 0;
+                while (true)
+                {
+                    w++;
+                    if (w > 100) break;
 
-                MakeBlueprintObject(map, faction, mapRect, blueprint, wallStuff);
+                    // Make all buildings from the same random stuff -- In BaseGen use faction, in MapGen use null!
+                    if (wallStuff == null)
+                        wallStuff = BaseGenUtility.RandomCheapWallStuff(null, true); //BaseGenUtility.RandomCheapWallStuff(faction, true);
+
+                    //If not specified, don't use wood or leather -- Faction Base: Disabled
+                    if (blueprint.buildingMaterial != null || (!wallStuff.defName.ToLower().Contains("wood") && !wallStuff.defName.ToLower().Contains("leather")))
+                        break;
+                }
+
+                MakeBlueprintObject(mapRect, map, faction, blueprint, wallStuff);
 
                 if (blueprint.createTrigger)
                 {
@@ -148,7 +164,7 @@ namespace MapGenerator
 
 
 
-        private static void MakeBlueprintObject(Map map, Faction faction, CellRect mapRect, MapGeneratorBlueprintDef blueprint, ThingDef stuffDef)
+        private static void MakeBlueprintObject(CellRect mapRect, Map map, Faction faction, MapGeneratorBlueprintDef blueprint, ThingDef stuffDef)
         {
             blueprint.buildingData = GetCleanedBlueprintData(blueprint.buildingData);
             blueprint.floorData = GetCleanedBlueprintData(blueprint.floorData);

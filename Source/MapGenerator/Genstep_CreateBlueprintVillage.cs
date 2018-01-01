@@ -57,7 +57,7 @@ namespace MapGenerator
                 if (workLoc != IntVec3.Invalid)
                 {
                     // place a blueprint ruin
-                    ScatterBlueprintAt(workLoc, map, blueprint, ref selectedWallStuff);
+                    ScatterBlueprintAt(workLoc, map, blueprint, ref selectedWallStuff, this.usedSpots);
                 }
 
                 ruinCountDown--;
@@ -240,7 +240,7 @@ namespace MapGenerator
 
 
 
-        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff)
+        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, List<IntVec3> listOfUsedCells)
         {
 
             CellRect mapRect = new CellRect(loc.x, loc.z, blueprint.size.x, blueprint.size.z);
@@ -251,6 +251,18 @@ namespace MapGenerator
             if (mapRect.Width != blueprint.size.x || mapRect.Height != blueprint.size.z)
                 return;
 
+            // Check if we will build on a usedCell
+            bool usedCellFound = false;
+            foreach (IntVec3 cell in mapRect.Cells)
+            {
+                if (listOfUsedCells != null && listOfUsedCells.Contains(cell))
+                {
+                    usedCellFound = true;
+                    break;
+                }
+            }
+            if (usedCellFound)
+                return;
 
 
             // Don't do anything, if there is a cryosleep casket at the building site
@@ -262,6 +274,11 @@ namespace MapGenerator
                     if (list[i].def == ThingDefOf.AncientCryptosleepCasket)
                         return;
                 }
+                // Don't do anything if there is a pawn (mechanoid? insect?) here
+                foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+                    if (pawn != null && pawn.Spawned && pawn.Position == current)
+                        return;
+
                 usedCells.Add(current); // don't use the same spot twice..
                 usedSpots.Add(current); // ..also prevent the base scatterer to use this spot
             }
@@ -270,9 +287,20 @@ namespace MapGenerator
             if (blueprint.buildingMaterial != null)
                 wallStuff = blueprint.buildingMaterial;
 
-            // Make all buildings from the same random stuff -- In BaseGen use faction, in MapGen use null!
-            if (wallStuff == null)
-                wallStuff = BaseGenUtility.RandomCheapWallStuff(null, true); // BaseGenUtility.RandomCheapWallStuff(faction, true);
+            int w = 0;
+            while (true)
+            {
+                w++;
+                if (w > 100) break;
+
+                // Make all buildings from the same random stuff -- In BaseGen use faction, in MapGen use null!
+                if (wallStuff == null)
+                    wallStuff = BaseGenUtility.RandomCheapWallStuff(null, true); // BaseGenUtility.RandomCheapWallStuff(faction, true);
+
+                //If not specified, don't use wood or leather
+                if (blueprint.buildingMaterial != null || (!wallStuff.defName.ToLower().Contains("wood") && !wallStuff.defName.ToLower().Contains("leather")))
+                    break;
+            }
 
             MakeBlueprintRoom(mapRect, map, blueprint, wallStuff);
             
@@ -360,6 +388,10 @@ namespace MapGenerator
                             ClearCell(spawnCell, map);
 
                         if (blueprint.canHaveHoles && Rand.Value < 0.08f)
+                            continue;
+
+                        // If placed on water, increase the hole chance, if no pawns are to be placed!
+                        if (spawnCell.GetTerrain(map).defName.ToLower().Contains("water") && (blueprint.pawnLegend == null || blueprint.pawnLegend.Count <= 0) && Rand.Value < 0.30)
                             continue;
                         
                         TrySetCellAs(spawnCell, map, thingDef, thingRot, stuffDef, terrainDef, pawnKindDef, itemDef, blueprint);

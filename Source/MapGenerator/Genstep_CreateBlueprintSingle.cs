@@ -71,12 +71,16 @@ namespace MapGenerator
         }
 
 
-        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, List<IntVec3> listOfUsedCells = null)
+        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, List<IntVec3> listOfUsedCells)
         {
 
             CellRect mapRect = new CellRect(loc.x, loc.z, blueprint.size.x, blueprint.size.z);
 
             mapRect.ClipInsideMap(map);
+
+            // if mapRect was clipped -> the blueprint doesn't fit inside the map...
+            if (mapRect.Width != blueprint.size.x || mapRect.Height != blueprint.size.z)
+                return;
 
             // Check if we will build on a usedCell
             bool usedCellFound = false;
@@ -91,10 +95,6 @@ namespace MapGenerator
             if (usedCellFound)
                 return;
 
-            // if mapRect was clipped -> the blueprint doesn't fit inside the map...
-            if (mapRect.Width != blueprint.size.x || mapRect.Height != blueprint.size.z)
-                return;
-
             // Don't do anything, if there is an cryosleep casket at the building site
             foreach (IntVec3 current in mapRect.Cells)
             {
@@ -104,6 +104,10 @@ namespace MapGenerator
                     if (list[i].def == ThingDefOf.AncientCryptosleepCasket)
                         return;
                 }
+                // Don't do anything if there is a pawn (mechanoid? insect?) here
+                foreach (Pawn pawn in map.mapPawns.AllPawnsSpawned)
+                    if (pawn != null && pawn.Spawned && pawn.Position == current)
+                        return;
                 usedSpots.Add(current); // prevent the base scatterer to use this spot
             }
 
@@ -118,12 +122,23 @@ namespace MapGenerator
             // If a building material is defined, use this
             if (blueprint.buildingMaterial != null)
                 wallStuff = blueprint.buildingMaterial;
+            
+            int w = 0;
+            while (true)
+            {
+                w++;
+                if (w > 100) break;
 
-            // Make all buildings from the same random stuff -- In BaseGen use faction, in MapGen use null!
-            if (wallStuff == null)
-                wallStuff = BaseGenUtility.RandomCheapWallStuff(null, true); // BaseGenUtility.RandomCheapWallStuff(faction, true);
+                // Make all buildings from the same random stuff -- In BaseGen use faction, in MapGen use null!
+                if (wallStuff == null)
+                    wallStuff = BaseGenUtility.RandomCheapWallStuff(null, true); // BaseGenUtility.RandomCheapWallStuff(faction, true);
 
-            MakeBlueprintRoom(map, mapRect, blueprint, wallStuff);
+                //If not specified, don't use wood or leather
+                if (blueprint.buildingMaterial != null || (!wallStuff.defName.ToLower().Contains("wood") && !wallStuff.defName.ToLower().Contains("leather")))
+                    break;
+            }
+
+            MakeBlueprintRoom(mapRect, map, blueprint, wallStuff);
 
             if (blueprint.createTrigger)
             {
@@ -142,17 +157,17 @@ namespace MapGenerator
                     GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
                 }
 
-                    RectTrigger_UnfogArea rectTrigger = (RectTrigger_UnfogArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogArea"), null);
-                    rectTrigger.signalTag = signalTag;
-                    rectTrigger.destroyIfUnfogged = true;
-                    rectTrigger.Rect = mapRect;
+                RectTrigger_UnfogArea rectTrigger = (RectTrigger_UnfogArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogArea"), null);
+                rectTrigger.signalTag = signalTag;
+                rectTrigger.destroyIfUnfogged = true;
+                rectTrigger.Rect = mapRect;
 
-                    GenSpawn.Spawn(rectTrigger, mapRect.CenterCell, map);
+                GenSpawn.Spawn(rectTrigger, mapRect.CenterCell, map);
             }
         }
 
 
-        private void MakeBlueprintRoom(Map map, CellRect mapRect, MapGeneratorBlueprintDef blueprint, ThingDef stuffDef)
+        private void MakeBlueprintRoom(CellRect mapRect, Map map, MapGeneratorBlueprintDef blueprint, ThingDef stuffDef)
         {
             blueprint.buildingData = CleanUpBlueprintData(blueprint.buildingData);
             blueprint.floorData = CleanUpBlueprintData(blueprint.floorData);
@@ -176,7 +191,6 @@ namespace MapGenerator
             }
 
             allSpawnedPawns = null;
-
             try
             {
                 // Work through blueprint. Note: top-left to bottom-right
@@ -210,16 +224,24 @@ namespace MapGenerator
                             ClearCell(spawnCell, map);
                         }
 
-                        if (blueprint.canHaveHoles && Rand.Value < 0.08f)
+                        if (blueprint.canHaveHoles && Rand.Value < 0.09f)
+                        {
                             continue;
-                        
+                        }
+
+                        // If placed on water, increase the hole chance, if no pawns are to be placed!
+                        if (spawnCell.GetTerrain(map).defName.ToLower().Contains("water") && (blueprint.pawnLegend == null || blueprint.pawnLegend.Count <= 0) && Rand.Value < 0.30)
+                        {
+                            continue;
+                        }
+
                         TrySetCellAs(spawnCell, map, thingDef, thingRot, stuffDef, terrainDef, pawnKindDef, itemDef, blueprint);
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Warning("Misc. MapGenerator -- Error with blueprint '" + blueprint.defName + "'. Placement placement position at " + 
+                Log.Warning("Misc. MapGenerator -- Error with blueprint '" + blueprint.defName + "'. Placement position at " + 
                                 mapRect.CenterCell.ToString() + " on a map of the size " + map.Size.ToString() + "\n" +
                                 ex.Message + "\n" + ex.StackTrace);
             }
@@ -257,7 +279,7 @@ namespace MapGenerator
                     }
                     else
                     {
-                        lordJob = new LordJob_AssaultColony(allSpawnedPawns[0].Faction, false, false, false);
+                        lordJob = new LordJob_AssaultColony(allSpawnedPawns[0].Faction, false, false, false, false, false);
                     }
                 }
                 LordMaker.MakeNewLord(allSpawnedPawns[0].Faction, lordJob, map, allSpawnedPawns);
