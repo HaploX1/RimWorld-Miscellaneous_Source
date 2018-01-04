@@ -12,7 +12,7 @@ using RimWorld.BaseGen;
 
 namespace MapGenerator
 {
-    public class GenStep_CreateBlueprintVillage : GenStep_Scatterer
+    public class GenStep_CreateBlueprintVillage : GenStep_CreateBlueprintBase
     {
         public readonly IntRange ruinOffsetHorizontalRange = new IntRange(5, 15);
         public readonly IntRange ruinOffsetVerticalRange = new IntRange(5, 15);
@@ -24,7 +24,7 @@ namespace MapGenerator
 
         public IntRange villageCountRange = new IntRange(1, 1);
 
-        private List<IntVec3> usedCells = new List<IntVec3>();
+        //private List<IntVec3> usedCells = new List<IntVec3>();
 
         private ThingDef selectedWallStuff;
         private Faction faction;
@@ -33,6 +33,22 @@ namespace MapGenerator
 
         protected override void ScatterAt(IntVec3 loc, Map map, int stackCount = 1)
         {
+            
+            // After 5 min reset the saved cells!
+            if (usedCells_lastChange.AddMinutes(5) < DateTime.UtcNow)
+            {
+                usedCells.Clear();
+                usedCells_lastChange = DateTime.UtcNow;
+            }
+
+            // update the usedSpots
+            if (usedSpots != null && usedSpots.Count > 0)
+            {
+                foreach (IntVec3 usedSpot in usedSpots)
+                    usedCells.Add(usedSpot);
+                usedCells_lastChange = DateTime.UtcNow;
+            }
+
 
             ruinCountDown = ruinCountRange.RandomInRange;
 
@@ -53,11 +69,11 @@ namespace MapGenerator
                     ruinDistanceRange.max = ruinDistanceRange.min + 4;
 
 
-                IntVec3 workLoc = TryFindValidScatterCellNear(loc, map, blueprint, this.usedCells);
+                IntVec3 workLoc = TryFindValidScatterCellNear(loc, map, blueprint, usedCells);
                 if (workLoc != IntVec3.Invalid)
                 {
                     // place a blueprint ruin
-                    ScatterBlueprintAt(workLoc, map, blueprint, ref selectedWallStuff, this.usedSpots);
+                    ScatterBlueprintAt(workLoc, map, blueprint, ref selectedWallStuff, usedSpots);
                 }
 
                 ruinCountDown--;
@@ -65,7 +81,7 @@ namespace MapGenerator
 
             // reset
             selectedWallStuff = null;
-            usedCells.Clear();
+            //usedCells.Clear();
         }
 
 
@@ -76,7 +92,7 @@ namespace MapGenerator
 
 
         // This function may need some work...
-        private IntVec3 TryFindValidScatterCellNear(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, List<IntVec3> invalidCells)
+        private IntVec3 TryFindValidScatterCellNear(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, HashSet<IntVec3> invalidCells)
         {
             if (usedCells.Count == 0)
                 return loc;
@@ -219,7 +235,7 @@ namespace MapGenerator
             return IntVec3.Invalid;
         }
 
-        private bool IsPositionValidForBlueprint(IntVec3 cell, IntVec2 size, List<IntVec3> invalidCells)
+        private bool IsPositionValidForBlueprint(IntVec3 cell, IntVec2 size, HashSet<IntVec3> invalidCells)
         {
             // create all needed cells
             CellRect workRect = new CellRect(cell.x, cell.z, size.x, size.z);
@@ -281,6 +297,7 @@ namespace MapGenerator
 
                 usedCells.Add(current); // don't use the same spot twice..
                 usedSpots.Add(current); // ..also prevent the base scatterer to use this spot
+                usedCells_lastChange = DateTime.UtcNow;
             }
 
             // If a building material is defined, use this

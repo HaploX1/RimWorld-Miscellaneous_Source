@@ -12,7 +12,7 @@ using RimWorld.BaseGen;
 
 namespace MapGenerator
 {
-    public class GenStep_CreateBlueprintSingle : GenStep_Scatterer
+    public class GenStep_CreateBlueprintSingle : GenStep_CreateBlueprintBase
     {
         private ThingDef selectedWallStuff;
         private Faction faction;
@@ -25,6 +25,21 @@ namespace MapGenerator
             // Once a mapcenter blueprint is placed, don't do anything more
             if (mapCenterBlueprintUsed)
                 return;
+
+            // After 5 min reset the saved cells!
+            if (usedCells_lastChange.AddMinutes(5) < DateTime.UtcNow)
+            {
+                usedCells.Clear();
+                usedCells_lastChange = DateTime.UtcNow;
+            }
+        
+        // update the usedSpots
+            if (usedSpots != null && usedSpots.Count > 0)
+            {
+                foreach (IntVec3 usedSpot in usedSpots)
+                    usedCells.Add(usedSpot);
+                usedCells_lastChange = DateTime.UtcNow;
+            }
 
             MapGeneratorBlueprintDef blueprint;
 
@@ -58,7 +73,8 @@ namespace MapGenerator
             }
 
             // place a blueprint ruin
-            ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, this.usedSpots);
+            //ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, this.usedSpots);
+            ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, usedCells);
 
             // reset
             selectedWallStuff = null;
@@ -71,7 +87,7 @@ namespace MapGenerator
         }
 
 
-        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, List<IntVec3> listOfUsedCells)
+        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, HashSet<IntVec3> listOfUsedCells)
         {
 
             CellRect mapRect = new CellRect(loc.x, loc.z, blueprint.size.x, blueprint.size.z);
@@ -109,6 +125,8 @@ namespace MapGenerator
                     if (pawn != null && pawn.Spawned && pawn.Position == current)
                         return;
                 usedSpots.Add(current); // prevent the base scatterer to use this spot
+                usedCells.Add(current);
+                usedCells_lastChange = DateTime.UtcNow;
             }
 
             // Remove this blueprints map cells from the unfogging list
