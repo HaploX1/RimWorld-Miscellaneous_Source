@@ -12,7 +12,7 @@ using RimWorld.BaseGen;
 
 namespace MapGenerator
 {
-    public class GenStep_CreateBlueprintSingle : GenStep_CreateBlueprintBase
+    public class GenStep_CreateBlueprintSingle : GenStep_CreateBlueprintBaseClass
     {
         private ThingDef selectedWallStuff;
         private Faction faction;

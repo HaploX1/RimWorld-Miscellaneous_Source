@@ -12,7 +12,7 @@ using RimWorld.BaseGen;
 
 namespace MapGenerator
 {
-    public class GenStep_CreateBlueprintBase : GenStep_Scatterer
+    public class GenStep_CreateBlueprintBaseClass : GenStep_Scatterer
     {
         protected static DateTime usedCells_lastChange = DateTime.UtcNow;
         protected static HashSet<IntVec3> usedCells = new HashSet<IntVec3>();

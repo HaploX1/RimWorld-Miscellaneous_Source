@@ -12,7 +12,7 @@ using RimWorld.BaseGen;
 
 namespace MapGenerator
 {
-    public class GenStep_CreateBlueprintVillage : GenStep_CreateBlueprintBase
+    public class GenStep_CreateBlueprintVillage : GenStep_CreateBlueprintBaseClass
     {
         public readonly IntRange ruinOffsetHorizontalRange = new IntRange(5, 15);
         public readonly IntRange ruinOffsetVerticalRange = new IntRange(5, 15);

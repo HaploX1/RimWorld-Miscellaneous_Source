@@ -47,7 +47,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BlueprintHandler.cs" />
-    <Compile Include="Genstep_CreateBlueprintBase.cs" />
+    <Compile Include="Genstep_CreateBlueprintBaseClass.cs" />
     <Compile Include="Genstep_CreateBlueprintSingle.cs" />
     <Compile Include="Genstep_CreateBlueprintVillage.cs" />
     <Compile Include="MapGeneratorBlueprintDef.cs" />
