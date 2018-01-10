@@ -567,6 +567,11 @@ namespace AIRobot
             }
         }
 
+        public void Notify_CallBotForRecharge()
+        {
+            Button_CallBotForShutdown();
+            SpawnRobotAfterRecharge = true;
+        }
         public void Notify_CallBotForShutdown()
         {
             Button_CallBotForShutdown();

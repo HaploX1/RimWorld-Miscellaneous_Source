@@ -62,6 +62,8 @@
     <Compile Include="X2_JobGiver_Return2BaseRoom.cs" />
     <Compile Include="X2_JobGiver_Work_old.cs" />
     <Compile Include="X2_JobGiver_Work.cs" />
+    <Compile Include="X2_MainTabWindow_Robots.cs" />
+    <Compile Include="X2_PawnColumnWorker_Charge.cs" />
     <Compile Include="X2_ThinkNode_Conditional_DoWork.cs" />
     <Compile Include="X2_JobDriver_GoRecharging.cs" />
     <Compile Include="X2_JobGiver_RechargeEnergy.cs" />
