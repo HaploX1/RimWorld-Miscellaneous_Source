@@ -18,10 +18,10 @@ namespace Incidents
     public class IncidentWorker_CrashedCryptoSleepCasket : IncidentWorker
     {
 
-        protected override bool CanFireNowSub(IIncidentTarget target)
-        {
-            return base.CanFireNowSub(target);
-        }
+        //protected override bool CanFireNowSub(IIncidentTarget target)
+        //{
+        //    return base.CanFireNowSub(target);
+        //}
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
@@ -174,9 +174,9 @@ namespace Incidents
                 GenerateFriendlyAnimal(casket);
             else if (rnd < 20)
                 GenerateFriendlySpacer(casket);
-            else if (rnd < 30)
+            else if (rnd < 35)
                 GenerateIncappedSpacer(casket);
-            else if (rnd < 45)
+            else if (rnd < 50)
                 GenerateSlave(casket);
             else if (rnd < 65)
                 GenerateHalfEatenSpacer(casket);
@@ -303,9 +303,18 @@ namespace Incidents
         // from RimWorld.ItemCollectionGenerator_AncientPodContents
         private static void GiveRandomLootInventoryForTombPawn(Pawn p)
         {
-            if ((double)Rand.Value < 0.65)
+            float rand = Rand.Value;
+            if (rand < 0.03f)
+                MakeIntoContainer(p.inventory.innerContainer, DefDatabase<ThingDef>.GetNamedSilentFail("Gun_RailgunMKI"), 1);
+
+            if (rand < 0.45f)
             {
                 MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Gold, Rand.Range(10, 50));
+            }
+            else if (rand < 0.65f)
+            {
+                //MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Luciferium, Rand.Range(3, 15)); 
+                MakeIntoContainer(p.inventory.innerContainer, ThingDef.Named("Jade"), Rand.Range(5, 50));
             }
             else
             {
@@ -315,10 +324,9 @@ namespace Incidents
         }
         private static void MakeIntoContainer(ThingOwner container, ThingDef def, int count)
         {
-            if (count <= 0)
-            {
+            if (def == null || count <= 0)
                 return;
-            }
+
             Thing thing = ThingMaker.MakeThing(def, null);
             thing.stackCount = count;
             container.TryAdd(thing, true);

@@ -31,7 +31,7 @@ namespace ArtefactFound
                 return false;
 
             Map map = (Map)target;
-            return map.mapPawns.FreeColonistsSpawnedCount >= 5;
+            return map.mapPawns.ColonistCount >= 4;
         }
 
 
