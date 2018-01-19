@@ -62,7 +62,6 @@ namespace CommonMisc
             fieldInfo.SetValue(target, value);
         }
 
-
         public static object GetValue(object target, string fieldName, BindingFlags bindingFlags = BindingFlags.Default)
         {
             if (bindingFlags == BindingFlags.Default)
@@ -81,7 +80,6 @@ namespace CommonMisc
             FieldInfo fieldInfo = typeof(T).GetField(fieldName, bindingFlags);
             return fieldInfo;
         }
-        
 
     }
 }

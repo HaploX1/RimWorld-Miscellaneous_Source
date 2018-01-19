@@ -242,13 +242,17 @@ namespace MapGenerator
                             ClearCell(spawnCell, map);
                         }
 
-                        if (blueprint.canHaveHoles && Rand.Value < 0.09f)
-                        {
+                        if ((blueprint.canHaveHoles ||
+                            (MapGenerator_ModSettings.createAllNonPawnBPsWithHoles && (blueprint.pawnLegend == null || blueprint.pawnLegend.Count <= 0))) &&
+                            Rand.Value < MapGenerator_ModSettings.chanceForHoles)
+                            {
                             continue;
                         }
-
+                        
                         // If placed on water, increase the hole chance, if no pawns are to be placed!
-                        if (spawnCell.GetTerrain(map).defName.ToLower().Contains("water") && (blueprint.pawnLegend == null || blueprint.pawnLegend.Count <= 0) && Rand.Value < 0.30)
+                        if (spawnCell.GetTerrain(map).defName.ToLower().Contains("water") && 
+                            (blueprint.pawnLegend == null || blueprint.pawnLegend.Count <= 0) && 
+                            Rand.Value < MapGenerator_ModSettings.chanceForHolesOnWater)
                         {
                             continue;
                         }

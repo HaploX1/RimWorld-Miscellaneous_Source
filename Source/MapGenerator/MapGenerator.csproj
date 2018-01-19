@@ -51,6 +51,8 @@
     <Compile Include="Genstep_CreateBlueprintSingle.cs" />
     <Compile Include="Genstep_CreateBlueprintVillage.cs" />
     <Compile Include="MapGeneratorBlueprintDef.cs" />
+    <Compile Include="MapGenerator_Mod.cs" />
+    <Compile Include="MapGenerator_ModSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RectTrigger_UnfogArea.cs" />
   </ItemGroup>
