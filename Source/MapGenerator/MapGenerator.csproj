@@ -46,10 +46,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BiomeWorker_XXXXXX_UrbanRuins.cs" />
     <Compile Include="BlueprintHandler.cs" />
     <Compile Include="Genstep_CreateBlueprintBaseClass.cs" />
     <Compile Include="Genstep_CreateBlueprintSingle.cs" />
+    <Compile Include="Genstep_CreateBlueprintSingle_normal.cs" />
+    <Compile Include="Genstep_CreateBlueprintSingle_urban.cs" />
     <Compile Include="Genstep_CreateBlueprintVillage.cs" />
+    <Compile Include="Genstep_CreateBlueprintVillage_normal.cs" />
+    <Compile Include="Genstep_CreateBlueprintVillage_urban.cs" />
     <Compile Include="MapGeneratorBlueprintDef.cs" />
     <Compile Include="MapGenerator_Mod.cs" />
     <Compile Include="MapGenerator_ModSettings.cs" />

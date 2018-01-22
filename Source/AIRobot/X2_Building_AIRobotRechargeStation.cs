@@ -18,24 +18,24 @@ namespace AIRobot
 
         public X2_ThingDef_AIRobot_Building_RechargeStation def2 = null;
 
-        private string txtSendOwnerToRecharge = "AIRobot_SendOwnerToRecharge";
-        private string lbSendOwnerToRecharge = "AIRobot_Label_SendOwnerToRecharge";
-        private string txtSpawnOwner = "AIRobot_SpawnRobot";
-        private string lbSpawnOwner = "AIRobot_Label_SpawnRobot";
-        private string txtNoPower = "AIRobot_NoPower";
-        private string lbRecallAllRobots = "AIRobot_Label_RecallAllRobots";
-        private string txtRecallAllRobots = "AIRobot_RecallAllRobots";
-        private string lbActivateAllRobots = "AIRobot_Label_ActivateAllRobots";
-        private string txtActivateAllRobots = "AIRobot_ActivateAllRobots";
+        public static string txtSendOwnerToRecharge = "AIRobot_SendOwnerToRecharge";
+        public static string lbSendOwnerToRecharge = "AIRobot_Label_SendOwnerToRecharge";
+        public static string txtSpawnOwner = "AIRobot_SpawnRobot";
+        public static string lbSpawnOwner = "AIRobot_Label_SpawnRobot";
+        public static string txtNoPower = "AIRobot_NoPower";
+        public static string lbRecallAllRobots = "AIRobot_Label_RecallAllRobots";
+        public static string txtRecallAllRobots = "AIRobot_RecallAllRobots";
+        public static string lbActivateAllRobots = "AIRobot_Label_ActivateAllRobots";
+        public static string txtActivateAllRobots = "AIRobot_ActivateAllRobots";
 
         public Graphic PrimaryGraphic;
         public Graphic SecondaryGraphic;
         public string SecondaryGraphicPath;
 
-        private static Texture2D UI_ButtonForceRecharge = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDown");
-        private static Texture2D UI_ButtonStart = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Start");
-        private static Texture2D UI_ButtonForceRechargeAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDownAll");
-        private static Texture2D UI_ButtonForceActivateAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_StartAll");
+        public static Texture2D UI_ButtonForceRecharge = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDown");
+        public static Texture2D UI_ButtonStart = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Start");
+        public static Texture2D UI_ButtonForceRechargeAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDownAll");
+        public static Texture2D UI_ButtonForceActivateAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_StartAll");
 
         private string spawnThingDef = "";
 
@@ -288,6 +288,9 @@ namespace AIRobot
 
                     TryThrowBatteryMote(containedRobot);
                 }
+
+                // Try to heal robot
+                TryHealDamagedBodyPartOfRobot(containedRobot);
                 return;
             }
 
@@ -376,6 +379,65 @@ namespace AIRobot
 
             //Remove area from robot
             robot.playerSettings.Notify_AreaRemoved(robot.playerSettings.AreaRestriction);
+        }
+
+
+        // Self healing
+        //private int timerRepairDamage = 0;
+        private void TryHealDamagedBodyPartOfRobot(X2_AIRobot robot)
+        {
+
+            //timerRepairDamage--;
+            //if (timerRepairDamage > 0)
+            //    return;
+            //timerRepairDamage = 300;
+
+            if (robot == null || !Verse.Gen.IsHashIntervalTick(robot, 300))
+                return;
+
+
+            IEnumerable<Hediff_Injury> hediff_injuries = (from x in robot.health.hediffSet.GetHediffs<Hediff_Injury>()
+                                                          where x.CanHealFromTending() || x.CanHealNaturally()
+                                                          select x);
+
+
+            // Apply Treated, but not healing!
+            if (robot.health.HasHediffsNeedingTend(false))
+            {
+                float quality = (Rand.Value);
+                int batchPosition = 0;
+                foreach (Hediff_Injury injury in from x in robot.health.hediffSet.GetInjuriesTendable()
+                                                 orderby x.Severity descending
+                                                 select x)
+                {
+                    injury.Tended(quality, batchPosition);
+                    batchPosition++;
+                    if (batchPosition >= 1)
+                        break;
+                }
+            }
+
+            // Apply healing
+            if (hediff_injuries != null && hediff_injuries.Count() > 0)
+            {
+                Hediff_Injury hediff_Injury2 = hediff_injuries.RandomElement();
+
+                float tendQuality = hediff_Injury2.TryGetComp<HediffComp_TendDuration>().tendQuality;
+                float num2 = GenMath.LerpDouble(0f, 1f, 0.5f, 1.5f, Mathf.Clamp01(tendQuality));
+
+                ////hediff_Injury2.Heal(22f * num2 * robot.HealthScale * 0.01f); -> At quality 0.5 --> 0.066 healed.
+                //Log.Error("Calculation: " + (GenMath.LerpDouble(0f, 1f, 0.5f, 1.5f, Mathf.Clamp01(tendQuality)).ToString()));
+                //Log.Error("Healing: " + (22f * num2 * robot.HealthScale * 0.1f).ToString());
+                //Log.Error("PRE:" + hediff_Injury2.Severity.ToString());
+
+                //hediff_Injury2.Heal(1f);
+                hediff_Injury2.Heal(22f * num2 * robot.HealthScale * 0.1f * 0.5f);
+
+                //Log.Error("POST:" + hediff_Injury2.Severity.ToString());
+
+                // Throw Healing Mote
+                MoteMaker.ThrowMetaIcon(this.Position, this.Map, ThingDefOf.Mote_HealingCross);
+            }
         }
 
         #endregion

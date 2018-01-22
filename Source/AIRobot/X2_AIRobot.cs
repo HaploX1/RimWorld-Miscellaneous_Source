@@ -150,6 +150,23 @@ namespace AIRobot
             foreach (Gizmo gizmo in base.GetGizmos())
                 yield return gizmo;
 
+            if (rechargeStation != null && rechargeStation.Spawned && !rechargeStation.Destroyed)
+            {
+                // Key-Binding 0
+                Command_Action opt0;
+                opt0 = new Command_Action();
+                opt0.icon = X2_Building_AIRobotRechargeStation.UI_ButtonForceRecharge;
+                opt0.defaultLabel = X2_Building_AIRobotRechargeStation.lbSendOwnerToRecharge.Translate();
+                opt0.defaultDesc = X2_Building_AIRobotRechargeStation.txtSendOwnerToRecharge.Translate();
+                opt0.hotKey = KeyBindingDefOf.Misc4;
+                opt0.activateSound = SoundDef.Named("Click");
+                opt0.action = delegate { rechargeStation.Notify_CallBotForShutdown(); };
+                opt0.disabled = rechargeStation == null;
+                opt0.disabledReason = "Error: No recharge station assigned.";
+                opt0.groupKey = 1234567 + 0;
+                yield return opt0;
+            }
+
             if (DebugSettings.godMode)
             {
                 // Key-Binding 1
