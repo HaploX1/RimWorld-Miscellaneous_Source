@@ -28,6 +28,9 @@ namespace AIRobot
         public static string lbActivateAllRobots = "AIRobot_Label_ActivateAllRobots";
         public static string txtActivateAllRobots = "AIRobot_ActivateAllRobots";
 
+        public static string lbFindRobot = "AIRobot_Label_FindRobot";
+        public static string txtFindRobot = "AIRobot_FindRobot";
+
         public Graphic PrimaryGraphic;
         public Graphic SecondaryGraphic;
         public string SecondaryGraphicPath;
@@ -36,6 +39,7 @@ namespace AIRobot
         public static Texture2D UI_ButtonStart = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Start");
         public static Texture2D UI_ButtonForceRechargeAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDownAll");
         public static Texture2D UI_ButtonForceActivateAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_StartAll");
+        public static Texture2D UI_ButtonSearch = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Search");
 
         private string spawnThingDef = "";
 
@@ -50,6 +54,8 @@ namespace AIRobot
         private float calcDistanceRestCheck = -1f;
 
         public CompPowerTrader powerComp;
+
+        public X2_AIRobot_disabled disabledRobot;
 
         #endregion
 
@@ -547,6 +553,22 @@ namespace AIRobot
                 yield return act4;
             }
 
+            {
+                // Key-Binding O - Find robot
+                Command_Action act5;
+                act5 = new Command_Action();
+                act5.defaultLabel = lbFindRobot.Translate();
+                act5.defaultDesc = txtFindRobot.Translate();
+                act5.icon = UI_ButtonSearch;
+                act5.hotKey = KeyBindingDefOf.Misc11;
+                act5.activateSound = SoundDef.Named("Click");
+                act5.action = Button_FindRobot;
+                act5.disabled = powerComp != null && !powerComp.PowerOn;
+                act5.disabledReason = txtNoPower.Translate();
+                act5.groupKey = groupBaseKey + 5;
+                yield return act5;
+            }
+
 
             if (DebugSettings.godMode)
             {
@@ -567,6 +589,41 @@ namespace AIRobot
 
         }
 
+        public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn selPawn)
+        {
+            foreach (FloatMenuOption fmo in base.GetFloatMenuOptions(selPawn))
+                yield return fmo;
+
+            if (this.robotIsDestroyed && this.disabledRobot != null)
+                foreach (FloatMenuOption fmo in X2_AIRobot_disabled.GetFloatMenuOptions(selPawn, disabledRobot))
+                    yield return fmo;
+        }
+
+
+        public void Button_FindRobot()
+        {
+            IntVec3 target;
+            if (robotIsDestroyed && disabledRobot != null && disabledRobot.Spawned)
+            {
+                target = disabledRobot.Position;
+                if (target != IntVec3.Invalid)
+                    Find.CameraDriver.JumpToVisibleMapLoc(target);
+                return;
+            }
+
+            if (robot != null && robot.Spawned)
+            {
+                target = robot.Position;
+                if (target != IntVec3.Invalid)
+                    Find.CameraDriver.JumpToVisibleMapLoc(target);
+                return;
+            }
+            target = this.Position;
+            if (target != IntVec3.Invalid)
+                Find.CameraDriver.JumpToVisibleMapLoc(target);
+            return;
+        }
+
 
         public void Notify_RobotRepaired()
         {
@@ -585,6 +642,8 @@ namespace AIRobot
             robotIsDestroyed = false;
             if (spawn)
                 Button_SpawnBot();
+
+            disabledRobot = null;
         }
         public void Notify_SpawnBot()
         {

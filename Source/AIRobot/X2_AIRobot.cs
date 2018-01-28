@@ -82,6 +82,9 @@ namespace AIRobot
                 X2_AIRobot_disabled thing = (X2_AIRobot_disabled)GenSpawn.Spawn(wDef, oldPos, oldMap);
                 thing.stackCount = 1;
                 thing.rechargestation = oldRechargeStation;
+
+                // set the disabled robot in the recharge station
+                oldRechargeStation.disabledRobot = thing;
             }
         }
 

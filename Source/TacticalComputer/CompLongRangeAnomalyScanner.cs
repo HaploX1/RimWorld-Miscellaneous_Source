@@ -142,6 +142,12 @@ namespace TacticalComputer
             RecacheEffectiveAreaPct();
             TryFindAnomaly(250);
         }
+        public override void CompTick()
+        {
+            base.CompTick();
+            //RecacheEffectiveAreaPct();
+            TryFindAnomaly(1);
+        }
 
         private void TryFindAnomaly(int interval)
         {
@@ -197,7 +203,7 @@ namespace TacticalComputer
                 ThingDef railgunDef = DefDatabase<ThingDef>.GetNamedSilentFail(railgunDefName);
                 if (railgunDef != null &&
                     site.Faction != null && site.Faction.def.techLevel >= TechLevel.Industrial &&
-                    Rand.Value > 0.90)
+                    Rand.Value < 0.10)
                 {
                     railgun = ThingMaker.MakeThing(railgunDef);
                 }
