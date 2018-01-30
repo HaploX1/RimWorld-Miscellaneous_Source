@@ -94,6 +94,20 @@ namespace AIRobot
         #region Tick
         public override void Tick()
         {
+
+            // Prevent ticks, if you aren't living anymore!
+            if (this.DestroyedOrNull())
+            {
+                //Log.Error("I'm destroyed but ticking..");
+                return;
+            }
+            if (Spawned && (Dead || Downed || needs.rest.CurLevel <= 0.02f))
+            {
+                this.Destroy(DestroyMode.KillFinalize);
+                return;
+            }
+
+
             base.Tick();
             
             // needed?
@@ -111,12 +125,6 @@ namespace AIRobot
                         skill.xpSinceMidnight = 1;
                     }
                 }
-            }
-
-            if (Spawned && (Dead || Downed || needs.rest.CurLevel <= 0.02f))
-            {
-                this.Destroy(DestroyMode.KillFinalize);
-                return;
             }
 
             if (this.Spawned)
