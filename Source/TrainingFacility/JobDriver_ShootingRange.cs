@@ -18,7 +18,11 @@ namespace TrainingFacility
         protected bool joyCanEndJob = true;
 
         public JobDriver_ShootingRange() {}
-        
+
+        public override bool TryMakePreToilReservations()
+        {
+            return base.TryMakePreToilReservations();
+        }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
@@ -56,14 +60,51 @@ namespace TrainingFacility
 
         }
 
-
+        private int weaponCheckResult = 0; 
         protected override void WatchTickAction()
         {
+            // Check for dangerous weapons (One-Shot, grenades, destroy on drop, ...)
+            if (weaponCheckResult == 0)
+            {
+                Verb attackVerb = pawn.TryGetAttackVerb(false);
+                if (pawn != null && pawn.equipment != null && pawn.equipment.Primary != null && attackVerb != null)
+                {
+                    ThingDef primaryDef = pawn.equipment.Primary.def;
+
+                    if (attackVerb.IsEMP() || attackVerb.IsIncendiary() || attackVerb.verbProps.ai_IsBuildingDestroyer ||
+                        primaryDef.destroyOnDrop || attackVerb is Verb_ShootOneUse || primaryDef.thingCategories.Any(d => d == DefDatabase<ThingCategoryDef>.GetNamed("Grenades")))
+                    {
+                        weaponCheckResult = -1;
+
+                        if (pawn.Faction != null && pawn.Faction == Faction.OfPlayer)
+                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.NameStringShort), pawn, MessageTypeDefOf.NeutralEvent);
+                        else
+                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.NameStringShort), pawn, MessageTypeDefOf.SilentInput);
+                        //Log.Error("WeaponCheck ==> Illegal weapon found. No shooting allowed!");
+                    }
+                    else
+                        weaponCheckResult = 1;
+                }
+                else
+                    weaponCheckResult = 1;
+            }
+
 
             if (this.pawn.IsHashIntervalTick(UpdateInterval))
             {
-                AttackTarget(this.pawn, TargetA.Cell);
+                if (weaponCheckResult > 0)
+                    AttackTarget(this.pawn, TargetA.Cell);
+                else
+                {
+                    // dangerous weapons --> Throw some stones instead
+                    MoteMaker.ThrowStone(pawn, TargetA.Cell);
+                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(5);
+
+                    // Alternate: Shoot some arrows?
+                    //JobDriver_Archery.ShootArrow(pawn, TargetA.Cell);
+                }
             }
+
 
             //base.StandTickAction();
 
@@ -97,7 +138,7 @@ namespace TrainingFacility
             Verb attackVerb = null;
             if (shooter != null)
                 attackVerb = shooter.TryGetAttackVerb(false);
-
+            
             if (attackVerb != null)
                 attackVerb.TryStartCastOn(targetInfo);
 

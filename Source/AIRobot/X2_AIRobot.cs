@@ -139,21 +139,20 @@ namespace AIRobot
 
         public override string GetInspectString()
         {
+            string workString = base.GetInspectString() ;
             if (DebugSettings.godMode)
             {
-                string workString = base.GetInspectString();
-
                 if (Position != null && Position != IntVec3.Invalid &&
                     rechargeStation != null && rechargeStation.Position != null && rechargeStation.Position != IntVec3.Invalid)
                 {
                     if (!workString.NullOrEmpty())
                         workString += "\n";
                     workString += "Distance to base: " + AIRobot_Helper.GetDistance(Position, rechargeStation.Position).ToString("0") + " cells";
-                    workString += " -- Remaining charge: " + needs.rest.CurLevel.ToStringPercent();
+                    workString += " -- ";
+                    workString += "Remaining charge: " + needs.rest.CurLevel.ToStringPercent();
                 }
-                return workString;
             }
-            return base.GetInspectString();
+            return workString.TrimEndNewlines();
         }
 
         public override IEnumerable<Gizmo> GetGizmos()

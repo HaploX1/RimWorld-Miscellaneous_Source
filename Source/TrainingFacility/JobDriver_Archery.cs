@@ -22,6 +22,11 @@ namespace TrainingFacility
             base.WatchTickAction();
         }
 
+        public override bool TryMakePreToilReservations()
+        {
+            return base.TryMakePreToilReservations();
+        }
+
         protected override IEnumerable<Toil> MakeNewToils()
         {
             //TargetA is the building
@@ -72,7 +77,6 @@ namespace TrainingFacility
             moteThrown.exactPosition = thrower.DrawPos;
             moteThrown.exactRotation =(vector - moteThrown.exactPosition).AngleFlat(); // this corrects the angle of the arrow 
             moteThrown.SetVelocity((vector - moteThrown.exactPosition).AngleFlat(), speed);
-            //moteThrown.airTimeLeft = (float)Mathf.RoundToInt(vectorY0mv.MagnitudeHorizontal() / speed);
             moteThrown.airTimeLeft = ((moteThrown.exactPosition - vector).MagnitudeHorizontal() / speed);
             if (moteThrown.airTimeLeft > 1f) // reduce the airtime randomly to let the arrows be too short from time to time
                 moteThrown.airTimeLeft -= Rand.Value;
