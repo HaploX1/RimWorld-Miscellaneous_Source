@@ -79,7 +79,7 @@ namespace AIRobot
                 return;
             }
             TipSignal tooltip = pawn.Label;
-            tooltip.text = "AIRobot_MainTab_SendRobotToRecharge".Translate() + "\n\n" + tooltip.text;
+            tooltip.text = "AIRobot_MainTab_SendRobotToRecharge".Translate() + "\n" + tooltip.text;
             TooltipHandler.TipRegion(rect2, tooltip);
         }
 

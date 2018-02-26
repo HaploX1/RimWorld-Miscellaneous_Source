@@ -64,6 +64,8 @@
     <Compile Include="X2_JobGiver_Work_old.cs" />
     <Compile Include="X2_JobGiver_Work.cs" />
     <Compile Include="X2_MainTabWindow_Robots.cs" />
+    <Compile Include="X2_PawnColumnWorker_ShutDownAll.cs" />
+    <Compile Include="X2_PawnColumnWorker_ShutDown.cs" />
     <Compile Include="X2_PawnColumnWorker_Rename.cs" />
     <Compile Include="X2_PawnColumnWorker_Charge.cs" />
     <Compile Include="X2_ThinkNode_Conditional_DoWork.cs" />
