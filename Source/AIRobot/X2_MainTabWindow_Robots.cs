@@ -28,13 +28,38 @@ namespace AIRobot
         {
             get
             {
-                return from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer)
-                              where p is X2_AIRobot
-                              orderby p.def.label
-                              select p;
+                List<Pawn> robots = new List<Pawn>();
+
+                foreach (X2_Building_AIRobotRechargeStation station in Find.VisibleMap.listerBuildings.AllBuildingsColonistOfClass<X2_Building_AIRobotRechargeStation>())
+                {
+                    if (station == null || !station.Spawned || station.Destroyed)
+                        continue;
+
+                    if (station.GetRobot != null)
+                        robots.Add(station.GetRobot);
+                    
+                }
+
+                if (robots == null)
+                    return null;
+
+                try
+                {
+                    return robots.OrderBy(r => r.LabelShort);
+                }
+                catch
+                { return robots; }
+
+                //robots = robots.OrderBy(r => r.LabelShort).ToList();
+                //return robots;
+
+                //return from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer)
+                //              where p is X2_AIRobot
+                //              orderby p.def.label
+                //              select p;
             }
         }
-
+        
         public override void PostOpen()
         {
             base.PostOpen();

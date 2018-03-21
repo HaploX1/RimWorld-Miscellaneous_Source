@@ -61,7 +61,7 @@ namespace AIRobot
             if (Widgets.ButtonInvisible(rect2, false))
             {
                 X2_AIRobot robot = pawn as X2_AIRobot;
-                if (robot != null && robot.needs != null && robot.needs.rest != null && robot.rechargeStation != null)
+                if (robot != null && robot.Spawned && robot.needs != null && robot.needs.rest != null && robot.rechargeStation != null)
                 {
                     // Recall robot and shut down -> Does not respawn after recharge!
                     //robot.rechargeStation.Notify_CallBotForShutdown();
@@ -70,12 +70,23 @@ namespace AIRobot
                     robot.rechargeStation.Notify_CallBotForRecharge();
 
                     //CameraJumper.TryJumpAndSelect(robot.rechargeStation);
-                    CameraJumper.TryJumpAndSelect(pawn);
+                    //CameraJumper.TryJumpAndSelect(pawn);
                     //if (Current.ProgramState == ProgramState.Playing && Event.current.button == 0)
                     //{
                     //    Find.MainTabsRoot.EscapeCurrentTab(false);
                     //}
                 }
+
+                if (robot != null && robot.Spawned)
+                    CameraJumper.TryJumpAndSelect(pawn);
+                else if (robot != null && robot.rechargeStation != null)
+                    CameraJumper.TryJumpAndSelect(robot.rechargeStation);
+                else if (robot != null)
+                    CameraJumper.TryJump(robot.PositionHeld, robot.MapHeld);
+
+                if (Current.ProgramState == ProgramState.Playing && Event.current.button == 0)
+                    Find.MainTabsRoot.EscapeCurrentTab(false);
+
                 return;
             }
             TipSignal tooltip = pawn.Label;

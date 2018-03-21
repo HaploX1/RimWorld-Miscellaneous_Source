@@ -53,9 +53,29 @@ namespace AIRobot
         private float rechargeEfficiency = 1.0f;
         private float calcDistanceRestCheck = -1f;
 
+        private bool notify_spawnRequested = false;
+        //private bool notify_recallRequested = false;
+
         public CompPowerTrader powerComp;
 
         public X2_AIRobot_disabled disabledRobot;
+
+        public X2_AIRobot GetRobot
+        {
+            get
+            {
+                if (!robotSpawnedOnce || robotIsDestroyed)
+                    return null;
+
+                if (robot != null)
+                    return robot;
+
+                if (robot == null)
+                    return container[0];
+
+                return null;
+            }
+        }
 
         #endregion
 
@@ -282,6 +302,13 @@ namespace AIRobot
                     return;
                 }
 
+                if (notify_spawnRequested)
+                {
+                    notify_spawnRequested = false;
+                    Button_SpawnBot();
+                    return;
+                }
+
                 if (SpawnRobotAfterRecharge && containedRobot.needs.rest.CurLevel >= 0.99f)
                 {
                     Button_SpawnBot();
@@ -299,6 +326,7 @@ namespace AIRobot
                 TryHealDamagedBodyPartOfRobot(containedRobot);
                 return;
             }
+            notify_spawnRequested = false;
 
             if (robotIsDestroyed)
             {
@@ -647,7 +675,7 @@ namespace AIRobot
         }
         public void Notify_SpawnBot()
         {
-            Button_SpawnBot();
+            notify_spawnRequested = true;
         }
         private void Button_SpawnBot()
         {

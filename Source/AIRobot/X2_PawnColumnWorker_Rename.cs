@@ -23,6 +23,9 @@ namespace AIRobot
         {
             if (Widgets.ButtonImage(rect, texRename))
             {
+                // disabled if not active
+                if (pawn == null || !pawn.Spawned)
+                    return;
 
                 if (pawn.Name == null)
                 {
