@@ -45,7 +45,11 @@ namespace WeaponBase
         }
         public override string CompInspectStringExtra()
         {
-            string s = base.CompInspectStringExtra().TrimEndNewlines().TrimEnd();
+            string s = base.CompInspectStringExtra();
+            if (s != null)
+                s= s.TrimEndNewlines().TrimEnd();
+            else
+                s = "";
 
             if (s != "")
                 s = s + "\n";
