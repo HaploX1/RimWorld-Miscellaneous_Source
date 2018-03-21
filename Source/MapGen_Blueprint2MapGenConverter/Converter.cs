@@ -81,19 +81,24 @@ namespace Blueprint2MapGenConverter
             // Add example for pawnData
             target.pawnData = buildingData.ToString();
             Misc_Blueprint.LegendData pawnLegendData = new Misc_Blueprint.LegendData();
-            pawnLegendData.key = "x"; pawnLegendData.value = "MercenarySniper";
+            pawnLegendData.key = "x"; pawnLegendData.value = "Mercenary_Elite";
             target.pawnLegend.Add(pawnLegendData);
             target.pawnSpawnChance = 50;
 
 
             
             // MAIN Presets
-            target.defName = "TODO_-_Blueprint_needs_a_unique_defName";
-            target.createdBy = "TODO_-_Please_enter_your_username_here";
+            target.defName = "TODO__Blueprint_needs_a_unique_defName";
+            target.createdBy = "TODO__Please_enter_your_username_here";
             target.techLevelRequired = "Neolithic";
             target.chance = 10;
             //target.size = IntVec2.Invalid;
-            target.canHaveHoles = false;
+
+            if (target.createMapGenFactionBaseBlueprint)
+                target.canHaveHoles = false;
+            else
+                target.canHaveHoles = true;
+
             target.createTrigger = false;
 
 
@@ -126,7 +131,7 @@ namespace Blueprint2MapGenConverter
                                                                     ref Dictionary<string, string> mappingBuildingRotation2LegendKey,
                                                                     ref Dictionary<string, string> mappingFloor2LegendKey)
         {
-            string alphabet = "abcdefghijklmnopqrstuvwxyz";
+            string placeholders = "abcdefghijklmnopqrstuvwxyz1234567890+-*#&?!@€";
 
             // Find all different items
             HashSet<string> buildingRotationHash = new HashSet<string>();
@@ -148,12 +153,12 @@ namespace Blueprint2MapGenConverter
             Dictionary<string, string> buildingRotationMap = new Dictionary<string, string>();
             for (int i = 0; i < buildingRotationHash.Count; i++)
             {
-                buildingRotationMap.Add(buildingRotationHash.ElementAt(i), alphabet[i].ToString());
+                buildingRotationMap.Add(buildingRotationHash.ElementAt(i), placeholders[i].ToString());
             }
             Dictionary<string, string> floorMap = new Dictionary<string, string>();
             for (int i = 0; i < floorHash.Count; i++)
             {
-                floorMap.Add(floorHash.ElementAt(i), alphabet[i].ToString());
+                floorMap.Add(floorHash.ElementAt(i), placeholders[i].ToString());
             }
 
 

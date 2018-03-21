@@ -38,6 +38,8 @@
             this.txtPath = new System.Windows.Forms.TextBox();
             this.ToolTipText = new System.Windows.Forms.ToolTip(this.components);
             this.FBD = new System.Windows.Forms.FolderBrowserDialog();
+            this.rbMapGen = new System.Windows.Forms.RadioButton();
+            this.rbMapGenFB = new System.Windows.Forms.RadioButton();
             this.SuspendLayout();
             // 
             // OFD
@@ -122,11 +124,35 @@
             this.txtPath.Text = "...";
             this.txtPath.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // rbMapGen
+            // 
+            this.rbMapGen.AutoSize = true;
+            this.rbMapGen.Location = new System.Drawing.Point(12, 56);
+            this.rbMapGen.Name = "rbMapGen";
+            this.rbMapGen.Size = new System.Drawing.Size(66, 17);
+            this.rbMapGen.TabIndex = 7;
+            this.rbMapGen.Text = "MapGen";
+            this.rbMapGen.UseVisualStyleBackColor = true;
+            // 
+            // rbMapGenFB
+            // 
+            this.rbMapGenFB.AutoSize = true;
+            this.rbMapGenFB.Checked = true;
+            this.rbMapGenFB.Location = new System.Drawing.Point(12, 79);
+            this.rbMapGenFB.Name = "rbMapGenFB";
+            this.rbMapGenFB.Size = new System.Drawing.Size(128, 17);
+            this.rbMapGenFB.TabIndex = 8;
+            this.rbMapGenFB.TabStop = true;
+            this.rbMapGenFB.Text = "MapGen FactionBase";
+            this.rbMapGenFB.UseVisualStyleBackColor = true;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(573, 181);
+            this.Controls.Add(this.rbMapGenFB);
+            this.Controls.Add(this.rbMapGen);
             this.Controls.Add(this.txtPath);
             this.Controls.Add(this.buttonOpenFolder);
             this.Controls.Add(this.buttonConvertFile);
@@ -152,6 +178,8 @@
         private System.Windows.Forms.TextBox txtPath;
         public System.Windows.Forms.ToolTip ToolTipText;
         private System.Windows.Forms.FolderBrowserDialog FBD;
+        private System.Windows.Forms.RadioButton rbMapGen;
+        private System.Windows.Forms.RadioButton rbMapGenFB;
     }
 }
 

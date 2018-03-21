@@ -53,7 +53,7 @@ namespace Blueprint2MapGenConverter
             }
             XmlAttribute xmlAttribute = subNode.Attributes["IsNull"];
             T result;
-            if (xmlAttribute != null && xmlAttribute.Value == "True")
+            if (xmlAttribute != null && xmlAttribute.Value.ToLower() == "true")
             {
                 result = default(T);
             }

@@ -57,8 +57,14 @@ namespace Blueprint2MapGenConverter
         {
             if (!File.Exists(workFilePath) || txtFileSelected.Text == null || txtFileSelected.Text == "")
                 return;
+            string outFile = "";
 
-            string outFile = "MapGenerator_" + Path.GetFileNameWithoutExtension(txtFileSelected.Text) + ".xml";
+            if (rbMapGen.Checked)
+                outFile = "MapGeneratorBlueprintsX_" + Path.GetFileNameWithoutExtension(txtFileSelected.Text) + ".xml";
+
+            if (rbMapGenFB.Checked)
+                outFile = "MapGeneratorBaseBlueprintsX_" + Path.GetFileNameWithoutExtension(txtFileSelected.Text) + ".xml";
+
             string outFilePath = System.IO.Path.Combine(path, outFile);
 
             // Load Fluffy Blueprint
@@ -70,13 +76,27 @@ namespace Blueprint2MapGenConverter
             Scribe.ExitNode();
             Scribe.FinalizeLoading();
 
+            string nodeName = "";
+            if (rbMapGen.Checked)
+                nodeName = "MapGenerator.MapGeneratorBlueprintDef";
+
+            if (rbMapGenFB.Checked)
+                nodeName = "MapGenerator.MapGeneratorBaseBlueprintDef";
+
+
             // Write data to MapGen Blueprint
             Misc_Blueprint blueprintOUT = new Misc_Blueprint();
+
+            blueprintOUT.createMapGenFactionBaseBlueprint = rbMapGenFB.Checked;
+
             Converter.FillMiscBlueprintFromFluffyBlueprint(blueprintIN, ref blueprintOUT);
 
             Scribe.InitWriting(outFilePath, "Defs");
-            Scribe.EnterNode("MapGenerator.MapGeneratorBaseBlueprintDef");
-            Scribe.WriteAttribute("Name", "TODO_enter_a_name_here");
+            Scribe.EnterNode(nodeName);
+
+            if (rbMapGenFB.Checked)
+                Scribe.WriteAttribute("Name", "TODO_enter_a_name_here");
+
             blueprintOUT.ExposeData();
             Scribe.FinalizeWriting();
 

@@ -25,6 +25,8 @@ namespace Blueprint2MapGenConverter
                 Scribe_Values.LookValue<string>(ref this.value, "value", null, true);
             }
         }
+
+        public bool createMapGenFactionBaseBlueprint = true;
         
         public string defName = "unique_defName";
         public string createdBy = "username";
@@ -63,12 +65,22 @@ namespace Blueprint2MapGenConverter
 
         public void ExposeData()
         {
+            bool canHaveHoles = true;
+            if (createMapGenFactionBaseBlueprint)
+                canHaveHoles = false;
+
             Scribe_Values.LookValue<string>(ref this.defName, "defName", null, true);
-            Scribe_Values.LookValue<string>(ref this.createdBy, "createdBy", null, true);
-            Scribe_Values.LookValue<string>(ref this.techLevelRequired, "techLevelRequired", null, true);
+
+            if (createMapGenFactionBaseBlueprint) // Not if not a base
+                Scribe_Values.LookValue<string>(ref this.createdBy, "createdBy", null, true);
+            if (createMapGenFactionBaseBlueprint) // Not if not a base
+                Scribe_Values.LookValue<string>(ref this.techLevelRequired, "techLevelRequired", null, true);
+
             Scribe_Values.LookValue<int>(ref this.chance, "chance", -1, true);
             Scribe_Values.LookValue<IntVec2>(ref this.size, "size", IntVec2.Invalid, true);
-            Scribe_Values.LookValue<bool>(ref this.canHaveHoles, "canHaveHoles", false, true);
+            
+            Scribe_Values.LookValue<bool>(ref this.canHaveHoles, "canHaveHoles", canHaveHoles, true);
+           
             Scribe_Values.LookValue<bool>(ref this.createTrigger, "createTrigger", false, true);
 
             Scribe_Values.LookValue<string>(ref this.buildingData, "buildingData", null, true);

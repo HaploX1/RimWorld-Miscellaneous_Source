@@ -13,7 +13,7 @@ namespace Blueprint2MapGenConverter
         public static void WriteMetaHeader()
         {
             Scribe.EnterNode("meta");
-            string currentVersionStringWithRev = "0.16.1392"; //VersionControl.CurrentVersionStringWithRev;
+            string currentVersionStringWithRev = "0.18.1722"; //VersionControl.CurrentVersionStringWithRev;
             Scribe_Values.LookValue<string>(ref currentVersionStringWithRev, "gameVersion", null, false);
             //List<string> list = (from mod in LoadedModManager.RunningMods
             //                     select mod.Identifier).ToList<string>();
