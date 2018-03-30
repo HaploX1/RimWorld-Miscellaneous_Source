@@ -55,7 +55,7 @@ namespace TacticalComputer
                 list.Add(sitePartDef);
 
                 // Outpost may also have turrets
-                if (sitePartDef == SitePartDefOf.Outpost && Rand.Value > 0.6f)
+                if (sitePartDef == SitePartDefOf.Outpost && Rand.Value < 0.4f)
                     list.Add(SitePartDefOf.Turrets);
 
                 return list;

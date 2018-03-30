@@ -155,7 +155,7 @@ namespace BeeAndHoney
             if (parent.Map == null || !parent.Spawned)
                 return;
 
-            if (Active)
+            if (parent.IsHashIntervalTick(50) && Active)
             {
                 float increaseResourceMultiplier = 0.25f;
                 if (foundThingsInt != null && foundThingsInt.Count > Props.thingsCountMin)
@@ -180,9 +180,9 @@ namespace BeeAndHoney
 
             // ===== Update the available flowers every x ticks =====
 
-            // No plant check at speed 3 or higher
-            if (Find.TickManager.CurTimeSpeed >= TimeSpeed.Superfast)
-                return;
+            // No plant check at speed 3 or higher --> Changes are now in SearchFlowers
+            //if (Find.TickManager.CurTimeSpeed >= TimeSpeed.Superfast)
+            //    return;
             
             // Update flowers if needed
             SearchForFlowers(parent.Map);
@@ -271,7 +271,11 @@ namespace BeeAndHoney
         
         private void SearchForFlowers(Map map, bool forced = false)
         {
-            if (!forced && !Gen.IsHashIntervalTick(parent, Props.updateTicks))
+            int interval = Props.updateTicks;
+            if (Find.TickManager.CurTimeSpeed >= TimeSpeed.Superfast)
+                interval += 5000; // return;
+
+            if (!forced && !Gen.IsHashIntervalTick(parent, interval))
                 return;
 
             // Update flowers if needed

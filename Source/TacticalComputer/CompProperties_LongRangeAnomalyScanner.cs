@@ -6,7 +6,7 @@ namespace TacticalComputer
 {
     public class CompProperties_LongRangeAnomalyScanner : CompProperties
     {
-        public float chanceForNoSitePart = 0.35f;
+        public float chanceForNoSitePart = 0.001f;
         public float radius = 20f;
         public float mtbDays = 40f;
 

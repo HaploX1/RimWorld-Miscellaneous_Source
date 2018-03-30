@@ -38,6 +38,8 @@ namespace BeeAndHoney
 
         public List<HoneySeasonMultiplicator> seasonData = new List<HoneySeasonMultiplicator>()
         {
+            new HoneySeasonMultiplicator() { season=Season.PermanentSummer, multi= 1.0f },
+            new HoneySeasonMultiplicator() { season=Season.PermanentWinter, multi= 0.7f },
             new HoneySeasonMultiplicator() { season=Season.Spring, multi= 1.0f },
             new HoneySeasonMultiplicator() { season=Season.Summer, multi= 1.0f },
             new HoneySeasonMultiplicator() { season=Season.Fall,   multi= 0.5f },
