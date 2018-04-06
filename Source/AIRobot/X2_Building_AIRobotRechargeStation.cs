@@ -70,7 +70,7 @@ namespace AIRobot
                 if (robot != null)
                     return robot;
 
-                if (robot == null)
+                if (container != null && container.Count > 0 )
                     return container[0];
 
                 return null;
