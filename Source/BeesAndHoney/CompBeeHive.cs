@@ -272,7 +272,11 @@ namespace BeeAndHoney
         private void SearchForFlowers(Map map, bool forced = false)
         {
             int interval = Props.updateTicks;
-            if (Find.TickManager.CurTimeSpeed >= TimeSpeed.Superfast)
+            if (Find.TickManager.CurTimeSpeed >= TimeSpeed.Superfast && 
+                    (   GenLocalDate.Season(parent.Map) == Season.Winter ||
+                        (foundThingsInt != null && foundThingsInt.Count > 1) 
+                    ) 
+                )
                 interval += 5000; // return;
 
             if (!forced && !Gen.IsHashIntervalTick(parent, interval))

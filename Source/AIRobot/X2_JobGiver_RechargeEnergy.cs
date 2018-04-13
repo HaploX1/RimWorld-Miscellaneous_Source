@@ -21,42 +21,43 @@ namespace AIRobot
 
         public override float GetPriority(Pawn pawn)
         {
+            if (pawn == null || pawn.needs == null)
+                return 0f;
+
             Need_Rest needRest = pawn.needs.rest;
             if (needRest == null)
-            {
                 return 0f;
-            }
+
             float curLevel = needRest.CurLevel;
             TimeAssignmentDef timeAssignmentDef = (pawn.timetable != null ? pawn.timetable.CurrentAssignment : TimeAssignmentDefOf.Anything);
 
             if (timeAssignmentDef == TimeAssignmentDefOf.Anything || timeAssignmentDef == TimeAssignmentDefOf.Work)
             {
+                if ((pawn as X2_AIRobot) == null || (pawn as X2_AIRobot).rechargeStation == null || (pawn as X2_AIRobot).rechargeStation.Position == null)
+                    return 0f;
+
                 // Own implementation: When level < 45% && dist > 25
                 bool isOutsideMaxDistance = !AIRobot_Helper.IsInDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position, 25f);
                 if (curLevel < 0.45f && pawn as X2_AIRobot != null && isOutsideMaxDistance)
-                {
                     return 8f;
-                }
+
                 if (curLevel < 0.25f)
-                {
                     return 8f;
-                }
+
                 return 0f;
             }
             if (timeAssignmentDef == TimeAssignmentDefOf.Joy)
             {
                 if (curLevel < 0.3f)
-                {
                     return 8f;
-                }
+
                 return 0f;
             }
             if (timeAssignmentDef == TimeAssignmentDefOf.Sleep)
             {
                 if (curLevel < 0.75f)
-                {
                     return 8f;
-                }
+
                 return 0f;
             }
             return 0f;
