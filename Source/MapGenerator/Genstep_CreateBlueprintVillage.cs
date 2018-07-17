@@ -87,7 +87,7 @@ namespace MapGenerator
 
         protected override bool CanScatterAt(IntVec3 loc, Map map)
         {
-            return base.CanScatterAt(loc, map) && loc.SupportsStructureType(map, TerrainAffordance.Heavy);
+            return base.CanScatterAt(loc, map) && loc.SupportsStructureType(map, TerrainAffordanceDefOf.Heavy);
         }
 
 
@@ -750,7 +750,7 @@ namespace MapGenerator
             // try adjust quality
             CompQuality treasureCQ = treasure.TryGetComp<CompQuality>();
             if (treasureCQ != null)
-                treasureCQ.SetQuality(QualityUtility.RandomCreationQuality(Rand.RangeInclusive(10, 20)), ArtGenerationContext.Outsider);
+                treasureCQ.SetQuality(QualityUtility.GenerateQualityBaseGen(), ArtGenerationContext.Outsider);
 
             // adjust Stack to a random stack size
             if (treasure.def.stackLimit > 1)

@@ -22,6 +22,14 @@ namespace MapGenerator
 
         private static Dictionary<int, string> mapWorldCoord2Blueprint;
 
+        public override int SeedPart
+        {
+            get
+            {
+                return 1401313111;
+            }
+        }
+
         protected override bool CanScatterAt(IntVec3 c, Map map)
         {
             return base.CanScatterAt(c, map) && c.Standable(map) && !c.Roofed(map) && map.reachability.CanReachMapEdge(c, TraverseParms.For(TraverseMode.PassDoors, Danger.Deadly, false));
@@ -129,7 +137,7 @@ namespace MapGenerator
         protected void Core_ScatterAt(IntVec3 c, Map map, int stackCount = 1)
         {
 
-            GenStep_FactionBase gs = new GenStep_FactionBase();
+            GenStep_Settlement gs = new GenStep_Settlement();
             //gs.ForceScatterAt(c, map);
             gs.ReflectCall("ScatterAt", c, map, stackCount);
             
@@ -137,29 +145,18 @@ namespace MapGenerator
 
 
 
-            //int randomInRange = FactionBaseSizeRange.RandomInRange; // modified!
-            //int randomInRange2 = FactionBaseSizeRange.RandomInRange; // modified!
-
+            //int randomInRange = GenStep_Settlement.SettlementSizeRange.RandomInRange;
+            //int randomInRange2 = GenStep_Settlement.SettlementSizeRange.RandomInRange;
             //CellRect rect = new CellRect(c.x - randomInRange / 2, c.z - randomInRange2 / 2, randomInRange, randomInRange2);
-            //Faction faction;
-            //if (map.info.parent == null || map.info.parent.Faction == null || map.info.parent.Faction == Faction.OfPlayer)
-            //{
-            //    faction = Find.FactionManager.RandomEnemyFaction(false, false);
-            //}
-            //else
-            //{
-            //    faction = map.info.parent.Faction;
-            //}
-            //if (FactionBaseSymbolResolverUtility.ShouldUseSandbags(faction))
-            //{
-            //    rect = rect.ExpandedBy(4);
-            //}
+            //Faction faction = (map.ParentFaction != null && map.ParentFaction != Faction.OfPlayer) ? map.ParentFaction : Find.FactionManager.RandomEnemyFaction(false, false, true, TechLevel.Undefined);
             //rect.ClipInsideMap(map);
             //ResolveParams resolveParams = default(ResolveParams);
             //resolveParams.rect = rect;
             //resolveParams.faction = faction;
             //BaseGen.globalSettings.map = map;
-            //BaseGen.symbolStack.Push("factionBase", resolveParams);
+            //BaseGen.globalSettings.minBuildings = 1;
+            //BaseGen.globalSettings.minBarracks = 1;
+            //BaseGen.symbolStack.Push("settlement", resolveParams);
             //BaseGen.Generate();
 
         }

@@ -12,14 +12,16 @@ namespace BeeAndHoney
 {
     public class CompBeeHive : CompHasGatherableBodyResource
     {
-        private int updateTicks;
+
+        private const int doUpdateAfterXTicks = 50;
         private List<Thing> foundThingsInt;
 
         protected override bool Active
         {
             get
             {
-                return base.Active && IsTemperatureGood();
+                return IsTemperatureGood();
+                //return base.Active && IsTemperatureGood();
             }
         }
 
@@ -65,15 +67,15 @@ namespace BeeAndHoney
         }
         
         
-        public float FullnessReflected
-        {
-            set
-            {
-                // With this Reflection you can access a private variable! Here: The private float "fullness" is set 
-                System.Reflection.FieldInfo fi = typeof(CompHasGatherableBodyResource).GetField("fullness", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                fi.SetValue(this, value);
-            }
-        }
+        //public float FullnessReflected
+        //{
+        //    set
+        //    {
+        //        // With this Reflection you can access a private variable! Here: The private float "fullness" is set 
+        //        System.Reflection.FieldInfo fi = typeof(CompHasGatherableBodyResource).GetField("fullness", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+        //        fi.SetValue(this, value);
+        //    }
+        //}
 
         
         public CompProperties_BeeHive Props
@@ -143,7 +145,6 @@ namespace BeeAndHoney
         public override void PostExposeData()
         {
             base.PostExposeData();
-            Scribe_Values.Look<int>(ref this.updateTicks, "updateTicks", 0, false); // Can be removed!!!
         }
 
 
@@ -155,7 +156,7 @@ namespace BeeAndHoney
             if (parent.Map == null || !parent.Spawned)
                 return;
 
-            if (parent.IsHashIntervalTick(50) && Active)
+            if (parent.IsHashIntervalTick(doUpdateAfterXTicks) && Active)
             {
                 float increaseResourceMultiplier = 0.25f;
                 if (foundThingsInt != null && foundThingsInt.Count > Props.thingsCountMin)
@@ -169,12 +170,17 @@ namespace BeeAndHoney
                 // apply season multiplier
                 resourceIncreasePerTick = resourceIncreasePerTick * SeasonGrowthMultiplicator;
 
-                FullnessReflected = Fullness + resourceIncreasePerTick;
+                //Log.Error("resourceIncrease:" + resourceIncreasePerTick.ToString() + " | Fullness Pre:" + Fullness.ToString());
+
+                //if (resourceIncreasePerTick > 0)
+                    resourceIncreasePerTick = resourceIncreasePerTick * doUpdateAfterXTicks; // / 2;
+
+                fullness = Fullness + resourceIncreasePerTick;
 
                 if (Fullness > 1f)
-                    FullnessReflected = 1f;
-                if (Fullness < 0f)
-                    FullnessReflected = 0f;
+                    fullness = 1f;
+                if (Fullness < 0.01f)
+                    fullness = 0.01f;
             }
 
 
@@ -224,7 +230,7 @@ namespace BeeAndHoney
                 cmd1.defaultDesc = "Debug: Honeycombs 99%";
                 cmd1.hotKey = KeyBindingDefOf.Misc2; //H
                 cmd1.activateSound = SoundDef.Named("Click");
-                cmd1.action = delegate { FullnessReflected = 0.99f; };
+                cmd1.action = delegate { fullness = 0.99f; };
                 cmd1.disabled = false;
                 cmd1.disabledReason = "";
                 cmd1.groupKey = baseGroupKey + 1;

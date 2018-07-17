@@ -16,7 +16,7 @@ namespace TrainingFacility
         {
             //JoyGiverDef joyGiverDef = DefDatabase<JoyGiverDef>.GetNamed("PracticeShooting");
 
-            GenDraw.DrawFieldEdges(Utility_PositionFinder.FindAllWatchBuildingCells(center, Find.VisibleMap, def.rotatable, rot, def.building.watchBuildingStandDistanceRange).ToList<IntVec3>());
+            GenDraw.DrawFieldEdges(Utility_PositionFinder.FindAllWatchBuildingCells(center, Find.CurrentMap, def.rotatable, rot, def.building.watchBuildingStandDistanceRange).ToList<IntVec3>());
         }
     }
 }

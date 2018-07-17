@@ -30,7 +30,7 @@ namespace TurretWeaponBase
         public override void ProcessInput(Event ev)
         {
             base.ProcessInput(ev);
-            SoundDefOf.TickTiny.PlayOneShotOnCamera(null);
+            SoundDefOf.Tick_Tiny.PlayOneShotOnCamera(null);
             Targeter targeter = Find.Targeter;
             if (this.verb.CasterIsPawn && targeter.targetingVerb != null && targeter.targetingVerb.verbProps == this.verb.verbProps)
             {

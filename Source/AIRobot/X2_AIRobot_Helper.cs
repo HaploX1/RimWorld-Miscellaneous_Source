@@ -109,7 +109,7 @@ namespace AIRobot
 
                 if (bodyPart != null)
                 {
-                    DamageInfo damageInfo = new DamageInfo(DamageDefOf.EMP, Mathf.RoundToInt(hediffSet.GetPartHealth(bodyPart)), -1, null, bodyPart, null);
+                    DamageInfo damageInfo = new DamageInfo(DamageDefOf.EMP, Mathf.RoundToInt(hediffSet.GetPartHealth(bodyPart)), 0f , -1f, null, bodyPart, null, DamageInfo.SourceCategory.ThingOrUnknown, null);
                     //pawn.TakeDamage(damageInfo);
                     
                     

@@ -88,7 +88,8 @@ namespace TurretWeaponBase
             {
                 checkedForCustomMaterial = true;
 
-                Material m = Helper.LoadMaterial(parentTurret.gun.def.graphicData.texPath + "_top", ShaderType.Transparent, false);
+                //Material m = Helper.LoadMaterial(parentTurret.gun.def.graphicData.texPath + "_top", ShaderType.Transparent, false);
+                Material m = MaterialPool.MatFrom(parentTurret.gun.def.graphicData.texPath + "_top");
                 if (m != null)
                     TopMatCustom = m;
             }

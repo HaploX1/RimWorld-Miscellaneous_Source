@@ -14,6 +14,14 @@ namespace MapGenerator
 {
     public class GenStep_CreateBlueprintBaseClass : GenStep_Scatterer
     {
+        public override int SeedPart
+        {
+            get
+            {
+                return 131314176;
+            }
+        }
+
         protected static DateTime usedCells_lastChange = DateTime.UtcNow;
         protected static HashSet<IntVec3> usedCells = new HashSet<IntVec3>();
 

@@ -556,7 +556,7 @@ namespace ColonistSelections
                 Pawn p = colonists.ElementAt(i);
 
                 // Don't release pawns with an active job
-                if (p.CurJob == null || (p.CurJob.def != JobDefOf.Wait && p.CurJob.def != JobDefOf.WaitCombat))
+                if (p.CurJob == null || (p.CurJob.def != JobDefOf.Wait && p.CurJob.def != JobDefOf.Wait_Combat))
                     continue;
 
                 if (p.drafter.Drafted == true)
@@ -578,7 +578,7 @@ namespace ColonistSelections
 
             // Only jump if valid cell was found
             if (cell != IntVec3.Invalid && cell.IsValid)
-                Find.CameraDriver.JumpToVisibleMapLoc(cell);
+                Find.CameraDriver.JumpToCurrentMapLoc(cell);
         }
 
         private Pawn TryGetSelectedSinglePawn()

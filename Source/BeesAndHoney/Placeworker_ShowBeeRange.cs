@@ -14,9 +14,8 @@ namespace BeeAndHoney
     public class Placeworker_ShowBeeRange : PlaceWorker
     {
         public Placeworker_ShowBeeRange() { }
-       
 
-        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot)
+        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color ghostCol)
         {
             CompProperties_BeeHive comp = def.comps.Where(c => c as CompProperties_BeeHive != null).FirstOrDefault() as CompProperties_BeeHive;
             if (comp == null)
@@ -26,8 +25,8 @@ namespace BeeAndHoney
             }
 
             //Log.Error("Placeworker_ShowBeeRange -- radius: " + comp.rangeBees.ToString() + " // count of cells: " + BeeAndHoneyUtility.CalculateAllCellsInsideRadius(center, Mathf.RoundToInt(comp.rangeBees)).Count().ToString());
-            List<IntVec3> cells = new List<IntVec3>(BeeAndHoneyUtility.CalculateAllCellsInsideRadius(center, Find.VisibleMap, Mathf.RoundToInt(comp.rangeThings)));
-            GenDraw.DrawFieldEdges(cells, Color.white);
+            List<IntVec3> cells = new List<IntVec3>(BeeAndHoneyUtility.CalculateAllCellsInsideRadius(center, Find.CurrentMap, Mathf.RoundToInt(comp.rangeThings)));
+            GenDraw.DrawFieldEdges(cells, ghostCol);
         }
     }
 }

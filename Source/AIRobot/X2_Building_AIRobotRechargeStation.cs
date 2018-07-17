@@ -70,8 +70,8 @@ namespace AIRobot
                 if (robot != null)
                     return robot;
 
-                if (container != null && container.Count > 0 )
-                    return container[0];
+                if (container != null && container.Count > 0)
+                    return container.FirstOrDefault(); //[0];
 
                 return null;
             }
@@ -635,7 +635,7 @@ namespace AIRobot
             {
                 target = disabledRobot.Position;
                 if (target != IntVec3.Invalid)
-                    Find.CameraDriver.JumpToVisibleMapLoc(target);
+                    Find.CameraDriver.JumpToCurrentMapLoc(target);
                 return;
             }
 
@@ -643,12 +643,12 @@ namespace AIRobot
             {
                 target = robot.Position;
                 if (target != IntVec3.Invalid)
-                    Find.CameraDriver.JumpToVisibleMapLoc(target);
+                    Find.CameraDriver.JumpToCurrentMapLoc(target);
                 return;
             }
             target = this.Position;
             if (target != IntVec3.Invalid)
-                Find.CameraDriver.JumpToVisibleMapLoc(target);
+                Find.CameraDriver.JumpToCurrentMapLoc(target);
             return;
         }
 

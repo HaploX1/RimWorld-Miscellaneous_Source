@@ -25,7 +25,7 @@ namespace WeaponBase
             
             Map map = this.launcher.Map;
             IntVec3 cell;
-            RCellFinder.TryFindRandomCellNearWith(base.Position, ((IntVec3 x) => x.GetTerrain(map).affordances.Contains(TerrainAffordance.Light) && 
+            RCellFinder.TryFindRandomCellNearWith(base.Position, ((IntVec3 x) => x.GetTerrain(map).affordances.Contains(TerrainAffordanceDefOf.Light) && 
                                                                                  x.GetEdifice(map) == null && x.Standable(map)),
                                                                                 map, out cell, 2);
 

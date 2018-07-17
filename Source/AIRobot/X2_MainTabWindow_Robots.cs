@@ -30,7 +30,7 @@ namespace AIRobot
             {
                 List<Pawn> robots = new List<Pawn>();
 
-                foreach (X2_Building_AIRobotRechargeStation station in Find.VisibleMap.listerBuildings.AllBuildingsColonistOfClass<X2_Building_AIRobotRechargeStation>())
+                foreach (X2_Building_AIRobotRechargeStation station in Find.CurrentMap.listerBuildings.AllBuildingsColonistOfClass<X2_Building_AIRobotRechargeStation>())
                 {
                     if (station == null || !station.Spawned || station.Destroyed)
                         continue;
@@ -53,7 +53,7 @@ namespace AIRobot
                 //robots = robots.OrderBy(r => r.LabelShort).ToList();
                 //return robots;
 
-                //return from p in Find.VisibleMap.mapPawns.PawnsInFaction(Faction.OfPlayer)
+                //return from p in Find.CurrentMap.mapPawns.PawnsInFaction(Faction.OfPlayer)
                 //              where p is X2_AIRobot
                 //              orderby p.def.label
                 //              select p;

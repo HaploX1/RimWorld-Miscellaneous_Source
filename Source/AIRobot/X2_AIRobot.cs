@@ -47,9 +47,9 @@ namespace AIRobot
             // Story is needed for some skills (like Growing)
             this.story = new Pawn_StoryTracker(this);
             if (this.gender == Gender.Male)
-                this.story.bodyType = BodyType.Male;
+                this.story.bodyType = BodyTypeDefOf.Male;
             else
-                this.story.bodyType = BodyType.Female;
+                this.story.bodyType = BodyTypeDefOf.Female;
             this.story.crownType = CrownType.Average;
 
             this.Drawer.renderer.graphics.ResolveApparelGraphics();
@@ -131,6 +131,10 @@ namespace AIRobot
             {
                 if (rechargeStation == null)
                     rechargeStation = TryFindRechargeStation(this, Map);
+
+                // Remove unwanted HeDiffs
+                if (!Gen.IsHashIntervalTick(this, 500))
+                    RemoveUnwantedHediffs(this);
             }
         }
         #endregion
@@ -257,7 +261,7 @@ namespace AIRobot
             if (map == null && bot.rechargeStation != null)
                 map = bot.rechargeStation.Map;
             if (map == null)
-                map = Find.VisibleMap;
+                map = Find.CurrentMap;
             if (map == null)
                 return default(X2_Building_AIRobotRechargeStation);
 
@@ -386,6 +390,29 @@ namespace AIRobot
             }
         }
         #endregion
+
+        public static List<Type> removeablehediffs = new List<Type>(new Type[]
+{
+              typeof(Hediff_Alcohol),
+              typeof(Hediff_Hangover),
+              typeof(Hediff_Addiction),
+              typeof(Hediff_HeartAttack),
+              typeof(Hediff_Pregnant),
+});
+
+        // removing hediffs, like alcohol etc.
+        // Provided by SkyArchAngel
+        public static void RemoveUnwantedHediffs(Pawn p)
+        {
+            var hediffs = p.health.hediffSet.hediffs;
+            for (var i = 0; i < hediffs.Count; i++)
+            {
+                if (removeablehediffs.Contains(hediffs[i].def.hediffClass))
+                {
+                    p.health.RemoveHediff(hediffs[i]);
+                }
+            }
+        }
 
         #endregion
 

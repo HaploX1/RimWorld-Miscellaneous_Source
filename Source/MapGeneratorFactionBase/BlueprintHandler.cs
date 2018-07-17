@@ -635,7 +635,7 @@ namespace MapGenerator
             // try adjust quality
             CompQuality treasureQuality = treasure.TryGetComp<CompQuality>();
             if (treasureQuality != null)
-                treasureQuality.SetQuality(QualityUtility.RandomCreationQuality(Rand.RangeInclusive(10, 18)), ArtGenerationContext.Outsider);
+                treasureQuality.SetQuality(QualityUtility.GenerateQualityRandomEqualChance(), ArtGenerationContext.Outsider);
 
             // adjust Stack to a random stack size
             if (treasure.def.stackLimit > 1)
@@ -694,7 +694,7 @@ namespace MapGenerator
             resolveParams.rect = rect;
             resolveParams.faction = faction;
             resolveParams.singlePawnLord = lord;
-            resolveParams.pawnGroupKindDef = PawnGroupKindDefOf.FactionBase;
+            resolveParams.pawnGroupKindDef = PawnGroupKindDefOf.Settlement;
             resolveParams.singlePawnSpawnCellExtraPredicate = ((IntVec3 x) => CanReachARoom(map, x, rooms));
 
             float points = (!faction.def.techLevel.IsNeolithicOrWorse()) ? NonNeolithicPawnsPoints.RandomInRange : NeolithicPawnsPoints.RandomInRange;

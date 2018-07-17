@@ -203,22 +203,22 @@ namespace CommonMisc
 
 
 
-        /// <summary>
-        /// A small helper function to load materials (based on Tynans code)
-        /// </summary>
-        /// <param name="texturePath"></param>
-        /// <returns></returns>
-        public static Material LoadMaterial(string texturePath, ShaderType shaderType = ShaderType.Transparent, bool throwError = true)
-        {
-            Texture2D texture2D = ContentFinder<Texture2D>.Get(texturePath, throwError);
+        ///// <summary>
+        ///// A small helper function to load materials (based on Tynans code)
+        ///// </summary>
+        ///// <param name="texturePath"></param>
+        ///// <returns></returns>
+        //public static Material LoadMaterial(string texturePath, Shader shader)
+        //{
+        //    //Texture2D texture2D = ContentFinder<Texture2D>.Get(texturePath, throwError);
 
-            if (texture2D == null)
-                return null;
+        //    //if (texture2D == null)
+        //    //    return null;
 
-            MaterialRequest materialRequest = new MaterialRequest(texture2D, ShaderDatabase.ShaderFromType(shaderType));
+        //    //MaterialRequest materialRequest = new MaterialRequest(texture2D, ShaderDatabase.ShaderFromType(shaderType));
 
-            return MaterialPool.MatFrom(materialRequest);
-        }
+        //    return MaterialPool.MatFrom(materialRequest);
+        //}
 
 
         public static float GetSlopePoint(float X, IntVec3 cell1, IntVec3 cell2)

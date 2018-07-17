@@ -32,7 +32,7 @@ namespace ColonistSelections
             {
                 if (this.job.exitMapOnArrival && pawn.Position.OnEdge(map))
                 {
-                    pawn.ExitMap(true);
+                    pawn.ExitMap(false, Rot4.Random);
                 }
             };
             arrive.defaultCompleteMode = ToilCompleteMode.Instant;

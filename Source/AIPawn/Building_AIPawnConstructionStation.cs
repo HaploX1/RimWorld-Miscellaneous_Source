@@ -155,7 +155,7 @@ namespace AIPawn
             //Check if the slotGroup is active >> deregister it
             if (slotGroup != null)
             {
-                slotGroup.Notify_ParentDestroying();
+                slotGroup.Notify_LostCell(this.PositionHeld);
                 //slotGroup = null;
             }
 
@@ -236,7 +236,7 @@ namespace AIPawn
 
                 if (slotGroup != null)
                 {
-                    slotGroup.Notify_ParentDestroying();
+                    slotGroup.Notify_LostCell(this.PositionHeld);
                     slotGroup = null;
                 }
             }
@@ -423,7 +423,7 @@ namespace AIPawn
             // Fill until count > x, then start production
             if (countSteel >= maxSteelCount && countSilver >= maxSilverCount && slotGroup != null)
             {
-                slotGroup.Notify_ParentDestroying();
+                slotGroup.Notify_LostCell(this.PositionHeld);//.Notify_ParentDestroying();
                 slotGroup = null;
 
                 gatheringSuppliesActive = false;
@@ -558,7 +558,7 @@ namespace AIPawn
             if (gatheringSuppliesActive)
             {
                 gatheringSuppliesActive = false;
-                slotGroup.Notify_ParentDestroying();
+                slotGroup.Notify_LostCell(this.PositionHeld);
                 slotGroup = null;
                 return;
             }

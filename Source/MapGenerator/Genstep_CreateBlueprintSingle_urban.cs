@@ -14,13 +14,13 @@ namespace MapGenerator
 {
     public class Genstep_CreateBlueprintSingle_urban : GenStep_CreateBlueprintSingle
     {
-        public override void Generate(Map map)
+        public override void Generate(Map map, GenStepParams parms)
         {
             // New: don't do this one, if the biome is NOT XXX_UrbanRuins
             if (!map.TileInfo.biome.defName.ToLower().Contains("urbanruins"))
                 return;
 
-            base.Generate(map);
+            base.Generate(map, parms);
         }
 
     }

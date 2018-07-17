@@ -18,10 +18,10 @@ namespace AIRobot
         public static string jobDefName_repair = "AIRobot_RepairDamagedRobot";
         public static int jobConstructionSkillMin = 5;
 
-        public static string ingredientDefName = "Steel";
-        public static int ingredientNeedCount = 20;
-        public static string ingredient2DefName = "Component";
-        public static int ingredient2NeedCount = 1;
+        //public static string ingredientDefName = "Steel";
+        //public static int ingredientNeedCount = 20;
+        //public static string ingredient2DefName = "Component";
+        //public static int ingredient2NeedCount = 1;
 
         public override void ExposeData()
         {
@@ -61,22 +61,22 @@ namespace AIRobot
             }
 
 
-            ThingDef ingredientDef = DefDatabase<ThingDef>.GetNamed(ingredientDefName);
-            ThingDef ingredient2Def = DefDatabase<ThingDef>.GetNamed(ingredient2DefName);
+            ThingDef ingredientDef = disabledRobot.def.costList[0].thingDef; // DefDatabase<ThingDef>.GetNamed(ingredientDefName);
+            ThingDef ingredient2Def = disabledRobot.def.costList[1].thingDef; //DefDatabase<ThingDef>.GetNamed(ingredient2DefName);
             int availableResources; int availableResources2;
             AIRobot_Helper.FindAvailableNearbyResources(ingredientDef, selPawn, out availableResources);
             AIRobot_Helper.FindAvailableNearbyResources(ingredient2Def, selPawn, out availableResources2);
 
             bool resourcesOk = true;
-            if (resourcesOk && availableResources < X2_AIRobot_disabled.ingredientNeedCount)
+            if (resourcesOk && availableResources < disabledRobot.def.costList[0].count) //X2_AIRobot_disabled.ingredientNeedCount)
             {
                 resourcesOk = false;
-                yield return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + " (" + availableResources.ToString() + " / " + ingredientNeedCount.ToString() + " " + ingredientDef.LabelCap + ")", null);
+                yield return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + " (" + availableResources.ToString() + " / " + disabledRobot.def.costList[0].count.ToString() + " " + ingredientDef.LabelCap + ")", null);
             }
-            if (resourcesOk && availableResources2 < X2_AIRobot_disabled.ingredient2NeedCount)
+            if (resourcesOk && availableResources2 < disabledRobot.def.costList[1].count) //X2_AIRobot_disabled.ingredient2NeedCount)
             {
                 resourcesOk = false;
-                yield return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + " (" + availableResources2.ToString() + " / " + ingredient2NeedCount.ToString() + " " + ingredient2Def.LabelCap + ")", null);
+                yield return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + " (" + availableResources2.ToString() + " / " + disabledRobot.def.costList[1].count.ToString() + " " + ingredient2Def.LabelCap + ")", null);
             }
             if (resourcesOk)
             {
@@ -138,10 +138,10 @@ namespace AIRobot
         {
             List<Thing> foundIngredients, foundIngredients2;
             List<int> foundIngredientsCount, foundIngredients2Count;
-            if (!AIRobot_Helper.GetAllNeededIngredients(pawn, DefDatabase<ThingDef>.GetNamed(ingredientDefName), X2_AIRobot_disabled.ingredientNeedCount, out foundIngredients, out foundIngredientsCount) ||
+            if (!AIRobot_Helper.GetAllNeededIngredients(pawn, disabledRobot.def.costList[0].thingDef, disabledRobot.def.costList[0].count, out foundIngredients, out foundIngredientsCount) ||
                     foundIngredients == null || foundIngredients.Count == 0)
                 return;
-            if (!AIRobot_Helper.GetAllNeededIngredients(pawn, DefDatabase<ThingDef>.GetNamed(ingredient2DefName), X2_AIRobot_disabled.ingredient2NeedCount, out foundIngredients2, out foundIngredients2Count) ||
+            if (!AIRobot_Helper.GetAllNeededIngredients(pawn, disabledRobot.def.costList[1].thingDef, disabledRobot.def.costList[1].count, out foundIngredients2, out foundIngredients2Count) ||
                     foundIngredients2 == null || foundIngredients2.Count == 0)
                 return;
 
