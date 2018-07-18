@@ -27,7 +27,7 @@ namespace TrainingFacility
 
             if (pawn != null)
             {
-                attackVerb = pawn.TryGetAttackVerb(false);
+                attackVerb = pawn.TryGetAttackVerb(targetThing, false);
 
                 if (pawn.story == null ||
                     (pawn.story.CombinedDisabledWorkTags & WorkTags.Violent) == WorkTags.Violent)
@@ -38,7 +38,7 @@ namespace TrainingFacility
 
             }
 
-            if (attackVerb == null || attackVerb.verbProps == null || !attackVerb.verbProps.MeleeRange)
+            if (attackVerb == null || attackVerb.verbProps == null || !attackVerb.verbProps.IsMeleeAttack)
                 return null;
 
             //return base.TryGiveJob(pawn);

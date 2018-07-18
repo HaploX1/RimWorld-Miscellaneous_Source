@@ -66,7 +66,7 @@ namespace TrainingFacility
             // Check for dangerous weapons (One-Shot, grenades, destroy on drop, ...)
             if (weaponCheckResult == 0)
             {
-                Verb attackVerb = pawn.TryGetAttackVerb(false);
+                Verb attackVerb = pawn.TryGetAttackVerb(TargetA.Thing, false);
                 if (pawn != null && pawn.equipment != null && pawn.equipment.Primary != null && attackVerb != null)
                 {
                     ThingDef primaryDef = pawn.equipment.Primary.def;
@@ -77,9 +77,9 @@ namespace TrainingFacility
                         weaponCheckResult = -1;
 
                         if (pawn.Faction != null && pawn.Faction == Faction.OfPlayer)
-                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.NameStringShort), pawn, MessageTypeDefOf.NeutralEvent);
+                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name), pawn, MessageTypeDefOf.NeutralEvent);
                         else
-                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.NameStringShort), pawn, MessageTypeDefOf.SilentInput);
+                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name), pawn, MessageTypeDefOf.SilentInput);
                         //Log.Error("WeaponCheck ==> Illegal weapon found. No shooting allowed!");
                     }
                     else
@@ -137,7 +137,7 @@ namespace TrainingFacility
         {
             Verb attackVerb = null;
             if (shooter != null)
-                attackVerb = shooter.TryGetAttackVerb(false);
+                attackVerb = shooter.TryGetAttackVerb(targetInfo.Thing, false);
             
             if (attackVerb != null)
                 attackVerb.TryStartCastOn(targetInfo);

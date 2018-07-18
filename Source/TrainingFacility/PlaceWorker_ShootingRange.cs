@@ -12,11 +12,11 @@ namespace TrainingFacility
 {
     public class PlaceWorker_ShootingRange : PlaceWorker
     {
-        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot)
+        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color ghostCol)
         {
             //JoyGiverDef joyGiverDef = DefDatabase<JoyGiverDef>.GetNamed("PracticeShooting");
 
-            GenDraw.DrawFieldEdges(Utility_PositionFinder.FindAllWatchBuildingCells(center, Find.CurrentMap, def.rotatable, rot, def.building.watchBuildingStandDistanceRange).ToList<IntVec3>());
+            GenDraw.DrawFieldEdges(Utility_PositionFinder.FindAllWatchBuildingCells(center, Find.CurrentMap, def.rotatable, rot, def.building.watchBuildingStandDistanceRange).ToList<IntVec3>(), ghostCol);
         }
     }
 }

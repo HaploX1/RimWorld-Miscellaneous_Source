@@ -31,7 +31,7 @@ namespace WeaponRepair
         {
             get
             {
-                // Repai only possible until 95% of max health
+                // Repair only possible until 95% of max health
                 return parent.HitPoints < parent.MaxHitPoints * Props.maxRepair;
             }
         }
@@ -48,20 +48,16 @@ namespace WeaponRepair
         public override void PostSpawnSetup(bool respawningAfterLoad)
         {
             base.PostSpawnSetup(respawningAfterLoad);
-
         }
 
         public override void PostExposeData()
         {
             base.PostExposeData();
-            //if (Scribe.mode == LoadSaveMode.PostLoadInit)
-            //{
-            //    RecacheEffectiveAreaPct();
-            //}
         }
 
         public override string CompInspectStringExtra()
         {
+            return "repair active. CanBeRepaired=" + CanBeRepaired.ToString() + ". InNeedOfRepairs="+ InNeedOfRepairs.ToString();
             return null;
         }
 
@@ -104,7 +100,7 @@ namespace WeaponRepair
 
             if (GetAvailableTwinThing(selPawn) == null)
             {
-                //yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("WeaponRepair_NoWeaponTwinFound".Translate(), null), selPawn, parent);
+                yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("WeaponRepair_NoWeaponTwinFound".Translate(), null), selPawn, parent);
                 yield break;
             }
 

@@ -93,7 +93,7 @@ namespace TrainingFacility
 
             Verb attackVerb = null;
             if (fighter != null)
-                attackVerb = fighter.TryGetAttackVerb(false);
+                attackVerb = fighter.TryGetAttackVerb(targetInfo.Thing, false);
 
             if (attackVerb != null)
             {

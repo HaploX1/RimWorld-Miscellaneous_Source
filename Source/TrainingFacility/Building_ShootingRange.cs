@@ -52,9 +52,9 @@ namespace TrainingFacility
             // Check weapon status
             Verb attackVerb = null;
             if (selPawn != null)
-                attackVerb = selPawn.TryGetAttackVerb(false);
+                attackVerb = selPawn.TryGetAttackVerb(this, false);
 
-            if (attackVerb != null && attackVerb.verbProps != null && !attackVerb.verbProps.MeleeRange)
+            if (attackVerb != null && attackVerb.verbProps != null && !attackVerb.verbProps.IsMeleeAttack)
             {
                 Thing chair;
                 JoyGiverDef joyGiverDef = this.GetJoyGiverDef();

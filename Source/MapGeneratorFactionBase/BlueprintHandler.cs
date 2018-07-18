@@ -92,6 +92,9 @@ namespace MapGenerator
 
                     if (blueprint.TriggerLetterMessageText != null)
                     {
+                        if (blueprint.TriggerLetterDef == null)
+                            blueprint.TriggerLetterDef = LetterDefOf.ThreatSmall;
+
                         if (blueprint.TriggerLetterLabel != null)
                             signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
                         else

@@ -29,7 +29,7 @@ namespace TrainingFacility
 
             if (pawn != null)
             {
-                attackVerb = pawn.TryGetAttackVerb(false);
+                attackVerb = pawn.TryGetAttackVerb(targetThing, false);
 
                 // disable job when Primary is a Grenade OR when Violent isn't available
                 if (pawn.equipment == null || pawn.equipment.Primary == null || pawn.equipment.Primary.def == null || pawn.equipment.Primary.def.thingCategories == null ||
@@ -48,7 +48,7 @@ namespace TrainingFacility
 
             }
 
-            if (attackVerb == null || attackVerb.verbProps == null || attackVerb.verbProps.MeleeRange)
+            if (attackVerb == null || attackVerb.verbProps == null || attackVerb.verbProps.IsMeleeAttack)
                 return null;
 
             //return base.TryGiveJob(pawn);
