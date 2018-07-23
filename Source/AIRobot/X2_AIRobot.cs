@@ -15,6 +15,22 @@ namespace AIRobot
         public X2_Building_AIRobotRechargeStation rechargeStation;
         public X2_ThingDef_AIRobot def2;
 
+        private static int activePawns = 0;
+
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look<int>(ref activePawns, "activePawns", 0);
+        }
+
+        private static void SetBasename(Pawn pawn)
+        {
+            if ((NameTriple)pawn.Name == null)
+            {
+                activePawns++;
+                pawn.Name = new NameTriple("AIRobot_Basename_first".Translate(), pawn.def.label + " " + activePawns.ToString(), "AIRobot_Basename_last".Translate());
+            }
+        }
 
         #region spawn/destroy
         public override void SpawnSetup(Map map, bool respawningAfterLoad)
@@ -57,6 +73,7 @@ namespace AIRobot
             // To allow the robot to be drafted -> Still not possible to draft, because 1. not humanlike and 2. the GetGizmos in Pawn_Drafter is internal! 
             //this.drafter = new Pawn_DraftController(this); // Maybe not needed because not usable?
 
+            SetBasename(this);
 
             // Robots are not allowed to have JOY like partying!
             timetable = new Pawn_TimetableTracker(this);
