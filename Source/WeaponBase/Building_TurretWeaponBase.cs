@@ -503,7 +503,7 @@ namespace TurretWeaponBase
                 if (GunCompEq.PrimaryVerb.verbProps.minRange > 0.1f)
                     stringBuilder.Append(string.Concat("MinimumRange".Translate(), ": ", GunCompEq.PrimaryVerb.verbProps.minRange.ToString("F0"))).AppendLine();
                 if (burstCooldownTicksLeft > 0)
-                    stringBuilder.Append(string.Concat("CanFireIn".Translate(), ": ", burstCooldownTicksLeft.TicksToSecondsString())).AppendLine();
+                    stringBuilder.Append(string.Concat("CanFireIn".Translate(), ": ", burstCooldownTicksLeft.TicksToSeconds().ToString())).AppendLine();
             }
             else
                 stringBuilder.Append(string.Concat("GunInstalled".Translate(), ": ---")).AppendLine();

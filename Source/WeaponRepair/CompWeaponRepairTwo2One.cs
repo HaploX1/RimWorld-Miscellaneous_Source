@@ -57,7 +57,7 @@ namespace WeaponRepair
 
         public override string CompInspectStringExtra()
         {
-            return "repair active. CanBeRepaired=" + CanBeRepaired.ToString() + ". InNeedOfRepairs="+ InNeedOfRepairs.ToString();
+            //return "repair active. CanBeRepaired=" + CanBeRepaired.ToString() + ". InNeedOfRepairs="+ InNeedOfRepairs.ToString();
             return null;
         }
 
@@ -86,6 +86,8 @@ namespace WeaponRepair
         {
             foreach (FloatMenuOption fmo in base.CompFloatMenuOptions(selPawn))
                 yield return fmo;
+
+            //Log.Error("1 " + Props.allowedDefSubName.NullOrEmpty().ToString() + " 2 " + parent.def.defName);
 
             // Only show float menu for ThingDef-names 'Gun_xxxx'
             if (!(Props.allowedDefSubName.NullOrEmpty() || Props.allowedDefSubName == "*") && !parent.def.defName.Contains(Props.allowedDefSubName))

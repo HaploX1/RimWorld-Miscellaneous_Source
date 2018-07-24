@@ -15,7 +15,7 @@ namespace ColonistSelections
     {
         public JobDriver_GotoDraft() { }
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             this.pawn.Map.pawnDestinationReservationManager.Reserve(this.pawn, this.job, this.job.targetA.Cell);
             return true;

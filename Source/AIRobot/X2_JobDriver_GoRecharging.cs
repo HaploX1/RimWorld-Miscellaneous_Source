@@ -25,9 +25,9 @@ namespace AIRobot
             yield return DespawnIntoContainer();
         }
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.targetA, job, 1, 0, null);
+            return pawn.Reserve(job.targetA, job, 1, 0, null, errorOnFailed);
         }
 
         public Toil GotoThing(IntVec3 cell, Map map, PathEndMode PathEndMode)

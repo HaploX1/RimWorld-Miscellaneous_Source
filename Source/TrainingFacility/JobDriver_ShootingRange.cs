@@ -19,9 +19,9 @@ namespace TrainingFacility
 
         public JobDriver_ShootingRange() {}
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return base.TryMakePreToilReservations();
+            return base.TryMakePreToilReservations(errorOnFailed);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()

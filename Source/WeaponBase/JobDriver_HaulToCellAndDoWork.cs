@@ -28,9 +28,10 @@ namespace TurretWeaponBase
 
         public JobDriver_HaulToCellAndDoWork() { }
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.GetTarget(TargetIndex.B), job, 1, -1, null) && pawn.Reserve(job.GetTarget(TargetIndex.A), job, 1, -1, null);
+            return pawn.Reserve(job.GetTarget(TargetIndex.B), job, 1, -1, null, errorOnFailed) && 
+                    pawn.Reserve(job.GetTarget(TargetIndex.A), job, 1, -1, null, errorOnFailed);
         }
 
         public override string GetReport()

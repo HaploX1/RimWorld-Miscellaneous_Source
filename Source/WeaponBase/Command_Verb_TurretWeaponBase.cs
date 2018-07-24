@@ -19,9 +19,9 @@ namespace TurretWeaponBase
         {
             get
             {
-                if (this.verb.ownerEquipment != null)
+                if (this.verb.EquipmentSource != null)
                 {
-                    return this.verb.ownerEquipment.DrawColor;
+                    return this.verb.EquipmentSource.DrawColor;
                 }
                 return base.IconDrawColor;
             }

@@ -27,10 +27,10 @@ namespace AIRobot
 
         public X2_JobDriver_RepairDamagedRobot() {  }
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             pawn.ReserveAsManyAsPossible(job.GetTargetQueue(IngredientIndex), this.job);
-            return pawn.Reserve(job.targetA, job, 1, 1, null) && pawn.Reserve(job.targetC, job, 1, 1, null);
+            return pawn.Reserve(job.targetA, job, 1, 1, null) && pawn.Reserve(job.targetC, job, 1, 1, null, errorOnFailed);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
