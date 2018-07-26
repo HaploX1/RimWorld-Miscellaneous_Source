@@ -58,19 +58,37 @@ namespace AIRobot
                 this.prioritiesReflected = new DefMap<WorkTypeDef, int>();
             }
             this.prioritiesReflected.SetAll(0);
-            int num = 0;
 
+            
+
+            //int num = 0;
             foreach (WorkTypeDef current in from w in DefDatabase<WorkTypeDef>.AllDefs
                                             //where !w.alwaysStartActive && !this.pawn.story.WorkTypeIsDisabled(w)
                                             //orderby this.pawn2.skills.AverageOfRelevantSkillsFor(w) descending
                                             select w)
-            { 
+            {
+                //bool found = false;
+                //foreach (X2_ThingDef_AIRobot.RobotWorkTypes rwtdef in (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes)
+                //{
+                //    if (rwtdef.workTypeDef == current) 
+                //    {
+                //        found = true;
+                //        break;
+                //    }
+                //}
+                //if (found)
+                //    this.SetPriority(current, 3);
+                //else
+                //    this.SetPriority(current, 0);
+
+
                 this.SetPriority(current, 3);
-                num++;
-                if (num >= 6)
-                {
-                    break;
-                }
+
+                //num++;
+                //if (num >= 6)
+                //{
+                //    break;
+                //}
             }
             //foreach (WorkTypeDef current3 in this.pawn.story.DisabledWorkTypes)
             //{
@@ -96,7 +114,15 @@ namespace AIRobot
             //{
             //    Log.Message("Trying to set work to invalid priority " + priority);
             //}
+
+            //Log.Message("PRE - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
+
             this.prioritiesReflected[w] = priority;
+
+            //Log.Message("POST - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
+
+
+            Log.Message( w.defName + ":" + this.WorkIsActive(w).ToString() );
             //if (priority == 0)
             //{
             //    this.pawn2.mindState.Notify_WorkPriorityDisabled(w);
