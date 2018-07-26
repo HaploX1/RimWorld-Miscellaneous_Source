@@ -48,6 +48,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="MapComponent_ColonistSelections.cs" />
+    <Compile Include="Mod_ColonistSelections.cs" />
+    <Compile Include="ModSettings_ColonistSelections.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="JobDriver_GotoDraft.cs" />
   </ItemGroup>

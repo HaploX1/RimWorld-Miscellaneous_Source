@@ -24,6 +24,7 @@ namespace ColonistSelections
     /// Caution: Does not work on saved games, where it wasn't available at map creation time 
     ///          as it will be saved and because of that isn't in the savegame!
     /// </summary>
+    [StaticConstructorOnStartup]
     public class MapComponent_ColonistSelections : MapComponent
     {
         private const string tanslationGroupSaved = "ColonistGroups_GroupSaved";
@@ -40,6 +41,10 @@ namespace ColonistSelections
 
         private const string translationLetterInfoOpenHelp = "ColonistGroups_Letter_InfoOpenHelp";
         private const string translationMessageInfoOpenHelp = "ColonistGroups_Message_InfoOpenHelp";
+
+        private const string translationIconToggleGroupIcons = "ColonistSelection_Icon_ToggleGroupIcons";
+        private const string translationIconClick2CallGroupX = "ColonistSelection_Icon_Click2CallGroupX";
+        private const string translationIconClick2ReleaseAll = "ColonistSelection_Icon_Click2ReleaseAll";
 
         private const string translationHelp_prt1 = "ColonistGroups_GameStartHelp_prt1";
         private const string translationHelp_prt2 = "ColonistGroups_GameStartHelp_prt2";
@@ -71,6 +76,28 @@ namespace ColonistSelections
         private bool inputAllowedOld;
 
 
+        public static Texture2D texCircleMinus = null;
+        public static Texture2D texCirclePlus = null;
+        public static Texture2D texGroup1 = null;
+        public static Texture2D texGroup2 = null;
+        public static Texture2D texGroup3 = null;
+        public static Texture2D texGroup4 = null;
+        public static Texture2D texRelease = null;
+
+        private void InitGraphics()
+        {
+            if (texRelease != null)
+                return;
+
+            texCircleMinus = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_CircleMinus");
+            texCirclePlus = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_CirclePlus");
+            texGroup1 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group1");
+            texGroup2 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group2");
+            texGroup3 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group3");
+            texGroup4 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group4");
+            texRelease = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Release");
+        }
+
         public MapComponent_ColonistSelections(Map map) : base(map)
         {
 
@@ -97,6 +124,8 @@ namespace ColonistSelections
             //    Log.Error("Somethings null!!!");
             //else
             //    Log.Error("KeyBinding done.");
+
+            LongEventHandler.ExecuteWhenFinished(InitGraphics);
         }
 
 
@@ -177,8 +206,108 @@ namespace ColonistSelections
             DoStartupScreen();
         }
 
+        #region GUI
+        public override void MapComponentOnGUI()
+        {
+            // Hidden ModIcons Button
+            if (!ModSettings_ColonistSelections.showModIcons)
+                return;
+
+            bool keyShift = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+
+            float widthMax = (float)UI.screenWidth;
+            float heightMax = (float)UI.screenHeight;
+
+            int startPosGroupIconsX = (int)(widthMax * ModSettings_ColonistSelections.startPosGroupIconsPercentX);
+            int startPosGroupIconsY = (int)(heightMax * ModSettings_ColonistSelections.startPosGroupIconsPercentY);
+
+            IntVec2 startPos = new IntVec2(startPosGroupIconsX, startPosGroupIconsY);
+            int tmpSize = (int)(widthMax * ModSettings_ColonistSelections.sizeGroupIconsPercent);
+            IntVec2 buttonSize = new IntVec2(tmpSize, tmpSize);
+            int buttonSpacing =ModSettings_ColonistSelections.buttonSpacing;
+
+            Rect rectButtonGroup;
+            Texture2D texButtonGroup1 = texGroup1;
+            Texture2D texButtonGroup2 = texGroup2;
+            Texture2D texButtonGroup3 = texGroup3;
+            Texture2D texButtonGroup4 = texGroup4;
+            Texture2D texButtonReleaseAll = texRelease;
+            Texture2D texButtonToggleOff = texCircleMinus;
+            Texture2D texButtonToggleOn = texCircleMinus;
+
+            Color colorMain = Color.white;
+            Color colorMouseOver = Color.cyan;
+
+            // Icon Show GroupIcons
+            rectButtonGroup = new Rect((int)(startPos.x + (buttonSpacing + buttonSize.x) * 5 + buttonSpacing * 1), startPos.z, buttonSize.x / 2, buttonSize.z / 2);
+            if (ModSettings_ColonistSelections.showGroupIcons)
+            {
+                if (Widgets.ButtonImage(rectButtonGroup, texButtonToggleOff, colorMain, colorMouseOver))
+                    ModSettings_ColonistSelections.showGroupIcons = !ModSettings_ColonistSelections.showGroupIcons;
+
+            } else {
+                if (Widgets.ButtonImage(rectButtonGroup, texButtonToggleOn, colorMain, colorMouseOver))
+                    ModSettings_ColonistSelections.showGroupIcons = !ModSettings_ColonistSelections.showGroupIcons;
+
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconToggleGroupIcons.Translate());
+
+            // Hidden GroupIcons Button
+            if (!ModSettings_ColonistSelections.showGroupIcons)
+                return;
+
+
+            string countPawns1 = PawnsKey_Group1.Count.ToString();
+            string countPawns2 = PawnsKey_Group2.Count.ToString();
+            string countPawns3 = PawnsKey_Group3.Count.ToString();
+            string countPawns4 = PawnsKey_Group4.Count.ToString();
+
+            // Icons Group 1
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 0, startPos.z, buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonGroup1, colorMain, colorMouseOver))
+            {
+                DoGroupPositioning(1, keyShift, !groupSelectionModeActive);
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "1", countPawns1, kbDef_Group1.MainKeyLabel }));
+
+            // Icons Group 2
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 1, startPos.z, buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonGroup2, colorMain, colorMouseOver))
+            {
+                DoGroupPositioning(2, keyShift, !groupSelectionModeActive);
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "2", countPawns2, kbDef_Group2.MainKeyLabel }));
+
+            // Icons Group 3
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 2, startPos.z, buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonGroup3, colorMain, colorMouseOver))
+            {
+                DoGroupPositioning(3, keyShift, !groupSelectionModeActive);
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "3", countPawns3, kbDef_Group3.MainKeyLabel }));
+
+            // Icons Group 4
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 3, startPos.z, buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonGroup4, colorMain, colorMouseOver))
+            {
+                DoGroupPositioning(4, keyShift, !groupSelectionModeActive);
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "4", countPawns4, kbDef_Group4.MainKeyLabel }));
+
+
+
+            // Icons Release All
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 4 + buttonSpacing * 1, startPos.z, buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonReleaseAll, colorMain, colorMouseOver))
+            {
+                DoReleaseAllColonists();
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2ReleaseAll.Translate(new object[] { kbDef_Release.MainKeyLabel }));
+
+        }
+        #endregion
+
         public override void MapComponentUpdate()
-        //public override void MapComponentOnGUI()
         {
             inputAllowed = Find.WindowStack.CurrentWindowGetsInput;
 
@@ -407,7 +536,7 @@ namespace ColonistSelections
                     if (positionModeActive)
                         Messages.Message(translationGroupInvalid_PositionMode.Translate(new object[] { key.ToString() }), MessageTypeDefOf.RejectInput);
                     else
-                        Messages.Message(translationGroupInvalid_SelectionMode.Translate(new object[] { (key).ToString() }), MessageTypeDefOf.RejectInput);
+                        Messages.Message(translationGroupInvalid_SelectionMode.Translate(new object[] { key.ToString() }), MessageTypeDefOf.RejectInput);
 
                     pawns = new List<Pawn>(); //null;
                     cells = new List<IntVec3>(); //null;
