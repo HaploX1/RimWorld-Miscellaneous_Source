@@ -297,7 +297,8 @@ namespace NanoPrinter
             {
                 if (slotGroup != null)
                 {
-                    slotGroup.Notify_ParentDestroying();
+                    foreach (IntVec3 c in slotGroup.CellsList)
+                        slotGroup.Notify_LostCell(c);
                     slotGroup = null;
                 }
                 return;
@@ -326,7 +327,8 @@ namespace NanoPrinter
 
         private void SetReceivedError()
         {
-            slotGroup.Notify_ParentDestroying();
+            foreach (IntVec3 c in slotGroup.CellsList)
+                slotGroup.Notify_LostCell(c);
             slotGroup = null;
             status = NanoPrinterStatus.Error;
         }
@@ -483,7 +485,8 @@ namespace NanoPrinter
 
             if (slotGroup != null)
             {
-                slotGroup.Notify_ParentDestroying();
+                foreach (IntVec3 c in slotGroup.CellsList)
+                    slotGroup.Notify_LostCell(c);
                 slotGroup = null;
             }
 
@@ -750,7 +753,8 @@ namespace NanoPrinter
                 if (slotGroup != null)
                 {
                     // Destroy storage zone
-                    slotGroup.Notify_ParentDestroying();
+                    foreach (IntVec3 c in slotGroup.CellsList)
+                        slotGroup.Notify_LostCell(c);
                     slotGroup = null;
                 }
 
@@ -880,7 +884,8 @@ namespace NanoPrinter
             if (slotGroup != null)
             {
                 // Destroy storage zone
-                slotGroup.Notify_ParentDestroying();
+                foreach (IntVec3 c in slotGroup.CellsList)
+                    slotGroup.Notify_LostCell(c);
                 slotGroup = null;
             }
 
@@ -918,7 +923,7 @@ namespace NanoPrinter
 
                 //Log.Error("Weapon - BaseMarketValue: " + thing.def.BaseMarketValue.ToString());
             }
-            else if (thing.def.isBodyPartOrImplant && thing.def.BaseMarketValue > 1)
+            else if (thing.def.isTechHediff && thing.def.BaseMarketValue > 1)
             {
                 // Bodyparts
                 price = (int)Math.Floor(thing.def.BaseMarketValue * costPriceToSteel * 1.3f);
@@ -970,7 +975,7 @@ namespace NanoPrinter
             Thing foundThing = null;
             foreach (Thing thing in things)
             {
-                if (thing.def.EverStoreable)
+                if (thing.def.EverStorable(false))
                 {
                     foundThing = thing;
                     break;

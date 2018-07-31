@@ -22,30 +22,65 @@ namespace TurretWeaponBase
     /// <permission>Please check the provided license info for granted permissions.</permission>
     public class JobDriver_HaulToCellAndDoWork : JobDriver
     {
+        private bool forbiddenInitially;
         //Constants
         private const TargetIndex HaulableInd = TargetIndex.A;
         private const TargetIndex CellInd = TargetIndex.B;
 
         public JobDriver_HaulToCellAndDoWork() { }
 
+        public override void ExposeData()
+        {
+            base.ExposeData();
+            Scribe_Values.Look<bool>(ref this.forbiddenInitially, "forbiddenInitially", false, false);
+        }
+
         public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.GetTarget(TargetIndex.B), job, 1, -1, null, errorOnFailed) && 
-                    pawn.Reserve(job.GetTarget(TargetIndex.A), job, 1, -1, null, errorOnFailed);
+            Pawn pawn = base.pawn;
+            LocalTargetInfo target = base.job.GetTarget(TargetIndex.B);
+            Job job = base.job;
+            bool errorOnFailed2 = errorOnFailed;
+            int result;
+            if (pawn.Reserve(target, job, 1, -1, null, errorOnFailed2))
+            {
+                pawn = base.pawn;
+                target = base.job.GetTarget(TargetIndex.A);
+                job = base.job;
+                errorOnFailed2 = errorOnFailed;
+                result = (pawn.Reserve(target, job, 1, -1, null, errorOnFailed2) ? 1 : 0);
+            }
+            else
+            {
+                result = 0;
+            }
+            return (byte)result != 0;
+        }
+
+        public override void Notify_Starting()
+        {
+            base.Notify_Starting();
+            if (TargetThingA != null)
+                forbiddenInitially = TargetThingA.IsForbidden(pawn);
+            else
+                forbiddenInitially = false;
         }
 
         public override string GetReport()
         {
-            IntVec3 destCell = pawn.jobs.curJob.targetB.Cell;
+            IntVec3 destCell = base.job.targetB.Cell;
 
             Thing hauledThing = null;
-            if (pawn.carryTracker.CarriedThing != null)
+            if (base.pawn.CurJob == base.job && pawn.carryTracker.CarriedThing != null)
                 hauledThing = pawn.carryTracker.CarriedThing;
-            else
-                hauledThing = pawn.jobs.curJob.GetTarget(HaulableInd).Thing;
+            else if (base.TargetThingA != null && base.TargetThingA.Spawned)
+                hauledThing = base.TargetThingA;
+
+            if (hauledThing == null)
+                return "ReportHaulingUnknown".Translate();
 
             string destName = null;
-            SlotGroup destGroup = StoreUtility.GetSlotGroup(destCell, Map);
+            SlotGroup destGroup = destCell.GetSlotGroup( Map );
             if (destGroup != null)
                 destName = destGroup.parent.SlotYielderLabel();
 
@@ -64,13 +99,12 @@ namespace TurretWeaponBase
         protected override IEnumerable<Toil> MakeNewToils()
         {
             //Set fail conditions
-            this.FailOnDestroyedNullOrForbidden(HaulableInd);
+            this.FailOnDestroyedOrNull(HaulableInd);
             this.FailOnBurningImmobile(CellInd);
             //Note we only fail on forbidden if the target doesn't start that way
             //This helps haul-aside jobs on forbidden items
-            if (!TargetThingA.IsForbidden(pawn.Faction))
+            if (!this.forbiddenInitially)
                 this.FailOnForbidden(HaulableInd);
-
 
             //Reserve target storage cell, if it is a storage
             bool targetIsStorage = StoreUtility.GetSlotGroup(pawn.jobs.curJob.GetTarget(CellInd).Cell, Map) != null;
@@ -78,31 +112,9 @@ namespace TurretWeaponBase
                 yield return Toils_Reserve.Reserve(CellInd, 1);
 
             //Reserve thing to be stored
-            Toil reserveTargetA = Toils_Reserve.Reserve(HaulableInd, 1);
+            Toil reserveTargetA = Toils_Reserve.Reserve(HaulableInd, 1, 1, null);
             yield return reserveTargetA;
 
-            // Goto object
-            //Toil toilGoto = null;
-            //toilGoto = Toils_Goto.GotoThing(HaulableInd, PathEndMode.ClosestTouch)
-            //    .FailOn(() =>
-            //    {
-            //        //Note we don't fail on losing hauling designation
-            //        //Because that's a special case anyway
-
-            //        //While hauling to cell storage, ensure storage dest is still valid
-            //        Pawn actor = toilGoto.actor;
-            //        Job curJob = actor.jobs.curJob;
-            //        if (curJob.haulMode == HaulMode.ToCellStorage)
-            //        {
-            //            Thing haulThing = curJob.GetTarget(HaulableInd).Thing;
-
-            //            IntVec3 destLoc = actor.jobs.curJob.GetTarget(CellInd).Cell;
-            //            if (!destLoc.IsValidStorageFor(Map, haulThing))
-            //                return true;
-            //        }
-
-            //        return false;
-            //    });
             //yield return toilGoto;
             yield return Toils_Goto.GotoThing(HaulableInd, PathEndMode.ClosestTouch).FailOnSomeonePhysicallyInteracting(HaulableInd);
 

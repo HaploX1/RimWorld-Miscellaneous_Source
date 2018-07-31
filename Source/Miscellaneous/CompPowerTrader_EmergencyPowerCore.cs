@@ -229,7 +229,7 @@ namespace EmergencyPowerCore
                     SoundDef soundDef = ((CompProperties_Power_EmergencyPowerCore)this.parent.def.CompDefFor<CompPowerTrader_EmergencyPowerCore>()).soundPowerOn;
                     if (soundDef.NullOrUndefined())
                     {
-                        soundDef = SoundDefOf.PowerOnSmall;
+                        soundDef = SoundDefOf.Power_OnSmall;
                     }
                     
                     soundDef.PlayOneShot(new TargetInfo(this.parent.Position, parent.Map, false));
@@ -245,7 +245,7 @@ namespace EmergencyPowerCore
                     SoundDef soundDef2 = ((CompProperties_Power_EmergencyPowerCore)this.parent.def.CompDefFor<CompPowerTrader_EmergencyPowerCore>()).soundPowerOff;
                     if (soundDef2.NullOrUndefined())
                     {
-                        soundDef2 = SoundDefOf.PowerOffSmall;
+                        soundDef2 = SoundDefOf.Power_OffSmall;
                     }
                     soundDef2.PlayOneShot(new TargetInfo(this.parent.Position, parent.Map, false));
                     this.EndSustainerPoweredIfActive();

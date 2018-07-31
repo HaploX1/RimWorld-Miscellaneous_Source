@@ -216,15 +216,16 @@ namespace NanoStorage
                 tickCounter = Rand.RangeInclusive(45, 90);
 
                 // Enable / disable slotGroup depending on storage state
-                if (storageInOutDisabled && base.slotGroup != null)
+                if (storageInOutDisabled && slotGroup != null)
                 {
-                    base.slotGroup.Notify_ParentDestroying();
-                    base.slotGroup = null;
+                    foreach (IntVec3 c in slotGroup.CellsList)
+                        slotGroup.Notify_LostCell(c);
+                    slotGroup = null;
                     return;
                 }
                 if (!storageInOutDisabled && base.slotGroup == null)
                 {
-                    base.slotGroup = new SlotGroup(this);
+                    slotGroup = new SlotGroup(this);
                     return;
                 }
 

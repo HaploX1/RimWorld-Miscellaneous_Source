@@ -158,9 +158,6 @@ namespace TurretWeaponBase
                    def2.TopMatLongPath.NullOrEmpty())
                 )
             {
-                //TopMatShortWeapon = Helper.LoadMaterial(def2.TopMatShortPath);
-                //TopMatMediumWeapon = Helper.LoadMaterial(def2.TopMatMediumPath);
-                //TopMatLongWeapon = Helper.LoadMaterial(def2.TopMatLongPath);
                 TopMatShortWeapon = MaterialPool.MatFrom(def2.TopMatShortPath);
                 TopMatMediumWeapon = MaterialPool.MatFrom(def2.TopMatMediumPath);
                 TopMatLongWeapon = MaterialPool.MatFrom(def2.TopMatLongPath);
@@ -839,7 +836,7 @@ namespace TurretWeaponBase
             {
                 targetScanFlags |= TargetScanFlags.NeedNonBurning;
             }
-            return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, new Predicate<Thing>(this.IsValidTarget), range, minRange, targetScanFlags);
+            return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, targetScanFlags, this.IsValidTarget, 0f, 9999f);
         }
         private IAttackTargetSearcher TargSearcher()
         {

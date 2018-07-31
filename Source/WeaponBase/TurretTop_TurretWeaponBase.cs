@@ -89,9 +89,14 @@ namespace TurretWeaponBase
                 checkedForCustomMaterial = true;
 
                 //Material m = Helper.LoadMaterial(parentTurret.gun.def.graphicData.texPath + "_top", ShaderType.Transparent, false);
-                Material m = MaterialPool.MatFrom(parentTurret.gun.def.graphicData.texPath + "_top");
-                if (m != null)
-                    TopMatCustom = m;
+                Texture2D mTex = ContentFinder<Texture2D>.Get(parentTurret.gun.def.graphicData.texPath + "_top", false);
+                if (mTex != null)
+                {
+                    MaterialRequest mReq = new MaterialRequest(mTex);
+                    Material m = MaterialPool.MatFrom(parentTurret.gun.def.graphicData.texPath + "_top", false);
+                    if (m != null)
+                        TopMatCustom = m;
+                }
             }
             if (TopMatCustom != null && (usedTopMatType == Building_TurretWeaponBase.TopMatType.ShortMediumLongMat || usedTopMatType == Building_TurretWeaponBase.TopMatType.GunMat))
             {
