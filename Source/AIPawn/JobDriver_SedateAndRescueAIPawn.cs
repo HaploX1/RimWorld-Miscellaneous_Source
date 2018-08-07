@@ -18,9 +18,9 @@ namespace AIPawn
 
         public JobDriver_SedateAndRescueAIPawn() { }
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
-            return pawn.Reserve(job.GetTarget(TargetIndex.A), job);
+            return pawn.Reserve(job.GetTarget(TargetIndex.A), job, 1, -1, null, errorOnFailed);
         }
 
         protected override IEnumerable<Toil> MakeNewToils()
@@ -119,7 +119,9 @@ namespace AIPawn
                 pawn.carryTracker.TryDropCarriedThing(dropPos, ThingPlaceMode.Direct, out unused);
 
                 //Should we tuck them into bed?
-                if ((Takee.Downed || Takee.health.HasHediffsNeedingTend(false) || ((HealthAIUtility.ShouldSeekMedicalRest(Takee) || HealthAIUtility.ShouldBeTendedNow(Takee)) && DropBed.Medical))
+                if ((Takee.Downed || Takee.health.HasHediffsNeedingTend(false) || 
+                        ((HealthAIUtility.ShouldSeekMedicalRest(Takee) || HealthAIUtility.ShouldBeTendedNowByPlayer(Takee) || HealthAIUtility.ShouldBeTendedNowByPlayerUrgent(Takee)) && 
+                        DropBed.Medical))
                     && !DropBed.Destroyed
                     && (DropBed.owners.Contains( Takee) || (DropBed.Medical && DropBed.AnyUnoccupiedSleepingSlot))  //They could have lost ownership and the last toil would continue
                   )

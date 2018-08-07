@@ -84,7 +84,7 @@ namespace AIPawn
             string txtBaseDesc = "----------";
             string txtTitle = "---";
             string txtTitleShort = "AI";
-            BodyType bodyType = BodyType.Female;
+                BodyTypeDef bodyTypeDef = BodyTypeDefOf.Female;
 
                 if (workTagCollection == null)
                 {
@@ -115,11 +115,8 @@ namespace AIPawn
                 // Create minimal backstory
                 backstory = new Backstory();
                 backstory.baseDesc = txtBaseDesc;
-                backstory.SetTitle(txtTitle);
-                backstory.SetTitleShort(txtTitleShort);
-                backstory.bodyTypeGlobal = bodyType;
-                backstory.bodyTypeFemale = BodyType.Female;
-                backstory.bodyTypeMale = BodyType.Male;
+                backstory.SetTitle(txtTitle, txtTitle);
+                backstory.SetTitleShort(txtTitleShort, txtTitleShort);
                 backstory.workDisables = workDisables1;
                 backstory.identifier = GetBackstoryUniqueKey(backstory.workDisables);
                 backstories.Add(backstory);
@@ -140,11 +137,8 @@ namespace AIPawn
 
                     backstory = new Backstory();
                     backstory.baseDesc = txtBaseDesc;
-                    backstory.SetTitle(txtTitle);
-                    backstory.SetTitleShort(txtTitleShort);
-                    backstory.bodyTypeGlobal = bodyType;
-                    backstory.bodyTypeFemale = BodyType.Female;
-                    backstory.bodyTypeMale = BodyType.Male;
+                    backstory.SetTitle(txtTitle, txtTitle);
+                    backstory.SetTitleShort(txtTitleShort, txtTitleShort);
                     backstory.workDisables = workDisables2;
                     backstory.identifier = GetBackstoryUniqueKey(backstory.workDisables);
                     backstories.Add(backstory);

@@ -627,7 +627,7 @@ namespace AIPawn
         private void DoHealDamagedBodyPart(bool enhancedAI)
         {
             IEnumerable<Hediff> notTendedBodyParts = (from x in this.health.hediffSet.hediffs
-                                                              where (x is Hediff_Injury) && x.TendableNow //!(x is Hediff_MissingPart) && x.CanHealFromTending() && !x.IsTended()
+                                                              where (x is Hediff_Injury) && x.TendableNow(false) //!(x is Hediff_MissingPart) && x.CanHealFromTending() && !x.IsTended()
                                                       select x);
 
             IEnumerable<Hediff_Injury> hediff_injuries = (from x in this.health.hediffSet.GetHediffs<Hediff_Injury>()
@@ -728,7 +728,7 @@ namespace AIPawn
                 // Do damage to restored part, so that the health of it is 1
                 float maxDamage = health.hediffSet.GetPartHealth(part);
                 int applyDamage = (int)maxDamage / 2;
-                this.TakeDamage(new DamageInfo(DamageDefOf.Cut, applyDamage, -1, null, part, null));
+                this.TakeDamage(new DamageInfo(DamageDefOf.Cut, applyDamage, 0f, -1f, null, part, null));
             }
         }
 

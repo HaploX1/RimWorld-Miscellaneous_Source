@@ -99,7 +99,7 @@ namespace AIPawn
 
                 if (foundRechargeStation.Medical)
                 {
-                    if (!HealthAIUtility.ShouldEverReceiveMedicalCare(sleeper))
+                    if (!HealthAIUtility.ShouldEverReceiveMedicalCareFromPlayer(sleeper))
                     {
                         return false;
                     }

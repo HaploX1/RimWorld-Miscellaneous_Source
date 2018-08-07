@@ -41,7 +41,7 @@ namespace AIPawn
         public static AIPawn GenerateAIPawn(string kindDefName, Faction faction, Map map, Gender gender = Gender.Female)
         {
             //return GeneratePawn(PawnKindDef.Named(kindDefName), faction, map, gender);
-            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, null, null, 0f, 0f, gender, 0.1f, null);
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, null, null, 0f, 0f, 0f, gender, 0.1f, null);
             return GenerateAIPawn(ref request, map);
 
         }
@@ -57,7 +57,7 @@ namespace AIPawn
             //Log.Error("1");
             GetXMLData(pawnAI);
 
-            request.EnsureNonNullFaction();
+            //request.EnsureNonNullFaction();
 
             pawnAI.kindDef = request.KindDef;
             pawnAI.SetFactionDirect(request.Faction);
@@ -115,7 +115,7 @@ namespace AIPawn
 
                 pawnAI.story.hairDef = GetHair();
 
-                pawnAI.story.bodyType = ((pawnAI.gender != Gender.Female) ? BodyType.Male : BodyType.Female);
+                pawnAI.story.bodyType = ((pawnAI.gender != Gender.Female) ? BodyTypeDefOf.Male : BodyTypeDefOf.Female);
 
                 MakeSkillsFromBackstory(pawnAI);
                 GiveTraitsTo(pawnAI);
@@ -313,7 +313,7 @@ namespace AIPawn
             while (true)
             {
                 pawn.health.hediffSet.Clear();
-                PawnTechHediffsGenerator.GeneratePartsAndImplantsFor(pawn);
+                PawnTechHediffsGenerator.GenerateTechHediffsFor(pawn);
                 if (pawn.health.capacities.CapableOf(PawnCapacityDefOf.Moving))
                     break;
 

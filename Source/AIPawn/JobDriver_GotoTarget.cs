@@ -28,7 +28,7 @@ namespace AIPawn
 
         public JobDriver_GotoTarget() { }
 
-        public override bool TryMakePreToilReservations()
+        public override bool TryMakePreToilReservations(bool errorOnFailed)
         {
             pawn.Map.pawnDestinationReservationManager.Reserve(pawn, job, job.targetA.Cell);
 

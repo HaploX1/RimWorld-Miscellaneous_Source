@@ -21,15 +21,15 @@ namespace AIPawn
 
 
 
-        public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
-        {
-            base.Destroy(mode);
+        //public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
+        //{
+        //    base.Destroy(mode);
 
-            if (mode == DestroyMode.Vanish)
-            {
-                // Tell the Storyteller that there is a new Mai in town
-                Find.Storyteller.intenderPopulation.Notify_PopulationGained();
-            }
-        }
+        //    if (mode == DestroyMode.Vanish)
+        //    {
+        //        // Tell the Storyteller that there is a new Mai in town
+        //        Find.Storyteller.Notify_PawnEvent();
+        //    }
+        //}
     }
 }

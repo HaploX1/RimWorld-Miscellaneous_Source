@@ -18,7 +18,7 @@ namespace AIPawn
     /// <author>Haplo</author>
     /// <permission>For usage of this code, please look at the license information.</permission>
     [StaticConstructorOnStartup]
-    public class Building_AIPawnConstructionStation : Building, ISlotGroupParent
+    public class Building_AIPawnConstructionStation : Building, ISlotGroupParent, IStoreSettingsParent, IHaulDestination
     {
 
         #region Variables
@@ -82,6 +82,27 @@ namespace AIPawn
             get
             {
                 return this.def.building.ignoreStoredThingsBeauty;
+            }
+        }
+
+        public int SteelAmountRequired
+        {
+            get
+            {
+                if (!gatheringSuppliesActive)
+                    return 0;
+
+                return maxSteelCount - countSteel;
+            }
+        }
+        public int SilverAmountRequired
+        {
+            get
+            {
+                if (!gatheringSuppliesActive)
+                    return 0;
+
+                return maxSilverCount - countSilver;
             }
         }
 
@@ -194,11 +215,6 @@ namespace AIPawn
                 counterUsingSteelSilverMax = def2.counterUsingResources;
                 UI_StartProduction_Path = def2.UI_StartProduction_Path;
                 UI_StopProduction_Path = def2.UI_StopProduction_Path;
-                //txtMetal = def2.txtMetal;
-                //txtSilver = def2.txtSilver;
-                //txtStartProduction = def2.txtStartProduction;
-                //txtStopProduction = def2.txtStopProduction;
-                //txtProductionRunning = def2.txtProductionRunning;
             }
         }
 
@@ -206,15 +222,17 @@ namespace AIPawn
         {
 
             // Translate texts
-            //txtSteel = "AIPawn_ResourceMetal".Translate(); //"Metal:";
-            //txtSilver = "AIPawn_ResourceSilver".Translate(); //"Silver:";
             txtStartProduction = "AIPawn_StartProduction".Translate(); //"Start Production.";
             txtStopProduction = "AIPawn_StopProduction".Translate(); //"Stop Production.";
             txtProductionRunning = "AIPawn_ProductionRunning".Translate(); //"Production running...";
             txtProductionRunningSign = "AIPawn_ProductionRunningSign".Translate(); //"->";
             txtOutputBlocked = "AIPawn_OutputBlocked".Translate(); //
         }
-
+        
+        public bool Accepts(Thing t)
+        {
+            return settingsStorage.AllowedToAccept(t);
+        }
 
         /// <summary>
         /// To write and read data (savegame)
@@ -662,6 +680,7 @@ namespace AIPawn
             return false;
 
         }
+
 
 
         #endregion

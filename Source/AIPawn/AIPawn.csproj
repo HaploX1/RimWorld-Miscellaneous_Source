@@ -52,6 +52,7 @@
     <Compile Include="Building_AIPawnCreator_male.cs" />
     <Compile Include="CompNeedMaximizing.cs" />
     <Compile Include="CompProperties_NeedMaximizing.cs" />
+    <Compile Include="JobDriver_FillingConstructor.cs" />
     <Compile Include="JobGiver_RechargeEnergy.cs" />
     <Compile Include="JobGiver_SatisfyNeeds.cs" />
     <Compile Include="BackstoryHelper.cs" />
@@ -71,6 +72,7 @@
     <Compile Include="ThingDef_Building_AIPawnConstructionStation.cs" />
     <Compile Include="ThingDef_AIPawn.cs" />
     <Compile Include="ThingDef_Building_RechargeStation.cs" />
+    <Compile Include="WorkGiver_AIPawn_FillConstructor.cs" />
     <Compile Include="_Test.cs" />
   </ItemGroup>
   <ItemGroup>
