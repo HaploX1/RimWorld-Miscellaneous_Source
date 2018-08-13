@@ -35,38 +35,16 @@ namespace ArtefactFound
         private const float pointsToSpendMin = 150;
 
         // ToDo: Change mechanoid selection to auto selection
-        private string pawnKindDefNameScyther = "Scyther";
-        private string pawnKindDefNameCentipede = "Centipede";
+        private string pawnKindDefNameLancer = "Mech_Lancer";
+        private string pawnKindDefNameScyther = "Mech_Scyther";
+        private string pawnKindDefNameCentipede = "Mech_Centipede";
 
         // Defined valid resources. I don't want to take all resources (and therefore some not needed resources) as found resources
         // ToDo: Export to XML-file
-        private List<ThingDef> resourceDefs = new List<ThingDef>()
-        {
-            ThingDef.Named("Steel"),
-            ThingDef.Named("Silver"),
-            ThingDef.Named("Gold"),
-            ThingDef.Named("Plasteel"),
-            ThingDef.Named("Uranium"),
-            ThingDef.Named("Jade"),
-            ThingDef.Named("Synthread"),
-            ThingDef.Named("Hyperweave"),
-            ThingDef.Named("GlitterworldMedicine")
-        };
+        private List<ThingDef> resourceDefs;
 
         // Todo: Find function to auto select non tribal, non mechanoid humans, who can fight
-        private List<PawnKindDef> pawnKindDefs = new List<PawnKindDef>()
-        {
-            PawnKindDef.Named("MercenaryGunner"),
-            PawnKindDef.Named("MercenarySniper"),
-            PawnKindDef.Named("GrenadierDestructive"),
-            PawnKindDef.Named("MercenarySlasher"),
-            PawnKindDef.Named("MercenaryHeavy"),
-            PawnKindDef.Named("Drifter"),
-            PawnKindDef.Named("Scavenger"),
-            PawnKindDef.Named("Pirate"),
-            PawnKindDef.Named("Thrasher"),
-            PawnKindDef.Named("SpaceSoldier")
-        };
+        private List<PawnKindDef> pawnKindDefs;
 
 
         // ===================== Setup Work =====================
@@ -98,7 +76,34 @@ namespace ArtefactFound
         {
 
             UI_Activate = ContentFinder<Texture2D>.Get(UI_ActivatePath, true);
-            
+
+            resourceDefs = new List<ThingDef>()
+        {
+            ThingDef.Named("Steel"),
+            ThingDef.Named("Silver"),
+            ThingDef.Named("Gold"),
+            ThingDef.Named("Plasteel"),
+            ThingDef.Named("Uranium"),
+            ThingDef.Named("Jade"),
+            ThingDef.Named("Synthread"),
+            ThingDef.Named("Hyperweave"),
+            ThingDef.Named("MedicineUltratech")
+        };
+
+            pawnKindDefs = new List<PawnKindDef>()
+        {
+            PawnKindDef.Named("Mercenary_Gunner"),
+            PawnKindDef.Named("Mercenary_Sniper"),
+            PawnKindDef.Named("GrenadierDestructive"),
+            PawnKindDef.Named("Mercenary_Slasher"),
+            PawnKindDef.Named("Mercenary_Heavy"),
+            PawnKindDef.Named("Drifter"),
+            PawnKindDef.Named("Scavenger"),
+            PawnKindDef.Named("Pirate"),
+            PawnKindDef.Named("Thrasher"),
+            PawnKindDef.Named("AncientSoldier")
+        };
+
         }
 
 
@@ -241,7 +246,12 @@ namespace ArtefactFound
                 else
                     countPawns = 7; // max or when points to spend are done
 
-                pawnKindDef = PawnKindDef.Named(pawnKindDefNameScyther);
+                rvalue = UnityEngine.Random.@value; // Random: which kind?
+
+                if (rvalue < 0.40f)
+                    pawnKindDef = PawnKindDef.Named(pawnKindDefNameScyther);
+                else
+                    pawnKindDef = PawnKindDef.Named(pawnKindDefNameLancer);
 
             }
 
@@ -469,7 +479,7 @@ namespace ArtefactFound
             GenPlace.TryPlaceThing(pawn, startPos, Map, ThingPlaceMode.Direct);
 
             // Notify the Storyteller
-            Find.Storyteller.intenderPopulation.Notify_PopulationGained();
+            Find.StoryWatcher.watcherPopAdaptation.Notify_PawnEvent(pawn, PopAdaptationEvent.GainedColonist);
 
             string label = labelLetterArtefact.Translate();
 

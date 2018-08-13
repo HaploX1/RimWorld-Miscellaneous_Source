@@ -18,11 +18,6 @@ namespace Incidents
     public class IncidentWorker_CrashedCryptoSleepCasket : IncidentWorker
     {
 
-        //protected override bool CanFireNowSub(IIncidentTarget target)
-        //{
-        //    return base.CanFireNowSub(target);
-        //}
-
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
             Map map = (Map)parms.target;
@@ -179,59 +174,39 @@ namespace Incidents
             else if (rnd < 50)
                 GenerateSlave(casket);
             else if (rnd < 65)
-                GenerateHalfEatenSpacer(casket);
+                GenerateHalfEatenAncient(casket);
             else
-                GenerateAngrySpacer(casket);
+                GenerateAngryAncient(casket);
 
         }
 
         private static void GenerateFriendlyAnimal(Building_CryptosleepCasket pod)
         {
             Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.PlayerColony);
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDef.Named( PodContentAnimalDefs.RandomElement() ), faction);
-            if (!pod.TryAcceptThing(pawn, false))
-            {
-                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                return;
-            }
-            //GiveRandomLootInventoryForTombPawn(pawn);
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(PodContentAnimalDefs.RandomElement()), faction, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
         }
 
         private static void GenerateFriendlySpacer(Building_CryptosleepCasket pod)
         {
-            Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.Spacer);
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, faction);
-            if (!pod.TryAcceptThing(pawn, false))
-            {
-                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                return;
-            }
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncients, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
             GiveRandomLootInventoryForTombPawn(pawn);
         }
 
         private static void GenerateIncappedSpacer(Building_CryptosleepCasket pod)
         {
-            Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.Spacer);
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, faction);
-            if (!pod.TryAcceptThing(pawn, false))
-            {
-                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                return;
-            }
-            HealthUtility.DamageUntilDowned(pawn);
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncients, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
+            HealthUtility.DamageUntilDowned(pawn, true);
             GiveRandomLootInventoryForTombPawn(pawn);
         }
 
         private static void GenerateSlave(Building_CryptosleepCasket pod)
         {
-            Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.Spacer);
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.Slave, faction);
-            if (!pod.TryAcceptThing(pawn, false))
-            {
-                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                return;
-            }
-            HealthUtility.DamageUntilDowned(pawn);
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.Slave, Faction.OfAncients, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
+            HealthUtility.DamageUntilDowned(pawn, true);
             GiveRandomLootInventoryForTombPawn(pawn);
             if (Rand.Value < 0.5f)
             {
@@ -239,34 +214,29 @@ namespace Incidents
             }
         }
 
-        private static void GenerateAngrySpacer(Building_CryptosleepCasket pod)
+        private static void GenerateAngryAncient(Building_CryptosleepCasket pod)
         {
-            Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.SpacerHostile);
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, faction);
-            if (!pod.TryAcceptThing(pawn, false))
-            {
-                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                return;
-            }
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncientsHostile, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
             GiveRandomLootInventoryForTombPawn(pawn);
         }
 
-        private static void GenerateHalfEatenSpacer(Building_CryptosleepCasket pod)
+        private static void GenerateHalfEatenAncient(Building_CryptosleepCasket pod)
         {
-            Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.Spacer);
-            Pawn pawn = PawnGenerator.GeneratePawn(PawnKindDefOf.SpaceSoldier, faction);
-            if (!pod.TryAcceptThing(pawn, false))
-            {
-                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
-                return;
-            }
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncients, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            Pawn pawn = PawnGenerator.GeneratePawn(request);
             int num = Rand.Range(6, 10);
             for (int i = 0; i < num; i++)
             {
-                pawn.TakeDamage(new DamageInfo(DamageDefOf.Bite, Rand.Range(3, 8), -1, pawn, null, null));
+                Pawn pawnD = pawn;
+                DamageDef bite = DamageDefOf.Bite;
+                float amount = (float)Rand.Range(3, 8);
+                Pawn instigator = pawn;
+                pawnD.TakeDamage(new DamageInfo(bite, amount, 0f, -1f, instigator, null, null, DamageInfo.SourceCategory.ThingOrUnknown, null));
             }
             GiveRandomLootInventoryForTombPawn(pawn);
-
+            
+            // Add a few insects
             List<Pawn> pawn2 = new List<Pawn>();
             int pawnCount;
             float rnd2 = Rand.Value;
@@ -295,7 +265,7 @@ namespace Incidents
                     Find.WorldPawns.PassToWorld(pawn3, PawnDiscardDecideMode.Discard);
                     return;
                 }
-                pawn3.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Manhunter, null, false);
+                pawn3.mindState.mentalStateHandler.TryStartMentalState(MentalStateDefOf.Manhunter, null, false, false, null, false);
             }
             pawn2 = null;
         }
@@ -305,7 +275,12 @@ namespace Incidents
         {
             float rand = Rand.Value;
             if (rand < 0.03f)
-                MakeIntoContainer(p.inventory.innerContainer, DefDatabase<ThingDef>.GetNamedSilentFail("Gun_RailgunMKI"), 1);
+            {
+                ThingDef gun = DefDatabase<ThingDef>.GetNamedSilentFail("Gun_RailgunMKI");
+                if (gun == null)
+                    gun = DefDatabase<ThingDef>.GetNamedSilentFail("Gun_ChargeLance");
+                MakeIntoContainer(p.inventory.innerContainer, gun, 1);
+            }
 
             if (rand < 0.45f)
             {
@@ -314,13 +289,13 @@ namespace Incidents
             else if (rand < 0.65f)
             {
                 //MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Luciferium, Rand.Range(3, 15)); 
-                MakeIntoContainer(p.inventory.innerContainer, ThingDef.Named("Jade"), Rand.Range(5, 50));
+                MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Uranium, Rand.Range(5, 60));
             }
             else
             {
                 MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Plasteel, Rand.Range(10, 50));
             }
-            MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Component, Rand.Range(-2, 4));
+            MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.ComponentSpacer, Rand.Range(-2, 4));
         }
         private static void MakeIntoContainer(ThingOwner container, ThingDef def, int count)
         {

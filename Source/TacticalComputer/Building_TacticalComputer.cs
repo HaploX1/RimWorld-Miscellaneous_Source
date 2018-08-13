@@ -337,7 +337,7 @@ namespace TacticalComputer
             Pawn selectedPawn = founds_Pawns.ElementAt(founds_ActiveCount);
 
             // Jump to selected pawn
-            Find.CameraDriver.JumpToVisibleMapLoc(selectedPawn.Position);
+            Find.CameraDriver.JumpToCurrentMapLoc(selectedPawn.Position);
 
             //// Mark selected pawns => Not good, deselects the tactical computer!
             //Find.Selector.ClearSelection();

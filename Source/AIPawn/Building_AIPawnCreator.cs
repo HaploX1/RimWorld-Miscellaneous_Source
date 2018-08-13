@@ -128,7 +128,12 @@ namespace AIPawn
             if (spawnPos == IntVec3.Invalid)
                 spawnPos = position;
 
-            return (AIPawn)Spawn(pawn, spawnPos, map);
+            AIPawn newPawn = (AIPawn)Spawn(pawn, spawnPos, map);
+
+            // Notify the Storyteller
+            Find.StoryWatcher.watcherPopAdaptation.Notify_PawnEvent(newPawn, PopAdaptationEvent.GainedColonist);
+
+            return newPawn;
         }
 
         public static void DoMessage(Pawn pawn)

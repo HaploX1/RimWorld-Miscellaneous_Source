@@ -25,15 +25,15 @@ namespace ArtefactFound
         /// Check, if the storyteller can use this
         /// </summary>
         /// <returns></returns>
-        protected override bool CanFireNowSub(IIncidentTarget target)
+        protected override bool CanFireNowSub(IncidentParms parms)
         {
-            if (!base.CanFireNowSub(target))
+            if (!base.CanFireNowSub(parms))
                 return false;
 
-            Map map = (Map)target;
+            Map map = (Map)parms.target;
             return map.mapPawns.ColonistCount >= 4;
         }
-
+        
 
         protected override bool TryExecuteWorker(IncidentParms parms)
         {

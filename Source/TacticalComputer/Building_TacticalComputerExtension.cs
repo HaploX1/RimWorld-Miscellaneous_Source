@@ -234,9 +234,9 @@ namespace TacticalComputer
 
                 // Jump to selected pawn
                 if (!jumpCameraBack)
-                    Find.CameraDriver.JumpToVisibleMapLoc(selectedTacticalComputer.Position);
+                    Find.CameraDriver.JumpToCurrentMapLoc(selectedTacticalComputer.Position);
                 else
-                    Find.CameraDriver.JumpToVisibleMapLoc(this.Position);
+                    Find.CameraDriver.JumpToCurrentMapLoc(this.Position);
 
                 jumpCameraBack = !jumpCameraBack;
 

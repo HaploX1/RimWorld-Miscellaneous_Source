@@ -13,7 +13,7 @@ namespace PawnCreator
         public PawnKindDef pawnKindDef = null;
         public FactionDef factionDef = null;
 
-        public LetterDef letterDef = LetterDefOf.Good;
+        public LetterDef letterDef = LetterDefOf.PositiveEvent;
         public string letterLabel = null;
         public string letterText = null;
     }

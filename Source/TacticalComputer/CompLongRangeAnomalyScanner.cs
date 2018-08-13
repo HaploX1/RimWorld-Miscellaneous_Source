@@ -12,10 +12,11 @@ namespace TacticalComputer
     public class CompLongRangeAnomalyScanner : ThingComp
     {
         private static readonly int AnomalyDistanceMin = 3;
+        private static readonly int AnomalyDistanceMax = 15;
         private static readonly IntRange ThingsCountRange = new IntRange(5, 9);
         private static readonly FloatRange TotalMarketValueRange = new FloatRange(2000f, 4000f);
         private static readonly IntRange NeurotrainersCountRange = new IntRange(3, 5);
-        private const float AIPersonaCoreExtraChance = 0.25f;
+        private const float AIPersonaCoreExtraChance = 0.15f;
 
         private static readonly string railgunDefName = "Gun_RailgunMKI";
 
@@ -164,8 +165,12 @@ namespace TacticalComputer
 
         private void FoundAnomaly()
         {
-            int tile;
-            if (!TryFindNewAnomalyTile(out tile))
+            int min = AnomalyDistanceMin;
+            int max = AnomalyDistanceMax;
+
+            int tile2 = base.parent.Tile;
+            int tile = default(int);
+            if (!TryFindNewAnomalyTile(out tile, min, max, false, true, tile2))
                 return;
 
             Site site;
@@ -173,14 +178,12 @@ namespace TacticalComputer
 
             if (Rand.Chance(Props.chanceForNoSitePart))
             {
-
-                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), null, false, null);
+                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), null, tile, false, null);
                 spacerUsable = true;
             }
             else
             {
-                
-                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), GetRandomSitePartDefs, true, null);
+                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), GetRandomSitePartDefs, tile, true, null);
             }
 
             // if spacerUsable -> 35% chance that the faction is spacer
@@ -188,11 +191,9 @@ namespace TacticalComputer
             {
                 Faction spacerFaction = null;
                 if ((from x in Find.FactionManager.AllFactionsListForReading
-                     where x.def == FactionDefOf.Spacer || x.def == FactionDefOf.SpacerHostile
+                     where x.def == FactionDefOf.Ancients || x.def == FactionDefOf.AncientsHostile
                      select x).TryRandomElement(out spacerFaction))
                     site.SetFaction(spacerFaction);
-
-
 
             }
 
@@ -214,67 +215,86 @@ namespace TacticalComputer
                 if (HasImprovedSensors)
                 {
                     ItemStashContentsComp itemStash = site.GetComponent<ItemStashContentsComp>();
-                    if (itemStash != null && site.core.defName == defName_ItemStash)
+                    if (itemStash != null && site.core.def.defName == defName_ItemStash)
                     {
-                        items = GenerateItems(site.Faction);
+                        items = GenerateItems(site.Faction, StorytellerUtility.DefaultSiteThreatPointsNow());
                         itemStash.contents.TryAddRangeOrTransfer(items);
 
                         if (railgun != null)
                             itemStash.contents.TryAdd(railgun);
                     }
                 }
-                
 
-                site.Tile = tile;
-                Find.WorldObjects.Add(site);
-                Find.LetterStack.ReceiveLetter("TacticalComputer_LetterLabel_AnomalyFound".Translate(), "TacticalComputer_Message_AnomalyFound".Translate(), LetterDefOf.PositiveEvent, site);
+                //site.Tile = tile;
 
                 // Add a site timeout ???
                 site.GetComponent<TimeoutComp>().StartTimeout(Rand.RangeInclusive(15, 60) * 60000);
+
+                Find.WorldObjects.Add(site);
+                Find.LetterStack.ReceiveLetter("TacticalComputer_LetterLabel_AnomalyFound".Translate(), "TacticalComputer_Message_AnomalyFound".Translate(), LetterDefOf.PositiveEvent, site);
+
             }
         }
 
-        // Added for testing purposes...
-        private Site CreateSite(int tile, SitePartDef sitePart, int days, Faction siteFaction, List<Thing> items)
-        {
-            WorldObjectDef woDef;
-            float chance = Rand.Value;
-            //if (chance < 0.5f)
-            //    woDef = WorldObjectDefOf.AbandonedFactionBase;
-            //else
-                woDef = WorldObjectDefOf.Site;
+        //// Added for testing purposes...
+        //private Site CreateSite(int tile, SitePartDef sitePart, int days, Faction siteFaction, List<Thing> items)
+        //{
+        //    WorldObjectDef woDef;
+        //    float chance = Rand.Value;
+        //    //if (chance < 0.5f)
+        //    //    woDef = WorldObjectDefOf.AbandonedFactionBase;
+        //    //else
+        //        woDef = WorldObjectDefOf.Site;
             
-            Site site = (Site)WorldObjectMaker.MakeWorldObject(woDef);
-            //site.Tile = tile;
-            site.core = DefDatabase<SiteCoreDef>.GetNamed("Anomaly_ItemStash");
+        //    Site site = (Site)WorldObjectMaker.MakeWorldObject(woDef);
+        //    //site.Tile = tile;
+        //    site.core = DefDatabase<SiteCoreDef>.GetNamed("Anomaly_ItemStash");
 
-            if (sitePart != null)
-                site.parts.Add(sitePart);
+        //    if (sitePart != null)
+        //        site.parts.Add(sitePart);
 
-            if (siteFaction != null)
-                site.SetFaction(siteFaction);
+        //    if (siteFaction != null)
+        //        site.SetFaction(siteFaction);
 
-            if (days > 0)
-                site.GetComponent<TimeoutComp>().StartTimeout(days * 60000);
+        //    if (days > 0)
+        //        site.GetComponent<TimeoutComp>().StartTimeout(days * 60000);
 
-            if (items != null && items.Count > 0)
-                site.GetComponent<ItemStashContentsComp>().contents.TryAddRangeOrTransfer(items);
+        //    if (items != null && items.Count > 0)
+        //        site.GetComponent<ItemStashContentsComp>().contents.TryAddRangeOrTransfer(items);
 
-            //Find.WorldObjects.Add(site);
-            return site;
-        }
+        //    //Find.WorldObjects.Add(site);
+        //    return site;
+        //}
 
 
         // From RimWorld.Planet.TileFinder.TryFindNewSiteTile(..)
-        private bool TryFindNewAnomalyTile(out int tile)
+        private bool TryFindNewAnomalyTile(out int tile, int minDist = 7, int maxDist = 27, bool allowCaravans = false, bool preferCloserTiles = true, int nearThisTile = -1)
         {
-            int rootTile;
-            if (!TileFinder.TryFindRandomPlayerTile(out rootTile, true))
+            Func<int, int> findTile = delegate (int root)
+            {
+                int minDist2 = minDist;
+                int maxDist2 = maxDist;
+                Predicate<int> validator = (int x) => !Find.WorldObjects.AnyWorldObjectAt(x) && TileFinder.IsValidTileForNewSettlement(x, null);
+                bool preferCloserTiles2 = preferCloserTiles;
+                int result = default(int);
+                if (TileFinder.TryFindPassableTileWithTraversalDistance(root, minDist2, maxDist2, out result, validator, false, preferCloserTiles2))
+                {
+                    return result;
+                }
+                return -1;
+            };
+            int arg = default(int);
+            if (nearThisTile != -1)
+            {
+                arg = nearThisTile;
+            }
+            else if (!TileFinder.TryFindRandomPlayerTile(out arg, allowCaravans, (Predicate<int>)((int x) => findTile(x) != -1)))
             {
                 tile = -1;
                 return false;
             }
-            return TileFinder.TryFindPassableTileWithTraversalDistance(rootTile, AnomalyDistanceMin, (int)Props.radius, out tile, (int x) => !Find.WorldObjects.AnyWorldObjectAt(x), false);
+            tile = findTile(arg);
+            return tile != -1;
         }
 
         private void CalculateOtherActiveAnomalyScanners()
@@ -396,102 +416,21 @@ namespace TacticalComputer
 
 
         // from IncidentWorker_QuestItemStash
-
-        private List<Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>> possibleItemCollectionGenerators = new List<Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>>();
-        
-        private List<Thing> GenerateItems(Faction siteFaction)
+        protected List<Thing> GenerateItems(Faction siteFaction, float siteThreatPoints)
         {
-            TechLevel? techLevel = siteFaction != null ? siteFaction.def.techLevel : TechLevel.Undefined;
-            TechLevel techLevel2 = (techLevel == TechLevel.Undefined) ? TechLevel.Spacer : techLevel.Value;
-            this.CalculatePossibleItemCollectionGenerators(techLevel2);
-            Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams> pair = this.possibleItemCollectionGenerators.RandomElement<Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>>();
-            return pair.First.Worker.Generate(pair.Second);
+            ThingSetMakerParams parms = default(ThingSetMakerParams);
+            parms.totalMarketValueRange = SiteTuning.ItemStashQuestMarketValueRange * SiteTuning.QuestRewardMarketValueThreatPointsFactor.Evaluate(siteThreatPoints);
+
+            ThingSetMakerDef thingSetMakerDef = DefDatabase<ThingSetMakerDef>.GetNamedSilentFail("Reward_Incidents_ItemStashQuestContents");
+
+            return thingSetMakerDef.root.Generate(parms);
         }
-        private void CalculatePossibleItemCollectionGenerators(TechLevel techLevel)
+        protected List<Thing> GenerateItems_w_AIPersonaCore(Faction siteFaction, float siteThreatPoints)
         {
-            this.possibleItemCollectionGenerators.Clear();
-            if (techLevel >= ThingDefOf.AIPersonaCore.techLevel)
-            {
-                ItemCollectionGeneratorDef standard = ItemCollectionGeneratorDefOf.Standard;
-                ItemCollectionGeneratorParams second = default(ItemCollectionGeneratorParams);
-                second.extraAllowedDefs = Gen.YieldSingle<ThingDef>(ThingDefOf.AIPersonaCore);
-                second.count = new int?(1);
-                this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(standard, second));
-                if (Rand.Chance(0.25f) && !this.PlayerOrItemStashHasAIPersonaCore())
-                {
-                    return;
-                }
-            }
-            //if (techLevel >= ThingDefOf.MechSerumNeurotrainer.techLevel)
-            //{
-            //    ItemCollectionGeneratorDef standard2 = ItemCollectionGeneratorDefOf.Standard;
-            //    ItemCollectionGeneratorParams second2 = default(ItemCollectionGeneratorParams);
-            //    second2.extraAllowedDefs = Gen.YieldSingle<ThingDef>(ThingDefOf.MechSerumNeurotrainer);
-            //    second2.count = new int?(ItemCollectionGenerator_ItemStashQuest.NeurotrainersCountRange.RandomInRange);
-            //    this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(standard2, second2));
-            //}
-            List<ThingDef> allGeneratableItems = ItemCollectionGeneratorUtility.allGeneratableItems;
-            for (int i = 0; i < allGeneratableItems.Count; i++)
-            {
-                ThingDef thingDef = allGeneratableItems[i];
-                if (techLevel >= thingDef.techLevel && thingDef.itemGeneratorTags != null && thingDef.itemGeneratorTags.Contains(ItemCollectionGeneratorUtility.SpecialRewardTag))
-                {
-                    ItemCollectionGeneratorDef standard3 = ItemCollectionGeneratorDefOf.Standard;
-                    ItemCollectionGeneratorParams second3 = default(ItemCollectionGeneratorParams);
-                    second3.extraAllowedDefs = Gen.YieldSingle<ThingDef>(thingDef);
-                    second3.count = new int?(1);
-                    this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(standard3, second3));
-                }
-            }
-            ItemCollectionGeneratorParams second4 = default(ItemCollectionGeneratorParams);
-            second4.count = new int?(ThingsCountRange.RandomInRange);
-            second4.totalMarketValue = new float?(TotalMarketValueRange.RandomInRange);
-            second4.techLevel = new TechLevel?(techLevel);
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.Weapons, second4));
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.RawResources, second4));
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.Apparel, second4));
-            // Added !!!
-            this.possibleItemCollectionGenerators.Add(new Pair<ItemCollectionGeneratorDef, ItemCollectionGeneratorParams>(ItemCollectionGeneratorDefOf.AncientTempleContents, second4));
-
+            List<Thing> list = GenerateItems(siteFaction, siteThreatPoints);
+            list.Add(ThingMaker.MakeThing(ThingDefOf.AIPersonaCore, null));
+            return list;
         }
-
-        private bool PlayerOrItemStashHasAIPersonaCore()
-        {
-            List<Map> maps = Find.Maps;
-            for (int i = 0; i < maps.Count; i++)
-            {
-                if (maps[i].listerThings.ThingsOfDef(ThingDefOf.AIPersonaCore).Count > 0)
-                {
-                    return true;
-                }
-            }
-            List<Caravan> caravans = Find.WorldObjects.Caravans;
-            for (int j = 0; j < caravans.Count; j++)
-            {
-                if (caravans[j].IsPlayerControlled && CaravanInventoryUtility.HasThings(caravans[j], ThingDefOf.AIPersonaCore, 1, null))
-                {
-                    return true;
-                }
-            }
-            List<Site> sites = Find.WorldObjects.Sites;
-            for (int k = 0; k < sites.Count; k++)
-            {
-                ItemStashContentsComp component = sites[k].GetComponent<ItemStashContentsComp>();
-                if (component != null)
-                {
-                    ThingOwner contents = component.contents;
-                    for (int l = 0; l < contents.Count; l++)
-                    {
-                        if (contents[l].def == ThingDefOf.AIPersonaCore)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
-        }
-
 
     }
 }
