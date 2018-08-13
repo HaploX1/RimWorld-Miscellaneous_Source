@@ -300,7 +300,10 @@ namespace ColonistSelections
             rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 4 + buttonSpacing * 1, startPos.z, buttonSize.x, buttonSize.z);
             if (Widgets.ButtonImage(rectButtonGroup, texButtonReleaseAll, colorMain, colorMouseOver))
             {
-                DoReleaseAllColonists();
+                if (!keyShift)
+                    DoReleaseAllColonists();
+                else
+                    DoSwitchPositioningSelectionMode();
             }
             TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2ReleaseAll.Translate(new object[] { kbDef_Release.MainKeyLabel }));
 
