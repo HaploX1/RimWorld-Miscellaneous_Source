@@ -275,8 +275,26 @@ namespace AIRobot
                     if (targetInfo.IsValid)
                     {
                         //Profiler.EndSample();
-                        pawn.mindState.lastGivenWorkType = workGiver.def.workType;
-                        Job job3 = (!targetInfo.HasThing) ? workGiver_Scanner.JobOnCell(pawn, targetInfo.Cell, false) : workGiver_Scanner.JobOnThing(pawn, targetInfo.Thing, false);
+                        Job job3 = null;
+                        try
+                        {
+                            pawn.mindState.lastGivenWorkType = workGiver.def.workType;
+                            job3 = (!targetInfo.HasThing) ? workGiver_Scanner.JobOnCell(pawn, targetInfo.Cell, false) : workGiver_Scanner.JobOnThing(pawn, targetInfo.Thing, false);
+                        }
+                        catch //(Exception ex)
+                        {
+                            //Log.Warning(string.Concat(new object[]
+                            //{
+                            //    pawn,
+                            //    " threw exception in WorkGiver ",
+                            //    workGiver.def.defName,
+                            //    " in JobOnX: ",
+                            //    ex.ToString()
+                            //}));
+
+                            // Error --> Force NoJob
+                            return ThinkResult.NoJob;
+                        }
                         if (job3 != null)
                         {
                             return new ThinkResult(job3, this, list[j].def.tagToGive, false);
