@@ -94,7 +94,7 @@ namespace ArtefactFound
         {
             PawnKindDef.Named("Mercenary_Gunner"),
             PawnKindDef.Named("Mercenary_Sniper"),
-            PawnKindDef.Named("GrenadierDestructive"),
+            PawnKindDef.Named("Grenadier_Destructive"),
             PawnKindDef.Named("Mercenary_Slasher"),
             PawnKindDef.Named("Mercenary_Heavy"),
             PawnKindDef.Named("Drifter"),

@@ -122,7 +122,7 @@ namespace AIRobot
             //Log.Message("POST - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
 
 
-            Log.Message( w.defName + ":" + this.WorkIsActive(w).ToString() );
+            //Log.Message( w.defName + ":" + this.WorkIsActive(w).ToString() );
             //if (priority == 0)
             //{
             //    this.pawn2.mindState.Notify_WorkPriorityDisabled(w);

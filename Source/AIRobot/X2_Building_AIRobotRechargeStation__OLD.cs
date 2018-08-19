@@ -50,8 +50,6 @@ namespace AIRobot
         private bool robotIsDestroyed = false;
         public bool SpawnRobotAfterRecharge = true;
 
-        public bool isRechargeActive = false;
-
         private float rechargeEfficiency = 1.0f;
         private float calcDistanceRestCheck = -1f;
 
@@ -164,17 +162,13 @@ namespace AIRobot
                         bot.DeSpawn();
             }
             robot = null;
-
-            isRechargeActive = false;
         }
 
         public void AddRobotToContainer(X2_AIRobot bot)
         {
             if (bot.HasAttachment(ThingDefOf.Fire))
                 bot.GetAttachment(ThingDefOf.Fire).Destroy(DestroyMode.Vanish);
-
-            isRechargeActive = false;
-
+            
             bot.stances.CancelBusyStanceHard();
             bot.jobs.StopAll(false);
             bot.pather.StopDead();
@@ -356,25 +350,6 @@ namespace AIRobot
                 return;
             }
 
-            if (isRechargeActive)
-            {
-                if (robot.needs.rest.CurLevel < 1f)
-                {
-                    robot.needs.rest.CurLevel += (0.13f / GenDate.TicksPerHour) * rechargeEfficiency;
-                    if (robot.needs.rest.CurLevel > 1f)
-                        robot.needs.rest.CurLevel = 1f;
-
-                    TryThrowBatteryMote(robot);
-                }
-                else
-                {
-                    robot.jobs.ClearQueuedJobs();
-                    robot.jobs.EndCurrentJob(JobCondition.Succeeded, true);
-                    isRechargeActive = false;
-                }
-                return;
-            }
-
 
             if (!Gen.IsHashIntervalTick(robot, 250))
                 return;
@@ -391,7 +366,8 @@ namespace AIRobot
             if ((robot.needs.rest.CurLevel < 0.40f && !AIRobot_Helper.IsInDistance(this.Position, robot.Position, calcDistanceRestCheck)) ||
                  robot.needs.rest.CurLevel < 0.10f)
             {
-                Notify_CallBotForRecharge();
+                Button_CallBotForShutdown();
+                SpawnRobotAfterRecharge = true;
             }
         }
 
@@ -566,7 +542,7 @@ namespace AIRobot
                 act1.icon = UI_ButtonForceRecharge;
                 act1.hotKey = KeyBindingDefOf.Misc7;
                 act1.activateSound = SoundDef.Named("Click");
-                act1.action = Notify_CallBotForShutdown;
+                act1.action = Button_CallBotForShutdown;
                 act1.disabled = powerComp != null && !powerComp.PowerOn;
                 act1.disabledReason = txtNoPower.Translate();
                 act1.groupKey = groupBaseKey + 2;
@@ -742,16 +718,17 @@ namespace AIRobot
 
         public void Notify_CallBotForRecharge()
         {
-            Button_CallBotForShutdown(true);
+            Button_CallBotForShutdown();
             SpawnRobotAfterRecharge = true;
         }
         public void Notify_CallBotForShutdown()
         {
-            Button_CallBotForShutdown(false);
+            Button_CallBotForShutdown();
         }
-        private void Button_CallBotForShutdown(bool onlyRecharging)
+        private void Button_CallBotForShutdown()
         {
-            SpawnRobotAfterRecharge = onlyRecharging;
+
+            SpawnRobotAfterRecharge = false;
 
             if (robot == null || robotIsDestroyed)
                 return;
@@ -766,25 +743,11 @@ namespace AIRobot
                 return;
             }
 
-            ThinkResult jobPackage;
-
-            if (onlyRecharging)
-            {
-                // Go Recharging
-                X2_JobGiver_RechargeEnergy getRecharge = new X2_JobGiver_RechargeEnergy();
-                jobPackage = getRecharge.TryIssueJobPackage(robot, new JobIssueParams());
-            }
-            else
-            {
-                // Go Despawning
-                X2_JobGiver_Return2BaseDespawn getRest = new X2_JobGiver_Return2BaseDespawn();
-                jobPackage = getRest.TryIssueJobPackage(robot, new JobIssueParams());
-            }
-
+            X2_JobGiver_RechargeEnergy getRest = new X2_JobGiver_RechargeEnergy();
+            ThinkResult jobPackage = getRest.TryIssueJobPackage(robot, new JobIssueParams());
             // Do nothing more, if the jobPackage or job is null, or if the current job is already the target job
             if (jobPackage == null || jobPackage.Job == null || (robot.CurJob != null && robot.CurJob.def == jobPackage.Job.def))
                 return;
-            
 
             robot.jobs.StopAll();
 
