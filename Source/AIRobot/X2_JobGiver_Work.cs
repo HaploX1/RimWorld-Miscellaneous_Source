@@ -66,7 +66,7 @@ namespace AIRobot
             //}
 
 
-            List<WorkGiver> list = robot.workSettings.WorkGiversInOrderNormal; // Get Non-Emergency WorkGivers
+            List<WorkGiver> list = robot.GetWorkGivers(false); // Get Non-Emergency WorkGivers
             int num = -999;
             TargetInfo targetInfo = TargetInfo.Invalid;
             WorkGiver_Scanner workGiver_Scanner = null;
