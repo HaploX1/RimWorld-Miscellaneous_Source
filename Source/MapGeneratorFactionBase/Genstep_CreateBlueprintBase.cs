@@ -60,6 +60,9 @@ namespace MapGenerator
             IEnumerable<MapGeneratorBaseBlueprintDef> blueprint1stSelection = DefDatabase<MapGeneratorBaseBlueprintDef>.AllDefsListForReading
                 .Where((MapGeneratorBaseBlueprintDef b) => b.techLevelRequired <= techlevel && (b.techLevelMax == TechLevel.Undefined || b.techLevelMax >= techlevel) );
 
+            IEnumerable<MapGeneratorBaseBlueprintDef> blueprint2ndSelection = blueprint1stSelection
+                .Where ((MapGeneratorBaseBlueprintDef b) => b.factionDef != null && b.factionDef == faction.def);
+
             float createVanillaLimit = 0.95f;
             if ( blueprint1stSelection != null && blueprint1stSelection.Count() > 0 )
             {
@@ -79,6 +82,15 @@ namespace MapGenerator
                     createVanillaLimit = 0.35f;
             }
 
+            // If there are faction specific blueprints found, reduce the vanilla chance
+            if (blueprint2ndSelection.Count() > 0)
+            {
+                createVanillaLimit = 0.15f;
+
+                if (testActive)
+                    Log.Warning("Reduced vanilla chance: " + createVanillaLimit.ToStringPercent() + " / Faction specific blueprints found: " + faction.Name + " -> " + blueprint2ndSelection.Count());
+            }
+
             if ( blueprint1stSelection == null || blueprint1stSelection.Count() == 0 )
                 Log.Warning("Genstep_CreateBlueprintBase - no usable blueprint found. Using vanilla base generation..");
 
@@ -94,7 +106,16 @@ namespace MapGenerator
                 return;
             }
 
-            MapGeneratorBaseBlueprintDef blueprint = blueprint1stSelection.RandomElementByWeight((MapGeneratorBaseBlueprintDef b) => b.chance);
+            MapGeneratorBaseBlueprintDef blueprint;
+            if (blueprint2ndSelection.Count() > 0)
+            {
+                blueprint = blueprint2ndSelection.RandomElementByWeight((MapGeneratorBaseBlueprintDef b) => b.chance);
+
+            }
+            else
+            {
+                blueprint = blueprint1stSelection.RandomElementByWeight((MapGeneratorBaseBlueprintDef b) => b.chance);
+            }
 
             // Check if this position was already used -> re-use old blueprint 
             if (mapWorldCoord2Blueprint == null)
