@@ -28,6 +28,8 @@ namespace AIRobot
         public static string lbActivateAllRobots = "AIRobot_Label_ActivateAllRobots";
         public static string txtActivateAllRobots = "AIRobot_ActivateAllRobots";
 
+        public static string txtDisabledBecauseNotHomeMap = "AIRobot_Disabled_OnlyStartOnHomeMap";
+
         public static string lbFindRobot = "AIRobot_Label_FindRobot";
         public static string txtFindRobot = "AIRobot_FindRobot";
 
@@ -540,16 +542,22 @@ namespace AIRobot
                 // Key-Binding N - Start robot
                 Command_Action act2;
                 act2 = new Command_Action();
-                //act2.disabled = owner != null;
-                //act2.disabledReason = txtNoOwner.Translate();
                 act2.defaultLabel = lbSpawnOwner.Translate();
                 act2.defaultDesc = txtSpawnOwner.Translate();
                 act2.icon = UI_ButtonStart;
                 act2.hotKey = KeyBindingDefOf.Misc4;
                 act2.activateSound = SoundDef.Named("Click");
                 act2.action = Button_SpawnBot;
-                act2.disabled = powerComp != null && !powerComp.PowerOn;
-                act2.disabledReason = txtNoPower.Translate();
+                if (!Map.IsPlayerHome || Map.IsTempIncidentMap)
+                {
+                    act2.disabled = !Map.IsPlayerHome || Map.IsTempIncidentMap;
+                    act2.disabledReason = txtDisabledBecauseNotHomeMap.Translate();
+                }
+                else
+                {
+                    act2.disabled = powerComp != null && !powerComp.PowerOn;
+                    act2.disabledReason = txtNoPower.Translate();
+                }
                 act2.groupKey = groupBaseKey + 1;
                 yield return act2;
             }
