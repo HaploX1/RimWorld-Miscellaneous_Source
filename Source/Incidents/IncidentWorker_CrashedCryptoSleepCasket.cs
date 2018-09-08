@@ -58,8 +58,8 @@ namespace Incidents
             GenExplosion.DoExplosion(casket.PositionHeld, map, 7, DamageDefOf.Bomb, casket);
             GenExplosion.DoExplosion(casket.PositionHeld, map, 4, DamageDefOf.Flame, casket);
 
-            // Passenger count: 1 to 5 rnd
-            int ccount = Rand.RangeInclusive(1, 5);
+            // Passenger count: 1 to 4 rnd
+            int ccount = Rand.RangeInclusive(1, 4);
             for (int i = 0; i < ccount; i++)
             {
                 MakeCasketContents(casket);
@@ -70,17 +70,13 @@ namespace Incidents
             if (casket.DestroyedOrNull())
                 return false;
 
-            Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.NeutralEvent, casket);
+            Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.ThreatSmall, casket);
             //Letter letter = LetterMaker.MakeLetter("Letter_Label_CrashedCasket".Translate(), "Letter_Text_CrashedCasket".Translate(), LetterDefOf.NeutralEvent, new TargetInfo(mapRect.CenterCell, map, false));
             
             Find.LetterStack.ReceiveLetter(letter);
 
             return true;
         }
-
-        
-        
-        private static List<string> PodContentAnimalDefs = new List<string>() { "YorkshireTerrier", "Husky", "LabradorRetriever", "Cat"};
 
         // Extracted and modified from GenStep_ScatterShrines:
         private static bool IsMapRectClear(CellRect mapRect, Map map)
@@ -183,8 +179,11 @@ namespace Incidents
         private static void GenerateFriendlyAnimal(Building_CryptosleepCasket pod)
         {
             Faction faction = Find.FactionManager.FirstFactionOfDef(FactionDefOf.PlayerColony);
-            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(PodContentAnimalDefs.RandomElement()), faction, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
+            PawnGenerationRequest request = new PawnGenerationRequest(FindRandomAnimalForSpawn(), faction, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
+
+            if (!pod.TryAcceptThing(pawn, false))
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
         }
 
         private static void GenerateFriendlySpacer(Building_CryptosleepCasket pod)
@@ -192,6 +191,9 @@ namespace Incidents
             PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncients, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
             GiveRandomLootInventoryForTombPawn(pawn);
+
+            if (!pod.TryAcceptThing(pawn, false))
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
         }
 
         private static void GenerateIncappedSpacer(Building_CryptosleepCasket pod)
@@ -200,6 +202,9 @@ namespace Incidents
             Pawn pawn = PawnGenerator.GeneratePawn(request);
             HealthUtility.DamageUntilDowned(pawn, true);
             GiveRandomLootInventoryForTombPawn(pawn);
+
+            if (!pod.TryAcceptThing(pawn, false))
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
         }
 
         private static void GenerateSlave(Building_CryptosleepCasket pod)
@@ -212,6 +217,9 @@ namespace Incidents
             {
                 HealthUtility.DamageUntilDead(pawn);
             }
+
+            if (!pod.TryAcceptThing(pawn, false))
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
         }
 
         private static void GenerateAngryAncient(Building_CryptosleepCasket pod)
@@ -219,21 +227,30 @@ namespace Incidents
             PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncientsHostile, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
             GiveRandomLootInventoryForTombPawn(pawn);
+
+            if (!pod.TryAcceptThing(pawn, false))
+                Find.WorldPawns.PassToWorld(pawn, PawnDiscardDecideMode.Discard);
         }
 
         private static void GenerateHalfEatenAncient(Building_CryptosleepCasket pod)
         {
             PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDefOf.AncientSoldier, Faction.OfAncients, PawnGenerationContext.NonPlayer, -1, false, false, false, false, true, false, 1f, false, true, true, false, true, false, false, null, null, null, null, null, null, null, null);
             Pawn pawn = PawnGenerator.GeneratePawn(request);
-            int num = Rand.Range(6, 10);
+            HediffSet hediffSet = pawn.health.hediffSet;
+            int num = Rand.Range(5, 10);
             for (int i = 0; i < num; i++)
             {
+                BodyPartRecord bodyPartRecord = HittablePartsViolence(hediffSet).RandomElementByWeight((BodyPartRecord x) => x.coverageAbs);
                 Pawn pawnD = pawn;
                 DamageDef bite = DamageDefOf.Bite;
                 float amount = (float)Rand.Range(3, 8);
+                float armorPenetration = 999f;
                 Pawn instigator = pawn;
-                pawnD.TakeDamage(new DamageInfo(bite, amount, 0f, -1f, instigator, null, null, DamageInfo.SourceCategory.ThingOrUnknown, null));
+                BodyPartRecord hitPart = bodyPartRecord;
+                DamageInfo dinfo = new DamageInfo(bite, amount, armorPenetration, -1f, null, hitPart, null, DamageInfo.SourceCategory.ThingOrUnknown, null);
+                pawn.TakeDamage(dinfo);
             }
+
             GiveRandomLootInventoryForTombPawn(pawn);
             
             // Add a few insects
@@ -274,12 +291,17 @@ namespace Incidents
         private static void GiveRandomLootInventoryForTombPawn(Pawn p)
         {
             float rand = Rand.Value;
-            if (rand < 0.03f)
+            if (rand < 0.05f)
             {
                 ThingDef gun = DefDatabase<ThingDef>.GetNamedSilentFail("Gun_RailgunMKI");
                 if (gun == null)
                     gun = DefDatabase<ThingDef>.GetNamedSilentFail("Gun_ChargeLance");
                 MakeIntoContainer(p.inventory.innerContainer, gun, 1);
+            }
+
+            if (rand > 0.35f && rand < 0.60f)
+            {
+                MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.ComponentSpacer, Rand.Range(-1, 5));
             }
 
             if (rand < 0.45f)
@@ -295,7 +317,7 @@ namespace Incidents
             {
                 MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.Plasteel, Rand.Range(10, 50));
             }
-            MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.ComponentSpacer, Rand.Range(-2, 4));
+            MakeIntoContainer(p.inventory.innerContainer, ThingDefOf.ComponentIndustrial, Rand.Range(-1, 6));
         }
         private static void MakeIntoContainer(ThingOwner container, ThingDef def, int count)
         {
@@ -307,7 +329,22 @@ namespace Incidents
             container.TryAdd(thing, true);
         }
 
+        private static IEnumerable<BodyPartRecord> HittablePartsViolence(HediffSet bodyModel)
+        {
+            return from x in bodyModel.GetNotMissingParts(BodyPartHeight.Undefined, BodyPartDepth.Undefined, null, null)
+                   where x.depth == BodyPartDepth.Outside || (x.depth == BodyPartDepth.Inside && x.def.IsSolid(x, bodyModel.hediffs))
+                   select x;
+        }
 
+        private static PawnKindDef FindRandomAnimalForSpawn()
+        {
+            PawnKindDef pkDef = null; 
+            (from td in DefDatabase<PawnKindDef>.AllDefs
+             where td.RaceProps.Animal && td.combatPower < 200
+             select td).TryRandomElement(out pkDef);
+            
+            return pkDef;
+        }
 
     }
 }
