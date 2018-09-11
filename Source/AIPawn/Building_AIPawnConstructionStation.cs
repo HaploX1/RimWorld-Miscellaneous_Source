@@ -18,15 +18,10 @@ namespace AIPawn
     /// <author>Haplo</author>
     /// <permission>For usage of this code, please look at the license information.</permission>
     [StaticConstructorOnStartup]
-    public class Building_AIPawnConstructionStation : Building, ISlotGroupParent, IStoreSettingsParent, IHaulDestination
+    public class Building_AIPawnConstructionStation : Building
     {
 
         #region Variables
-
-        // These variables are needed to setup the storage field
-        public SlotGroup slotGroup;
-        public StorageSettings settingsStorage;
-        private List<IntVec3> cachedOccupiedCells;
 
         // The count of resources
         public int countSteel = 0;
@@ -50,7 +45,7 @@ namespace AIPawn
         private ThingDef steelDef = null;
         private ThingDef silverDef = null;
         private IntVec3 refillPos;
-        private Thing receivedThing = null;
+
 
         // Needed to stop working further ticks when this is destroyed
         private bool destroyedFlag = false;
@@ -105,31 +100,20 @@ namespace AIPawn
                 return maxSilverCount - countSilver;
             }
         }
+        public IntVec3 RefillPosition
+        {
+            get
+            {
+                return refillPos;
+            }
+        }
 
         #endregion
 
 
         // ================== Create / Destroy ==================
         #region Create / Destroy
-
-        /// <summary>
-        /// Do something after the object is initialized, but before it is spawned
-        /// </summary>
-        public override void PostMake()
-        {
-            base.PostMake();
-
-            this.settingsStorage = new StorageSettings(this);
-
-            if (def.building.defaultStorageSettings != null)
-                settingsStorage.CopyFrom(def.building.defaultStorageSettings);
-
-        }
-
-
-        /// <summary>
-        /// Do something after the object is spawned
-        /// </summary>
+        
         public override void SpawnSetup(Map map, bool respawnAfterLoad)
         {
 
@@ -139,10 +123,6 @@ namespace AIPawn
 
         }
 
-        /// <summary>
-        /// This is called seperately when the Mod-Thread is done.
-        /// It is needed to be seperately from SpawnSetup, so that the graphics can be found
-        /// </summary>
         private void SpawnSetup_Part2()
         {
 
@@ -153,32 +133,17 @@ namespace AIPawn
                 UI_StartProduction = ContentFinder<Texture2D>.Get(UI_StartProduction_Path, true);
             if (!UI_StopProduction_Path.NullOrEmpty())
                 UI_StopProduction = ContentFinder<Texture2D>.Get(UI_StopProduction_Path, true);
-
-            //refillPos = InteractionCell;
+            
             refillPos = Position;
-
-            cachedOccupiedCells = this.AllSlotCells().ToList<IntVec3>();
-
-            //slotGroup = new SlotGroup(this);
+            
 
             power = base.GetComp<CompPowerTrader>();
             //glower.def.glowColor = new ColorInt(255,0,0,255);
         }
-
-
-        /// <summary>
-        /// Clean up when it is destroyed
-        /// </summary>
+        
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
         {
             destroyedFlag = true;
-
-            //Check if the slotGroup is active >> deregister it
-            if (slotGroup != null)
-            {
-                slotGroup.Notify_LostCell(this.PositionHeld);
-                //slotGroup = null;
-            }
 
             base.Destroy(mode);
 
@@ -228,11 +193,6 @@ namespace AIPawn
             txtProductionRunningSign = "AIPawn_ProductionRunningSign".Translate(); //"->";
             txtOutputBlocked = "AIPawn_OutputBlocked".Translate(); //
         }
-        
-        public bool Accepts(Thing t)
-        {
-            return settingsStorage.AllowedToAccept(t);
-        }
 
         /// <summary>
         /// To write and read data (savegame)
@@ -242,172 +202,13 @@ namespace AIPawn
             ReadXmlData();
             
             base.ExposeData();
-            Scribe_Deep.Look<StorageSettings>(ref settingsStorage, "settingsStorage", this);
             Scribe_Values.Look(ref countSteel, "countSteel");
             Scribe_Values.Look(ref countSilver, "countSilver");
             Scribe_Values.Look(ref productionActive, "productionActive");
             Scribe_Values.Look(ref gatheringSuppliesActive, "gatheringSuppliesActive");
 
             if (Scribe.mode == LoadSaveMode.LoadingVars)
-            {
                 gatheringSuppliesActive = false;
-
-                if (slotGroup != null)
-                {
-                    slotGroup.Notify_LostCell(this.PositionHeld);
-                    slotGroup = null;
-                }
-            }
-
-        }
-
-        #endregion
-
-
-        // ================== Storage Settings ==================
-        #region Storage Settings
-
-        public bool StorageTabVisible
-        {
-            get
-            {
-                return true;
-            }
-        }
-
-        /// <summary>
-        /// Don't know what this does...
-        /// </summary>
-        /// <returns></returns>
-        public string SlotYielderLabel()
-        {
-            return this.Label;
-        }
-
-        /// <summary>
-        /// Base storage settings (from xml)
-        /// </summary>
-        /// <returns></returns>
-        public StorageSettings GetParentStoreSettings()
-        {
-            return def.building.fixedStorageSettings;
-        }
-
-        /// <summary>
-        /// Active storage settings (from xml or base)
-        /// </summary>
-        /// <returns></returns>
-        public StorageSettings GetStoreSettings()
-        {
-            return settingsStorage;
-        }
-
-        /// <summary>
-        /// Returns the occupied slot list
-        /// </summary>
-        /// <returns></returns>
-        public List<IntVec3> AllSlotCellsList()
-        {
-            return cachedOccupiedCells;
-        }
-
-        /// <summary>
-        /// Fill resources position == my position
-        /// </summary>
-        /// <returns></returns>
-        public IEnumerable<IntVec3> AllSlotCells()
-        {
-            //Where to bring the wood to refill to?
-            yield return refillPos;
-        }
-
-        /// <summary>
-        /// Returns the slotgroup
-        /// </summary>
-        /// <returns></returns>
-        public SlotGroup GetSlotGroup()
-        {
-            return this.slotGroup;
-        }
-
-        /// <summary>
-        /// Not used
-        /// </summary>
-        /// <param name="newItem"></param>
-        public void Notify_LostThing(Thing newItem)
-        {
-        }
-
-        /// <summary>
-        /// I received something => add stackCount to wood and destroy it
-        /// </summary>
-        /// <param name="newItem"></param>
-        public void Notify_ReceivedThing(Thing newItem)
-        {
-            if (productionActive || !gatheringSuppliesActive)
-                return;
-
-            receivedThing = newItem;
-            DoWork_ReceivedThing();
-        }
-
-        private void DoWork_ReceivedThing()
-        {
-            Thing newItem = receivedThing;
-            receivedThing = null;
-            
-            if (productionActive || !gatheringSuppliesActive)
-                return;
-
-            if (newItem == null || newItem.Position != refillPos)
-                return;
-
-            if (newItem.def.defName == steelDefName)
-            {
-                // received a valid wood item, save the ThingDef
-                steelDef = newItem.def;
-
-                if (countSteel + newItem.stackCount <= maxSteelCount)
-                {
-                    // stack doesn't overfill
-                    countSteel += newItem.stackCount;
-                    newItem.Destroy();
-                    return;
-                }
-                else
-                {
-                    // stack does overfill 
-                    int tmpSteel = maxSteelCount - countSteel;
-                    newItem.stackCount = newItem.stackCount - tmpSteel;
-                    countSteel += tmpSteel;
-                    // remove itemdef from allowed items list
-                    slotGroup.Settings.filter.SetAllow(newItem.def, false);
-                    return;
-                }
-            }
-            if (newItem.def.defName == silverDefName)
-            {
-                // received a valid wood item, save the ThingDef
-                silverDef = newItem.def;
-
-                if (countSilver + newItem.stackCount <= maxSilverCount)
-                {
-                    // stack doesn't overfill
-                    countSilver += newItem.stackCount;
-                    newItem.Destroy();
-                    return;
-                }
-                else
-                {
-                    // stack does overfill 
-                    int tmpSilver = maxSilverCount - countSilver;
-                    newItem.stackCount = newItem.stackCount - tmpSilver;
-                    countSilver += tmpSilver;
-                    // remove itemdef from filter list
-                    slotGroup.Settings.filter.SetAllow(newItem.def, false);
-                    return;
-                }
-            }
 
         }
 
@@ -417,19 +218,10 @@ namespace AIPawn
         // ================== Ticks ==================
         #region Ticks
 
-        /// <summary>
-        /// This is used, when the Ticker is changed from Normal to Rare
-        /// This is a tick thats done once every 5s = 3000Ticks
-        /// </summary>
         public override void TickRare()
         {
         }
 
-
-        /// <summary>
-        /// This is used, when the Ticker is set to Normal
-        /// This Tick is done often (60 times per second)
-        /// </summary>
         public override void Tick()
         {
             if (destroyedFlag)
@@ -439,11 +231,8 @@ namespace AIPawn
 
 
             // Fill until count > x, then start production
-            if (countSteel >= maxSteelCount && countSilver >= maxSilverCount && slotGroup != null)
+            if (gatheringSuppliesActive && countSteel >= maxSteelCount && countSilver >= maxSilverCount)
             {
-                slotGroup.Notify_LostCell(this.PositionHeld);//.Notify_ParentDestroying();
-                slotGroup = null;
-
                 gatheringSuppliesActive = false;
                 productionActive = true;
             }
@@ -479,8 +268,6 @@ namespace AIPawn
                 productionActive = false;
                 Create_Building_AIPawn_Inactive();
             }
-
-
         }
 
         #endregion
@@ -488,11 +275,7 @@ namespace AIPawn
 
         // ================== GUI ==================
         #region GUI
-
-        /// <summary>
-        /// This string will be shown when the object is selected (focus)
-        /// </summary>
-        /// <returns></returns>
+            
         public override string GetInspectString()
         {
             if (steelDef == null)
@@ -514,12 +297,7 @@ namespace AIPawn
 
             return stringBuilder.ToString();
         }
-
-
-        /// <summary>
-        /// This creates new selection buttons with a new graphic
-        /// </summary>
-        /// <returns></returns>
+        
         public override IEnumerable<Gizmo> GetGizmos()
         {
             if (!productionActive && !gatheringSuppliesActive)
@@ -560,10 +338,34 @@ namespace AIPawn
 
         // ================== Functions ==================
         #region Functions
+            
+        public bool ReceiveThing(Thing thing)
+        {
+            if (!gatheringSuppliesActive)
+                return false;
 
-        /// <summary>
-        /// This is the action, thats done when clicking on the production button
-        /// </summary>
+            if (thing.def == ThingDefOf.Steel)
+            {
+                int remaining = (countSteel + thing.stackCount) - maxSteelCount;
+                countSteel = countSteel + thing.stackCount > maxSteelCount ? maxSteelCount : countSteel + thing.stackCount;
+                if (remaining > 0)
+                    thing.stackCount = remaining;
+                else
+                    thing.Destroy(DestroyMode.Vanish);
+            }
+            if (thing.def == ThingDefOf.Silver)
+            {
+                int remaining = (countSilver + thing.stackCount) - maxSilverCount;
+                countSilver = countSilver + thing.stackCount > maxSilverCount ? maxSilverCount : countSilver + thing.stackCount;
+                if (remaining > 0)
+                    thing.stackCount = remaining;
+                else
+                    thing.Destroy(DestroyMode.Vanish);
+            }
+
+            return true;
+        }
+
         private void Button_StartStopProduction()
         {
             if (!CheckProductionOutletFree())
@@ -576,34 +378,17 @@ namespace AIPawn
             if (gatheringSuppliesActive)
             {
                 gatheringSuppliesActive = false;
-                slotGroup.Notify_LostCell(this.PositionHeld);
-                slotGroup = null;
                 return;
             }
 
             // Production active: Can not be stopped
             if (productionActive)
-            {
                 return;
-            }
 
             // start gathering supplies
             gatheringSuppliesActive = true;
-
-            // Restart storage
-            if (slotGroup == null)
-                slotGroup = new SlotGroup(this);
-
-            // Reset filter
-            slotGroup.Settings.filter.SetAllow(ThingDef.Named(steelDefName), true);
-            slotGroup.Settings.filter.SetAllow(ThingDef.Named(silverDefName), true);
-
         }
-
-
-        /// <summary>
-        /// Create the produced AI Pawn
-        /// </summary>
+        
         private void Create_Building_AIPawn_Inactive()
         {
             ThingDef thingDef = ThingDef.Named(buildingDefName);
@@ -680,9 +465,7 @@ namespace AIPawn
             return false;
 
         }
-
-
-
+        
         #endregion
 
     }
