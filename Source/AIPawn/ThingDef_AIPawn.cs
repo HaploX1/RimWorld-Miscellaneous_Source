@@ -15,6 +15,7 @@ namespace AIPawn
     {
         public string normalHeadGraphicPathMulti = null;
         public string draftedHeadGraphicPathMulti = null;
+        public string normalBodyGraphicPathMulti = null;
         public string draftedBodyGraphicPathMulti = null;
         public int refreshBaseInfosMax = 0;
         public int refreshQuickMax = 0;

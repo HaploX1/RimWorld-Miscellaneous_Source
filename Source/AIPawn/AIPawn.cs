@@ -42,6 +42,7 @@ namespace AIPawn
         // holder for the grafics of the head and body
         public string normalHeadGraphicPathMulti = "Things/Pawns/Female_Average_MiaHead";
         public string draftedHeadGraphicPathMulti = "Things/Pawns/Female_Average_MiaHead";
+        public string normalBodyGraphicPathMulti = "Things/Pawns/Naked_Mia";
         public string draftedBodyGraphicPathMulti = "Things/Pawns/Drafted_Mia";
 
         public static Graphic nakedHeadGraphic;
@@ -91,6 +92,7 @@ namespace AIPawn
             {
                 normalHeadGraphicPathMulti = def2.normalHeadGraphicPathMulti;
                 draftedHeadGraphicPathMulti = def2.draftedHeadGraphicPathMulti;
+                normalBodyGraphicPathMulti = def2.normalBodyGraphicPathMulti;
                 draftedBodyGraphicPathMulti = def2.draftedBodyGraphicPathMulti;
                 refreshBaseInfosMax = def2.refreshBaseInfosMax;
                 refreshQuickMax = def2.refreshQuickMax;
@@ -146,31 +148,32 @@ namespace AIPawn
         /// </summary>
         private void SpawnSetup_Part2()
         {
-
             // Get the data from the extended def
             ReadXmlData();
-
+            
             // Load base graphics
             Color colorNormal = Color.white;
-            nakedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+            nakedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>( normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
             draftedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(kindDef.lifeStages[0].bodyGraphicData.texPath, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+            //nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(kindDef.lifeStages[0].bodyGraphicData.texPath, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+            nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
             draftedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
 
             // Load hue graphics
             Color colorHue = Color.Lerp(Color.white, Color.red, 0.30f);
             nakedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
             draftedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(kindDef.lifeStages[0].bodyGraphicData.texPath, ShaderDatabase.Cutout, Vector2.one, colorHue);
+            //nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(kindDef.lifeStages[0].bodyGraphicData.texPath, ShaderDatabase.Cutout, Vector2.one, colorHue);
+            nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
             draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
 
-
+            
             // Load hair graphic (shaved)
             hairGraphic = GraphicDatabase.Get<Graphic_Multi>(this.story.hairDef.texPath, ShaderDatabase.Cutout, Vector2.one, this.story.hairColor);
-
+            
             //Drawer.renderer.graphics.ResolveAllGraphics(); 
             UpdateGraphics();
-
+            
             draftedActiveOld = this.Drafted;
 
             // Set Incap Counter to base value
@@ -181,7 +184,7 @@ namespace AIPawn
             // Delete the creating building
             if (!loaded)
                 DeleteCreator();
-           
+            
         }
 
         /// <summary>
