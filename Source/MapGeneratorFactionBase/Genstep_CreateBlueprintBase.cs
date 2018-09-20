@@ -58,10 +58,11 @@ namespace MapGenerator
             TechLevel techlevel = faction.def.techLevel;
             // Select only blueprints with a techlevel corresponding to the faction techlevel
             IEnumerable<MapGeneratorBaseBlueprintDef> blueprint1stSelection = DefDatabase<MapGeneratorBaseBlueprintDef>.AllDefsListForReading
-                .Where((MapGeneratorBaseBlueprintDef b) => b.techLevelRequired <= techlevel && (b.techLevelMax == TechLevel.Undefined || b.techLevelMax >= techlevel) );
+                .Where ((MapGeneratorBaseBlueprintDef b) => b.factionDef == null && 
+                                                            b.techLevelRequired <= techlevel && (b.techLevelMax == TechLevel.Undefined || b.techLevelMax >= techlevel) );
 
-            IEnumerable<MapGeneratorBaseBlueprintDef> blueprint2ndSelection = blueprint1stSelection
-                .Where ((MapGeneratorBaseBlueprintDef b) => b.factionDef != null && b.factionDef == faction.def);
+            IEnumerable<MapGeneratorBaseBlueprintDef> blueprint2ndSelection = DefDatabase<MapGeneratorBaseBlueprintDef>.AllDefsListForReading
+                .Where ((MapGeneratorBaseBlueprintDef b) => b.factionDef != null && b.factionDef == faction.def );
 
             float createVanillaLimit = 0.95f;
             if ( blueprint1stSelection != null && blueprint1stSelection.Count() > 0 )
@@ -85,7 +86,7 @@ namespace MapGenerator
             // If there are faction specific blueprints found, reduce the vanilla chance
             if (blueprint2ndSelection.Count() > 0)
             {
-                createVanillaLimit = 0.15f;
+                createVanillaLimit = 0.10f;
 
                 if (testActive)
                     Log.Warning("Reduced vanilla chance: " + createVanillaLimit.ToStringPercent() + " / Faction specific blueprints found: " + faction.Name + " -> " + blueprint2ndSelection.Count());
