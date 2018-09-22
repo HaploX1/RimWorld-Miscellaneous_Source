@@ -74,7 +74,14 @@ namespace MapGenerator
 
             // place a blueprint ruin
             //ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, this.usedSpots);
-            ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, usedCells);
+            try
+            {
+                ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, usedCells);
+            }
+            catch (Exception err)
+            {
+                Log.Error("Could not spawn blueprint '" + blueprint.defName + "'. Error: " + err.Message + "\n" + err.StackTrace);
+            }
 
             // reset
             selectedWallStuff = null;
@@ -83,7 +90,15 @@ namespace MapGenerator
 
         protected override bool CanScatterAt(IntVec3 loc, Map map)
         {
-            return base.CanScatterAt(loc, map) && loc.SupportsStructureType(map, TerrainAffordanceDefOf.Heavy);
+            try
+            {
+                return base.CanScatterAt(loc, map) && loc.SupportsStructureType(map, TerrainAffordanceDefOf.Heavy);
+            }
+            catch (Exception err)
+            {
+                Log.Warning("Caught error while checking CanScatterAt() -> " + err.Message + "\n" + err.StackTrace);
+            }
+            return false;
         }
 
 
