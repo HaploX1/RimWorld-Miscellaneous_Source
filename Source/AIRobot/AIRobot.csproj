@@ -59,6 +59,7 @@
     <Compile Include="X2_AIRobot_disabled.cs" />
     <Compile Include="X2_AIRobot_Helper.cs" />
     <Compile Include="X2_Building_AIRobotCreator.cs" />
+    <Compile Include="X2_JobGiver_RechargeEnergyIdle.cs" />
     <Compile Include="X2_JobGiver_Return2BaseDespawn.cs" />
     <Compile Include="X2_JobGiver_RepairDamagedRobot.cs" />
     <Compile Include="X2_JobGiver_LeaveLord.cs" />

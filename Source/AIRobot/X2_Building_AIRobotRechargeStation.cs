@@ -358,11 +358,17 @@ namespace AIRobot
                 return;
             }
 
+            if (isRechargeActive && robot != null && robot.Position != this.Position)
+            {
+                robot.jobs.ClearQueuedJobs();
+                isRechargeActive = false;
+            }
+
             if (isRechargeActive)
             {
                 if (robot.needs.rest.CurLevel < 1f)
                 {
-                    robot.needs.rest.CurLevel += (0.13f / GenDate.TicksPerHour) * rechargeEfficiency;
+                    robot.needs.rest.CurLevel += (0.1f / GenDate.TicksPerHour) * rechargeEfficiency * 2;
                     if (robot.needs.rest.CurLevel > 1f)
                         robot.needs.rest.CurLevel = 1f;
 

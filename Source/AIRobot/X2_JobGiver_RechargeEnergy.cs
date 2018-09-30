@@ -36,10 +36,18 @@ namespace AIRobot
                 if ((pawn as X2_AIRobot) == null || (pawn as X2_AIRobot).rechargeStation == null || (pawn as X2_AIRobot).rechargeStation.Position == null)
                     return 0f;
 
+                double distance = AIRobot_Helper.GetDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position);
+
                 // Own implementation: When level < 45% && dist > 25
-                bool isOutsideMaxDistance = !AIRobot_Helper.IsInDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position, 25f);
-                if (curLevel < 0.45f && pawn as X2_AIRobot != null && isOutsideMaxDistance)
+                bool isOutsideMaxDistance = distance > 25f;
+                if (curLevel < 0.40f && pawn as X2_AIRobot != null && isOutsideMaxDistance)
                     return 8f;
+
+                //// Own implementation: When level < 70% && idle
+                //bool isInsideCloseCallRange = distance < 15f && distance > 0f;
+                //if (curLevel < 0.70f && pawn as X2_AIRobot != null && isInsideCloseCallRange && 
+                //        (pawn.CurJobDef == null || pawn.CurJobDef == JobDefOf.Wait_Wander || pawn.CurJobDef == JobDefOf.GotoWander || pawn.CurJobDef == JobDefOf.Wait))
+                //    return 8f;
 
                 if (curLevel < 0.25f)
                     return 8f;
