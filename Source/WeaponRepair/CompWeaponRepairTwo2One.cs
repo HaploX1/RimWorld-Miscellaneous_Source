@@ -84,10 +84,16 @@ namespace WeaponRepair
 
         public override IEnumerable<FloatMenuOption> CompFloatMenuOptions(Pawn selPawn)
         {
+            if (DebugSettings.godMode)
+            {
+                yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("Debug-Info: WeaponRepair active.", null), selPawn, parent);
+            }
+
             foreach (FloatMenuOption fmo in base.CompFloatMenuOptions(selPawn))
                 yield return fmo;
 
             //Log.Error("1 " + Props.allowedDefSubName.NullOrEmpty().ToString() + " 2 " + parent.def.defName);
+
 
             // Only show float menu for ThingDef-names 'Gun_xxxx'
             if (!(Props.allowedDefSubName.NullOrEmpty() || Props.allowedDefSubName == "*") && !parent.def.defName.Contains(Props.allowedDefSubName))
@@ -133,7 +139,6 @@ namespace WeaponRepair
                 yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label, null), selPawn, parent);
                 yield break;
             }
-
 
             Action hoverAction = delegate
             {

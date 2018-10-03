@@ -86,9 +86,9 @@ namespace TurretWeaponBase
 
             string repString;
             if (destName != null)
-                repString = "ReportHaulingTo".Translate(hauledThing.Label, destName);
+                repString = "ReportHaulingTo".Translate(hauledThing.LabelShort, destName);
             else
-                repString = "ReportHauling".Translate(hauledThing.Label);
+                repString = "ReportHauling".Translate(hauledThing.LabelShort);
 
             if (!pawn.jobs.curJob.def.reportString.NullOrEmpty())
                 repString = pawn.jobs.curJob.def.reportString;
