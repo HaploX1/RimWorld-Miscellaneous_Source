@@ -511,10 +511,7 @@ namespace TurretWeaponBase
             {
                 if (compChangeableProjectile.Loaded)
                 {
-                    stringBuilder.AppendLine("ShellLoaded".Translate(new object[]
-                    {
-                        compChangeableProjectile.LoadedShell.LabelCap
-                    }));
+                    stringBuilder.AppendLine("ShellLoaded".Translate( compChangeableProjectile.LoadedShell.LabelCap ));
                 }
                 else
                 {

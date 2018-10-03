@@ -378,10 +378,7 @@ namespace TacticalComputer
             {
                 RecacheEffectiveAreaPct();
 
-                return "TacticalComputer_LongRangeAnomalyScannerEfficiency".Translate(new object[]
-                {
-                    EffectiveAreaPct.ToStringPercent()
-                });
+                return "TacticalComputer_LongRangeAnomalyScannerEfficiency".Translate( EffectiveAreaPct.ToStringPercent() );
             }
             else
             {

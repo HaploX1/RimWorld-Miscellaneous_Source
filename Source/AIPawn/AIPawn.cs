@@ -554,7 +554,7 @@ namespace AIPawn
                 };
                 myPawn.jobs.TryTakeOrderedJob(jobNew);
             };
-            yield return new FloatMenuOption(txtFloatMenuSedateAIPawn.Translate(new object[] { this.Label }), action_OrderSedateMai);
+            yield return new FloatMenuOption(txtFloatMenuSedateAIPawn.Translate(this.Label), action_OrderSedateMai);
 
 
             // Sedate and Carry AIPawn to recharge station
@@ -575,9 +575,9 @@ namespace AIPawn
             };
 
             if (rechargeStation != null)
-                yield return new FloatMenuOption(txtFloatMenuSedateAndRescueAIPawn.Translate(new object[] {this.Label}), action_OrderSedateAndCarryMai);
+                yield return new FloatMenuOption(txtFloatMenuSedateAndRescueAIPawn.Translate(this.Label), action_OrderSedateAndCarryMai);
             else
-                yield return new FloatMenuOption(txtFloatMenuSedateAndRescueAIPawn.Translate(new object[] {this.Label}), null);
+                yield return new FloatMenuOption(txtFloatMenuSedateAndRescueAIPawn.Translate(this.Label), null);
 
             yield break;
 

@@ -128,7 +128,7 @@ namespace WeaponRepair
 
             if (selPawn.workSettings.GetPriority(Props.workTypeDef) == 0)
             {
-                string label = "WeaponRepair_NotAssignedToWorkType".Translate(new object[] { Props.workTypeDef.gerundLabel });
+                string label = "WeaponRepair_NotAssignedToWorkType".Translate(Props.workTypeDef.gerundLabel);
 
                 yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption(label, null), selPawn, parent);
                 yield break;

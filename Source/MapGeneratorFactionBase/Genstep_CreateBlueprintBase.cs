@@ -139,7 +139,7 @@ namespace MapGenerator
             // Add a message to honor the creator
             if (!blueprint.createdBy.NullOrEmpty()) {
                 string label = "MapGenerator_FactionBase_Header_ProvidedBy".Translate();
-                string text = "MapGenerator_FactionBase_Body_ProvidedBy".Translate(new object[] { blueprint.createdBy });
+                string text = "MapGenerator_FactionBase_Body_ProvidedBy".Translate(blueprint.createdBy);
                 Find.LetterStack.ReceiveLetter(label, text, LetterDefOf.PositiveEvent, new GlobalTargetInfo(c, map));
             }
         }

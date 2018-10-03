@@ -286,7 +286,8 @@ namespace ArtefactFound
 
             LordJob lordJob = new LordJob_AssaultColony(faction, true, false, false);
             Lord lord = LordMaker.MakeNewLord(faction, lordJob, Map, pawns);
-            AvoidGridMaker.RegenerateAvoidGridsFor(faction, Map);
+            //AvoidGridMaker.RegenerateAvoidGridsFor(faction, Map);
+            Map.avoidGrid.Regenerate();
 
             LessonAutoActivator.TeachOpportunity(ConceptDefOf.EquippingWeapons, OpportunityType.Critical);
 
@@ -309,7 +310,7 @@ namespace ArtefactFound
             string str = txtArtefactActivatedRaiders.Translate();
 
             // Find a valid spawn position
-            if (!RCellFinder.TryFindRandomPawnEntryCell(out startPos, Map, CellFinder.EdgeRoadChance_Hostile, null))
+            if (!RCellFinder.TryFindRandomPawnEntryCell(out startPos, Map, CellFinder.EdgeRoadChance_Hostile, false, null))
                 return;
 
             int countPawns;
@@ -360,7 +361,8 @@ namespace ArtefactFound
 
             LordJob lordJob = new LordJob_AssaultColony(faction, false, false, false);
             Lord lord = LordMaker.MakeNewLord(faction, lordJob, Map, pawns);
-            AvoidGridMaker.RegenerateAvoidGridsFor(faction, Map);
+            //AvoidGridMaker.RegenerateAvoidGridsFor(faction, Map);
+            Map.avoidGrid.Regenerate();
 
             LessonAutoActivator.TeachOpportunity(ConceptDefOf.EquippingWeapons, OpportunityType.Critical);
 

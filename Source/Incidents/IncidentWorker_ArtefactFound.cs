@@ -49,7 +49,7 @@ namespace ArtefactFound
             if (pawn == null)
                 return false;
 
-            string str = letterArtefactWasFound.Translate(new object[] {pawn.Name});
+            string str = letterArtefactWasFound.Translate(pawn.Name.ToString());
             string label = labelLetterArtefactWasFound.Translate();
 
             int invalidCounter = 20; // try to find a valid placement for max 20 times

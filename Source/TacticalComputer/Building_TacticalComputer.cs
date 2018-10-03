@@ -390,7 +390,7 @@ namespace TacticalComputer
             }
 
             if (countPawnsCalled > 0)
-                Messages.Message("TacticalComputer_MessageCalledColonists".Translate(new object[] { countPawnsCalled.ToString() }), lookTarget, MessageTypeDefOf.NeutralEvent);
+                Messages.Message("TacticalComputer_MessageCalledColonists".Translate(countPawnsCalled.ToString()), lookTarget, MessageTypeDefOf.NeutralEvent);
 
 
         }

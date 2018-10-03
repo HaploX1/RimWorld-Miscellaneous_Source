@@ -268,7 +268,7 @@ namespace ColonistSelections
             {
                 DoGroupPositioning(1, keyShift, !groupSelectionModeActive);
             }
-            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "1", countPawns1, kbDef_Group1.MainKeyLabel }));
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate("1", countPawns1, kbDef_Group1.MainKeyLabel));
 
             // Icons Group 2
             rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 1, startPos.z, buttonSize.x, buttonSize.z);
@@ -276,7 +276,7 @@ namespace ColonistSelections
             {
                 DoGroupPositioning(2, keyShift, !groupSelectionModeActive);
             }
-            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "2", countPawns2, kbDef_Group2.MainKeyLabel }));
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate("2", countPawns2, kbDef_Group2.MainKeyLabel));
 
             // Icons Group 3
             rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 2, startPos.z, buttonSize.x, buttonSize.z);
@@ -284,7 +284,7 @@ namespace ColonistSelections
             {
                 DoGroupPositioning(3, keyShift, !groupSelectionModeActive);
             }
-            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "3", countPawns3, kbDef_Group3.MainKeyLabel }));
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate("3", countPawns3, kbDef_Group3.MainKeyLabel));
 
             // Icons Group 4
             rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 3, startPos.z, buttonSize.x, buttonSize.z);
@@ -292,7 +292,7 @@ namespace ColonistSelections
             {
                 DoGroupPositioning(4, keyShift, !groupSelectionModeActive);
             }
-            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate(new object[] { "4", countPawns4, kbDef_Group4.MainKeyLabel }));
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate("4", countPawns4, kbDef_Group4.MainKeyLabel));
 
 
 
@@ -305,7 +305,7 @@ namespace ColonistSelections
                 else
                     DoSwitchPositioningSelectionMode();
             }
-            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2ReleaseAll.Translate(new object[] { kbDef_Release.MainKeyLabel }));
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2ReleaseAll.Translate(kbDef_Release.MainKeyLabel));
 
         }
         #endregion
@@ -471,9 +471,9 @@ namespace ColonistSelections
             groupSelectionModeActive = !groupSelectionModeActive;
 
             if (!groupSelectionModeActive)
-                Messages.Message(translationGroupPositioningActive.Translate(new object[] { }), MessageTypeDefOf.CautionInput);
+                Messages.Message(translationGroupPositioningActive.Translate(), MessageTypeDefOf.CautionInput);
             else
-                Messages.Message(translationGroupSelectionActive.Translate(new object[] { }), MessageTypeDefOf.CautionInput);
+                Messages.Message(translationGroupSelectionActive.Translate(), MessageTypeDefOf.CautionInput);
 
         }
 
@@ -537,9 +537,9 @@ namespace ColonistSelections
                 if (pawns.Count == 0)
                 {
                     if (positionModeActive)
-                        Messages.Message(translationGroupInvalid_PositionMode.Translate(new object[] { key.ToString() }), MessageTypeDefOf.RejectInput);
+                        Messages.Message(translationGroupInvalid_PositionMode.Translate(key.ToString()), MessageTypeDefOf.RejectInput);
                     else
-                        Messages.Message(translationGroupInvalid_SelectionMode.Translate(new object[] { key.ToString() }), MessageTypeDefOf.RejectInput);
+                        Messages.Message(translationGroupInvalid_SelectionMode.Translate(key.ToString()), MessageTypeDefOf.RejectInput);
 
                     pawns = new List<Pawn>(); //null;
                     cells = new List<IntVec3>(); //null;
@@ -571,7 +571,7 @@ namespace ColonistSelections
                         return;
                 }
 
-                Messages.Message(tanslationGroupSaved.Translate(new object[] { key.ToString(), pawns.Count.ToString() }), MessageTypeDefOf.CautionInput);
+                Messages.Message(tanslationGroupSaved.Translate(key.ToString(), pawns.Count.ToString()), MessageTypeDefOf.CautionInput);
 
                 return;
             }
@@ -617,9 +617,9 @@ namespace ColonistSelections
                 if (pawns == null || pawns.Count == 0 || cells == null || cells.Count == 0)
                 {
                     if (positionModeActive)
-                        Messages.Message(tanslationGroupNotSet_PositionMode.Translate(new object[] { key.ToString(), kbd.MainKey.ToString() }), MessageTypeDefOf.RejectInput);
+                        Messages.Message(tanslationGroupNotSet_PositionMode.Translate(key.ToString(), kbd.MainKey.ToString()), MessageTypeDefOf.RejectInput);
                     else
-                        Messages.Message(tanslationGroupNotSet_SelectionMode.Translate(new object[] { key.ToString(), kbd.MainKey.ToString() }), MessageTypeDefOf.RejectInput);
+                        Messages.Message(tanslationGroupNotSet_SelectionMode.Translate(key.ToString(), kbd.MainKey.ToString()), MessageTypeDefOf.RejectInput);
 
                     return;
                 }
@@ -647,9 +647,9 @@ namespace ColonistSelections
                 }
 
                 if (positionModeActive)
-                    Messages.Message(tanslationGroupPositioned.Translate(new object[] { key.ToString() }), MessageTypeDefOf.CautionInput);
+                    Messages.Message(tanslationGroupPositioned.Translate(key.ToString()), MessageTypeDefOf.CautionInput);
                 else
-                    Messages.Message(tanslationGroupSelected.Translate(new object[] { key.ToString() }), MessageTypeDefOf.CautionInput);
+                    Messages.Message(tanslationGroupSelected.Translate(key.ToString()), MessageTypeDefOf.CautionInput);
             }
         }
 

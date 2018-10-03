@@ -186,12 +186,8 @@ namespace BeeAndHoney
             {
                 int ticksUntilRespawnAtCurrentTemp = this.TicksUntilRespawnAtCurrentTemp;
 
-                stringBuilder.AppendLine("BeeAndHoney_RemainingTime".Translate(new object[]
-                {
-                        //ticksUntilRespawnAtCurrentTemp.ToStringTicksToPeriodVagueMax()
-                        ticksUntilRespawnAtCurrentTemp.ToStringTicksToPeriod()
-                }));
-
+                stringBuilder.AppendLine("BeeAndHoney_RemainingTime".Translate(ticksUntilRespawnAtCurrentTemp.ToStringTicksToPeriod()));
+                
                 //if (Prefs.DevMode && Current.ProgramState == ProgramState.MapPlaying)
                 //{
                 //    stringBuilder.AppendLine("BeeAndHoney_RemainingTime".Translate(new object[]
