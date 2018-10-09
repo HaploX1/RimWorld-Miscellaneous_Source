@@ -719,7 +719,17 @@ namespace AIRobot
         private void Button_SpawnBot()
         {
             if (this.robot != null || robotIsDestroyed)
+            {
+                if (this.robot != null && this.robot.Spawned && AIRobot_Helper.IsInDistance(this.Position, robot.Position, 3))
+                {
+                    this.robot.jobs.ClearQueuedJobs();
+                    this.robot.stances.CancelBusyStanceHard();
+                    this.robot.jobs.StopAll(false);
+                    this.robot.pather.StopDead();
+                }
+
                 return;
+            }
 
             if (spawnThingDef.NullOrEmpty())
             {
