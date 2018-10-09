@@ -204,6 +204,7 @@ namespace AIRobot
                 Scribe_Values.Look<bool>(ref this.robotSpawnedOnce, "robotSpawned", false);
                 Scribe_Values.Look<bool>(ref this.robotIsDestroyed, "robotDestroyed", false);
                 Scribe_Values.Look<bool>(ref this.SpawnRobotAfterRecharge, "autospawn", true);
+                Scribe_Values.Look<bool>(ref this.isRechargeActive, "isRechargeActive", false);
 
                 try
                 {
