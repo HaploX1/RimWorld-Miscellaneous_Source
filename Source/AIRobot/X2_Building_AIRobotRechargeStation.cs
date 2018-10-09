@@ -358,7 +358,7 @@ namespace AIRobot
                 return;
             }
 
-            if (isRechargeActive && robot != null && robot.Position != this.Position)
+            if (isRechargeActive && robot != null && Gen.IsHashIntervalTick(robot, 30) && !AIRobot_Helper.IsInDistance(robot.Position, this.Position, 3))
             {
                 robot.jobs.ClearQueuedJobs();
                 isRechargeActive = false;
