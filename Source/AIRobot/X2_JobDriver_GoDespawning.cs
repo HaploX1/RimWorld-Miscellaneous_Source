@@ -13,7 +13,7 @@ namespace AIRobot
     public class X2_JobDriver_GoDespawning : JobDriver
     {
         public bool despawn = true;
-        public int waitTicks = 99999;
+        public int waitTicks = GenDate.TicksPerHour * 12;
 
         public X2_JobDriver_GoDespawning() { }
 

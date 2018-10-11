@@ -198,8 +198,14 @@ namespace AIRobot
         {
             try
             {
-
-                base.ExposeData();
+                try
+                {
+                    base.ExposeData();
+                }
+                catch (Exception ex)
+                {
+                    Log.Warning("Warning: X2_Building_AIRobot_RechargeStation -- Unknown error while loading base->ExposeData:\n" + ex.Message + "\n" + ex.StackTrace);
+                }
 
                 Scribe_Values.Look<bool>(ref this.robotSpawnedOnce, "robotSpawned", false);
                 Scribe_Values.Look<bool>(ref this.robotIsDestroyed, "robotDestroyed", false);
@@ -212,7 +218,7 @@ namespace AIRobot
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("X2_Building_AIRobot_RechargeStation -- Error while loading 'robot':\n" + ex.Message + "\n" + ex.StackTrace);
+                    Log.Warning("Warning: X2_Building_AIRobot_RechargeStation -- Error while loading 'robot':\n" + ex.Message + "\n" + ex.StackTrace);
                 }
 
                 try
@@ -221,7 +227,7 @@ namespace AIRobot
                 }
                 catch (Exception ex)
                 {
-                    Log.Warning("X2_Building_AIRobot_RechargeStation -- Error while loading 'container':\n" + ex.Message + "\n" + ex.StackTrace);
+                    Log.Warning("Warning: X2_Building_AIRobot_RechargeStation -- Error while loading 'container':\n" + ex.Message + "\n" + ex.StackTrace);
                 }
             }
             catch (Exception ex)
