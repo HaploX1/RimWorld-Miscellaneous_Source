@@ -409,13 +409,15 @@ namespace ColonistSelections
             // First info message => Letter
             if (!wasHelpTextShown && !forceShow)
             {
-                DoStartUpInfoMessage();
                 wasHelpTextShown = true;
+                DoStartUpInfoMessage();
                 return;
             }
 
             if (!wasHelpTextShown || forceShow)
             {
+                wasHelpTextShown = true;
+
                 StringBuilder dialogText = new StringBuilder();
                 dialogText.Append(translationHelp_prt1.Translate());
                 dialogText.AppendLine().AppendLine();
@@ -448,8 +450,6 @@ namespace ColonistSelections
                 Find.WindowStack.Add(dialogNodeTree);
 
                 Find.MusicManagerPlay.disabled = false;
-
-                wasHelpTextShown = true;
             }
         }
         private void DoStartUpInfoMessage()

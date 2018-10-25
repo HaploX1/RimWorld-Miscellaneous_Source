@@ -50,6 +50,10 @@ namespace TacticalComputer
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Turrets);
                     possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
+
+                    SitePartDef spdBattlefield = DefDatabase<SitePartDef>.GetNamedSilentFail("Misc_Battlefield");
+                    if (spdBattlefield != null)
+                        possibleSitePartsInt.Add(spdBattlefield);
                 }
                 List<SitePartDef> list = new List<SitePartDef>();
                 SitePartDef sitePartDef = possibleSitePartsInt.RandomElement();
