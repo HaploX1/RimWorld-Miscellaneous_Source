@@ -9,7 +9,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
-using CommonMisc;
+//using CommonMisc;
 
 namespace AIPawn
 {
@@ -211,7 +211,16 @@ namespace AIPawn
         private static Name GetName(ThingDef pawnDef, Map map)
         {
             string AIs = "";
-            IEnumerable<Pawn> pawns = Radar.FindAllPawns(map);
+            IEnumerable<Pawn> pawns = null;
+
+            // Added to catch error when Common Core isn't loaded..
+            try
+            {
+                pawns = map.mapPawns.FreeColonists;
+                //pawns = Radar.FindAllPawns(map);
+            }
+            catch { }
+
             if (pawns != null)
             {
                 int c = pawns.Where(p => p.def.defName == pawnDef.defName).Count();
