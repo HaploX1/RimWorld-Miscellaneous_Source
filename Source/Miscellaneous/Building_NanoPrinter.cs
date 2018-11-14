@@ -16,7 +16,7 @@ namespace NanoPrinter
     /// </summary>
     /// <author>Haplo</author>
     /// <permission>Please check the provided license info for granted permissions.</permission>
-    class Building_NanoPrinter : Building_Storage
+    public class Building_NanoPrinter : Building
     {
 
         // ===================== Variables =====================
@@ -25,13 +25,8 @@ namespace NanoPrinter
         // Power trader
         private CompPowerTrader powerComp;
 
-        //// These variables are needed to setup the storage field
-        //public SlotGroup slotGroup;
-        //public StorageSettings settingsStorage;
-        //private List<IntVec3> cachedOccupiedCells;
-
         // This is the storage input/output position
-        private IntVec3 collectorPos;
+        public IntVec3 collectorPos;
 
         // These are the item data lists that hold the collected item infos
         private List<ThingDef> storageDefs = new List<ThingDef>();
@@ -39,7 +34,7 @@ namespace NanoPrinter
         private List<string> storageLabels = new List<string>();
 
         // The list of how many material is needed
-        private Dictionary<ThingDef, int> neededMaterial;
+        public Dictionary<ThingDef, int> neededMaterial;
         // The item to create
         private string scannedThingName = "";
         private ThingDef scannedBlueprint;
@@ -60,8 +55,8 @@ namespace NanoPrinter
 
         private bool loaded = false;
 
-        private NanoPrinterStatus status = NanoPrinterStatus.Idle;
-        private enum NanoPrinterStatus
+        public NanoPrinterStatus status = NanoPrinterStatus.Idle;
+        public enum NanoPrinterStatus
         {
             Idle = 0,
             Paused,
@@ -271,38 +266,18 @@ namespace NanoPrinter
 
 
         // ===================== Storage Notifications =====================
-        #region Storage Notifications
+        #region Notifications
 
-        /// <summary>
-        /// Notification: The storage lost something => do some work?
-        /// </summary>
-        /// <param name="item">The item that's lost from storage square.</param>
-        public override void Notify_LostThing(Thing item)
-        {
-            if (storageDefs.Count == 0)
-                return;
-
-            // create a new item
-            //CreateItemFromStorage();
-        }
 
         /// <summary>
         /// Notification: The storage received something => do some work?
         /// </summary>
         /// <param name="item"></param>
-        public override void Notify_ReceivedThing(Thing item)
+        public void Notify_ReceivedThing(Thing item)
         {
             // Not gathering, but receiving -> destroy slotGroup
             if (status != NanoPrinterStatus.Gathering)
-            {
-                if (slotGroup != null)
-                {
-                    foreach (IntVec3 c in slotGroup.CellsList)
-                        slotGroup.Notify_LostCell(c);
-                    slotGroup = null;
-                }
                 return;
-            }
 
             // No needed materials found -> error -> go to idle
             if (neededMaterial == null || neededMaterial.Count() == 0)
@@ -327,9 +302,6 @@ namespace NanoPrinter
 
         private void SetReceivedError()
         {
-            foreach (IntVec3 c in slotGroup.CellsList)
-                slotGroup.Notify_LostCell(c);
-            slotGroup = null;
             status = NanoPrinterStatus.Error;
         }
 
@@ -378,7 +350,7 @@ namespace NanoPrinter
                     item.stackCount = item.stackCount - (maxCount - storageCounts[foundPosition]);
                     storageCounts[foundPosition] = maxCount;
                     if (!CheckIfGatheringDone())
-                        slotGroup.Settings.filter.SetAllow(item.def, false);
+                        neededMaterial.Remove(item.def);
                 }
                 else
                 {
@@ -399,7 +371,7 @@ namespace NanoPrinter
                     storageCounts.Add(maxCount);
                     item.stackCount = item.stackCount - maxCount;
                     if (!CheckIfGatheringDone())
-                        slotGroup.Settings.filter.SetAllow(item.def, false);
+                        neededMaterial.Remove(item.def);
                 }
                 else
                 {
@@ -483,13 +455,6 @@ namespace NanoPrinter
             if (!gatheringDone)
                 return false;
 
-            if (slotGroup != null)
-            {
-                foreach (IntVec3 c in slotGroup.CellsList)
-                    slotGroup.Notify_LostCell(c);
-                slotGroup = null;
-            }
-
             SwitchState();
 
             return true;
@@ -553,7 +518,7 @@ namespace NanoPrinter
                     return;
                 gatheringItemCheckCounter = 0;
 
-                CheckIfItemIsAtReceivePoint();
+                //CheckIfItemIsAtReceivePoint();
             }
 
 
@@ -738,7 +703,7 @@ namespace NanoPrinter
             if (status == NanoPrinterStatus.Error)
                 return;
 
-            CheckIfItemIsAtReceivePoint();
+            //CheckIfItemIsAtReceivePoint();
 
             status = NanoPrinterStatus.Scanning;
             SwitchState();
@@ -750,14 +715,6 @@ namespace NanoPrinter
 
             if (status != NanoPrinterStatus.Paused && status != NanoPrinterStatus.Idle)
             {
-                if (slotGroup != null)
-                {
-                    // Destroy storage zone
-                    foreach (IntVec3 c in slotGroup.CellsList)
-                        slotGroup.Notify_LostCell(c);
-                    slotGroup = null;
-                }
-
                 status = NanoPrinterStatus.Paused;
                 return;
             }
@@ -785,10 +742,7 @@ namespace NanoPrinter
 
                 case NanoPrinterStatus.Scanning:
                     if (StateScanning())
-                    {
-                        CreateNewSlotGroup();
                         status = NanoPrinterStatus.Gathering;
-                    }
                     break;
 
                 case NanoPrinterStatus.Gathering:
@@ -866,29 +820,10 @@ namespace NanoPrinter
 
             status = saveStatus;
             productionCountDown = saveProductionCountdown;
-
-            if (status == NanoPrinterStatus.Gathering)
-                CreateNewSlotGroup();
         }
 
         private void ResetNanoPrinter()
         {
-            // reset storage settings
-            settings = new StorageSettings(this);
-            if (def.building.defaultStorageSettings != null)
-            {
-                settings.CopyFrom(def.building.defaultStorageSettings);
-            }
-
-            // reset slotGroup
-            if (slotGroup != null)
-            {
-                // Destroy storage zone
-                foreach (IntVec3 c in slotGroup.CellsList)
-                    slotGroup.Notify_LostCell(c);
-                slotGroup = null;
-            }
-
             // reset neededMaterial
             scannedBlueprint = null;
             neededMaterial = new Dictionary<ThingDef, int>();
@@ -896,16 +831,6 @@ namespace NanoPrinter
             productionCountDown = productionCountDownStartValue;
 
             status = NanoPrinterStatus.Idle;
-        }
-
-        private void CreateNewSlotGroup()
-        {
-            if (slotGroup == null)
-            {
-                // Create the new collection position (storage zone)
-                slotGroup = new SlotGroup(this);
-                status = NanoPrinterStatus.Gathering;
-            }
         }
 
         private int CalcItemPrice(Thing thing)
@@ -964,26 +889,26 @@ namespace NanoPrinter
             return price;
         }
 
-        private void CheckIfItemIsAtReceivePoint()
-        {
-            if (slotGroup == null)
-                return;
+        //private void CheckIfItemIsAtReceivePoint()
+        //{
+        //    if (status != NanoPrinterStatus.Gathering)
+        //        return;
 
-            // Check if there is something at the receive position
-            IntVec3 pos = this.AllSlotCellsList()[0];
-            IEnumerable<Thing> things = Map.listerThings.AllThings.Where(t => t.Position == pos);
-            Thing foundThing = null;
-            foreach (Thing thing in things)
-            {
-                if (thing.def.EverStorable(false))
-                {
-                    foundThing = thing;
-                    break;
-                }
-            }
-            if (foundThing != null)
-                Notify_ReceivedThing(foundThing);
-        }
+        //    // Check if there is something at the receive position
+        //    IntVec3 pos = collectorPos;
+        //    IEnumerable<Thing> things = Map.listerThings.AllThings.Where(t => t.Position == pos);
+        //    Thing foundThing = null;
+        //    foreach (Thing thing in things)
+        //    {
+        //        if (thing.def.EverStorable(false))
+        //        {
+        //            foundThing = thing;
+        //            break;
+        //        }
+        //    }
+        //    if (foundThing != null)
+        //        Notify_ReceivedThing(foundThing);
+        //}
 
 
         #endregion
@@ -1015,67 +940,6 @@ namespace NanoPrinter
 
             base.Destroy(mode);
         }
-
-        #endregion
-
-
-        // ===================== Storage Setup =====================
-        #region Storage Setup
-
-        ///// <summary>
-        ///// Base storage settings (from xml)
-        ///// </summary>
-        ///// <returns></returns>
-        //public StorageSettings GetParentStoreSettings()
-        //{
-        //    return def.building.fixedStorageSettings;
-        //}
-
-        ///// <summary>
-        ///// Active storage settings (from xml or base)
-        ///// </summary>
-        ///// <returns></returns>
-        //public StorageSettings GetStoreSettings()
-        //{
-        //    return settingsStorage;
-        //}
-
-        /// <summary>
-        /// Fill items position == my position
-        /// </summary>
-        /// <returns></returns>
-        public override IEnumerable<IntVec3> AllSlotCells()
-        {
-            //Where to bring the items to?
-            yield return collectorPos;
-        }
-
-        ///// <summary>
-        ///// Returns the occupied slot list
-        ///// </summary>
-        ///// <returns></returns>
-        //public List<IntVec3> AllSlotCellsListFast()
-        //{
-        //    return cachedOccupiedCells;
-        //}
-
-        ///// <summary>
-        ///// Returns the slotgroup
-        ///// </summary>
-        ///// <returns></returns>
-        //public SlotGroup GetSlotGroup()
-        //{
-        //    return slotGroup;
-        //}
-
-        ///// <summary>
-        ///// Don't know what this does...
-        ///// </summary>
-        ///// <returns></returns>
-        //public string SlotYielderLabel()
-        //{
-        //    return Label;
-        //}
 
         #endregion
     }
