@@ -214,7 +214,9 @@ namespace AIRobot
 
                 try
                 {
-                    Scribe_References.Look<X2_AIRobot>(ref robot, "robot", true); // must be before Scribe_Collections -> Else errors!
+                    if (Scribe.mode == LoadSaveMode.Saving && robot != null && robot.DestroyedOrNull())
+                        robot = null;
+                    Scribe_References.Look<X2_AIRobot>(ref robot, "robot", false); // must be before Scribe_Collections -> Else errors!
                 }
                 catch (Exception ex)
                 {
