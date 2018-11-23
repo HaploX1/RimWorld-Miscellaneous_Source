@@ -101,7 +101,7 @@ namespace ArtefactFound
             PawnKindDef.Named("Scavenger"),
             PawnKindDef.Named("Pirate"),
             PawnKindDef.Named("Thrasher"),
-            PawnKindDef.Named("AncientSoldier")
+            //PawnKindDef.Named("AncientSoldier")
         };
 
         }

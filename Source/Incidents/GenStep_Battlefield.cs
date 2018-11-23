@@ -178,14 +178,16 @@ namespace Incidents
                 Faction tmpFriendFaction = null;
 
                 bool foundEnemy = (from x in Find.FactionManager.AllFactionsListForReading
-                                   where !x.IsPlayer && !x.defeated && x.HostileTo(Faction.OfPlayer) && !x.def.hidden && x.def.humanlikeFaction
+                                   where !x.IsPlayer && !x.defeated && x.HostileTo(Faction.OfPlayer) && !x.def.hidden && x.def.humanlikeFaction &&
+                                            x.def.pawnGroupMakers != null && x.def.pawnGroupMakers.Count > 0
                                    select x).TryRandomElement(out tmpEnemyFaction);
 
                 if (tmpEnemyFaction == null)
                     return false;
 
                 bool foundFriend = (from x in Find.FactionManager.AllFactionsListForReading
-                                    where !x.IsPlayer && !x.defeated && !x.HostileTo(Faction.OfPlayer) && x.HostileTo(tmpEnemyFaction) && !x.def.hidden && x.def.humanlikeFaction
+                                    where !x.IsPlayer && !x.defeated && !x.HostileTo(Faction.OfPlayer) && x.HostileTo(tmpEnemyFaction) && !x.def.hidden && x.def.humanlikeFaction &&
+                                            x.def.pawnGroupMakers != null && x.def.pawnGroupMakers.Count > 0
                                     select x).TryRandomElement(out tmpFriendFaction);
 
                 if (foundEnemy && foundFriend)
