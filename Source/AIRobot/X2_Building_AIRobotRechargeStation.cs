@@ -157,7 +157,8 @@ namespace AIRobot
 
         public void DespawnRobot(X2_AIRobot bot, bool destroying = false)
         {
-            if (bot != null && !bot.Destroyed)
+            isRechargeActive = false;
+            if (bot != null) // && !bot.Destroyed)
             {
                 if (destroying)
                     bot.Destroy(DestroyMode.Vanish);
@@ -166,8 +167,6 @@ namespace AIRobot
                         bot.DeSpawn();
             }
             robot = null;
-
-            isRechargeActive = false;
         }
 
         public void AddRobotToContainer(X2_AIRobot bot)

@@ -341,12 +341,19 @@ namespace AIPawn
 
         private static void GenerateBaseApparel(Pawn pawn)
         {
-            pawn.apparel.DestroyAll(DestroyMode.Vanish);
-            ThingDef item = DefDatabase<ThingDef>.GetNamed(AIPawn_ApparelDefName);
-            Apparel apparel = (Apparel)ThingMaker.MakeThing(item);
-            if (ApparelUtility.HasPartsToWear(pawn, apparel.def))
+            try
             {
-                pawn.apparel.Wear(apparel, false);
+                pawn.apparel.DestroyAll(DestroyMode.Vanish);
+                ThingDef item = DefDatabase<ThingDef>.GetNamed(AIPawn_ApparelDefName);
+                Apparel apparel = (Apparel)ThingMaker.MakeThing(item);
+                if (ApparelUtility.HasPartsToWear(pawn, apparel.def))
+                {
+                    pawn.apparel.Wear(apparel, false);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("AIPawnGenerator: Caught an unexpected error: \n" + ex.Message);
             }
         }
 
@@ -355,39 +362,56 @@ namespace AIPawn
             if (!pawn.Spawned)
                 return;
 
-            // Check if available, try to repair
-            if (inRechargeStation)
+
+            try
             {
-                foreach (Apparel a in pawn.apparel.WornApparel)
+
+                // Check if available, try to repair
+                if (inRechargeStation)
                 {
-                    if (a.def.defName == AIPawn_ApparelDefName && a.HitPoints < a.MaxHitPoints * 0.95)
-                        a.HitPoints += 1;
+                    foreach (Apparel a in pawn.apparel.WornApparel)
+                    {
+                        if (a.def.defName == AIPawn_ApparelDefName && a.HitPoints < a.MaxHitPoints * 0.95)
+                            a.HitPoints += 1;
+                    }
                 }
+
+                if (pawn.apparel.WornApparelCount != 0 || !inRechargeStation)
+                    return;
+
+
+                // Inventar empty + in Bed -> rebuild shielding
+                ThingDef item = DefDatabase<ThingDef>.GetNamed(AIPawn_ApparelDefName);
+                Apparel apparel = (Apparel)ThingMaker.MakeThing(item);
+                apparel.HitPoints = (int)(apparel.MaxHitPoints * 0.05);
+                if (ApparelUtility.HasPartsToWear(pawn, apparel.def))
+                {
+                    pawn.apparel.Wear(apparel, false);
+                }
+
             }
-
-            if (pawn.apparel.WornApparelCount != 0 || !inRechargeStation)
-                return;
-
-
-            // Inventar empty + in Bed -> rebuild shielding
-            ThingDef item = DefDatabase<ThingDef>.GetNamed(AIPawn_ApparelDefName);
-            Apparel apparel = (Apparel)ThingMaker.MakeThing(item);
-            apparel.HitPoints = (int)(apparel.MaxHitPoints * 0.05);
-            if (ApparelUtility.HasPartsToWear(pawn, apparel.def))
+            catch (Exception ex)
             {
-                pawn.apparel.Wear(apparel, false);
+                Log.Error("AIPawnGenerator: Caught an unexpected error: \n" + ex.Message);
             }
         }
         public static void DestroyBaseShielding(Pawn pawn)
         {
-            foreach (Apparel a in pawn.apparel.WornApparel)
+            try
             {
-                if (a.def.defName == AIPawn_ApparelDefName)
+                foreach (Apparel a in pawn.apparel.WornApparel)
                 {
-                    pawn.apparel.Remove(a);
-                    a.Destroy();
-                    break;
+                    if (a.def.defName == AIPawn_ApparelDefName)
+                    {
+                        pawn.apparel.Remove(a);
+                        a.Destroy();
+                        break;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Log.Error("AIPawnGenerator: Caught an unexpected error: \n" + ex.Message);
             }
         }
 
