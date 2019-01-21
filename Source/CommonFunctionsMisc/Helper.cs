@@ -61,7 +61,7 @@ namespace CommonMisc
         /// <returns></returns>
         public static Thing FindNearestThing(List<Thing> things, IntVec3 pos)
         {
-            double nearestDistance = 99999.0d;
+            double nearestDistance = double.MaxValue; // 999999999.0d;
             Thing foundThing = null;
 
             if (things == null)
@@ -71,7 +71,7 @@ namespace CommonMisc
             for (int i = 0; i < things.Count; i++ )
             {
                 Thing t = things[i];
-                double dist = GetDistance(t.Position, pos);
+                double dist = GetDistanceSquared(t.Position, pos);
                 if (dist < nearestDistance)
                 {
                     nearestDistance = dist;
@@ -81,6 +81,34 @@ namespace CommonMisc
 
             return foundThing;
         }
+        ///// <summary>
+        ///// Find the thing, that is nearest to the position
+        ///// </summary>
+        ///// <param name="things"></param>
+        ///// <param name="pos"></param>
+        ///// <returns></returns>
+        //public static Thing FindNearestThing(List<Thing> things, IntVec3 pos)
+        //{
+        //    double nearestDistance = 99999.0d;
+        //    Thing foundThing = null;
+
+        //    if (things == null)
+        //        return foundThing;
+
+        //    //foreach (Thing t in things)
+        //    for (int i = 0; i < things.Count; i++)
+        //    {
+        //        Thing t = things[i];
+        //        double dist = GetDistance(t.Position, pos);
+        //        if (dist < nearestDistance)
+        //        {
+        //            nearestDistance = dist;
+        //            foundThing = t;
+        //        }
+        //    }
+
+        //    return foundThing;
+        //}
 
 
         /// <summary>

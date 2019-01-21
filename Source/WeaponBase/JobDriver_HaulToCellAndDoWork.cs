@@ -66,36 +66,6 @@ namespace TurretWeaponBase
                 forbiddenInitially = false;
         }
 
-        public override string GetReport()
-        {
-            IntVec3 destCell = base.job.targetB.Cell;
-
-            Thing hauledThing = null;
-            if (base.pawn.CurJob == base.job && pawn.carryTracker.CarriedThing != null)
-                hauledThing = pawn.carryTracker.CarriedThing;
-            else if (base.TargetThingA != null && base.TargetThingA.Spawned)
-                hauledThing = base.TargetThingA;
-
-            if (hauledThing == null)
-                return "ReportHaulingUnknown".Translate();
-
-            string destName = null;
-            SlotGroup destGroup = destCell.GetSlotGroup( Map );
-            if (destGroup != null)
-                destName = destGroup.parent.SlotYielderLabel();
-
-            string repString;
-            if (destName != null)
-                repString = "ReportHaulingTo".Translate(hauledThing.Label, destName.Named("DESTINATION"), hauledThing.Named("THING"));
-            else
-                repString = "ReportHauling".Translate(hauledThing.Label);
-
-            if (!pawn.jobs.curJob.def.reportString.NullOrEmpty())
-                repString = pawn.jobs.curJob.def.reportString;
-
-            return repString;
-        }
-
         protected override IEnumerable<Toil> MakeNewToils()
         {
             //Set fail conditions

@@ -16,5 +16,7 @@ namespace AIRobot
         public string secondaryGraphicPath = "";
         public string spawnThingDef = null;
         public float rechargeEfficiency = 1.0f;
+
+        public List<ThingDefCountClass> robotRepairCosts = new List<ThingDefCountClass>();
     }
 }

@@ -18,7 +18,11 @@ namespace MapGenerator
 
         public static string Text_Option_HoleChance = "MapGenerator_ModOptions_HoleChancePercent";
         public static string Text_Option_HoleChanceOnWater = "MapGenerator_ModOptions_HoleChanceOnWaterPercent";
-        
+
+        public static string Text_Option_ForUrbanCityOnly = "MapGenerator_ModOptions_UrbanCity_OnlyForUrbanCityExtension";
+        public static string Tooltip_Option_ForUrbanCityOnly = "MapGenerator_ModOptions_UrbanCity_OnlyForUrbanCityExtension_hint";
+        public static string Text_Option_UrbanCityChanceMultiplier = "MapGenerator_ModOptions_UrbanCity_SpawnChanceMultiplier";
+        public static string Tooltip_Option_UrbanCityChanceMultiplier = "MapGenerator_ModOptions_UrbanCity_SpawnChanceMultiplier_hint";
 
         public MapGenerator_Mod(ModContentPack mcp) : base(mcp) {
             LongEventHandler.ExecuteWhenFinished(SetTexts);
@@ -34,6 +38,12 @@ namespace MapGenerator
 
             Text_Option_HoleChance = Text_Option_HoleChance.Translate();
             Text_Option_HoleChanceOnWater = Text_Option_HoleChanceOnWater.Translate();
+
+            Text_Option_ForUrbanCityOnly = Text_Option_ForUrbanCityOnly.Translate();
+            Tooltip_Option_ForUrbanCityOnly = Tooltip_Option_ForUrbanCityOnly.Translate();
+            Text_Option_UrbanCityChanceMultiplier = Text_Option_UrbanCityChanceMultiplier.Translate();
+            Tooltip_Option_UrbanCityChanceMultiplier = Tooltip_Option_UrbanCityChanceMultiplier.Translate();
+
         }
         public void GetSettings()
         {
@@ -66,7 +76,10 @@ namespace MapGenerator
             optionsLH.Gap();
             optionsLH.Label(Text_Option_HoleChance + "  " + (MapGenerator_ModSettings.chanceForHoles).ToStringPercent());
             optionsLH.Label(Text_Option_HoleChanceOnWater + "  " + (MapGenerator_ModSettings.chanceForHolesOnWater).ToStringPercent());
-            //optionsLH.GapLine();
+            optionsLH.GapLine();
+            optionsLH.Gap();
+            optionsLH.Label(Text_Option_ForUrbanCityOnly, -1, Tooltip_Option_ForUrbanCityOnly);
+            optionsLH.Label(Text_Option_UrbanCityChanceMultiplier + "  " + (MapGenerator_ModSettings.chance4UrbanCitiesMultiplier).ToString(), -1, Tooltip_Option_UrbanCityChanceMultiplier);
 
 
             optionsLH.End();
@@ -78,7 +91,12 @@ namespace MapGenerator
             optionsRH.Gap();
             MapGenerator_ModSettings.chanceForHoles = optionsRH.Slider(MapGenerator_ModSettings.chanceForHoles, 0.05f, 0.90f);
             MapGenerator_ModSettings.chanceForHolesOnWater = optionsRH.Slider(MapGenerator_ModSettings.chanceForHolesOnWater, 0.05f, 0.95f);
-            //optionsRH.GapLine();
+            optionsRH.GapLine();
+            optionsRH.Gap();
+            optionsRH.Gap();
+            optionsRH.Gap();
+            optionsRH.Gap(6);
+            MapGenerator_ModSettings.chance4UrbanCitiesMultiplier = optionsRH.Slider(MapGenerator_ModSettings.chance4UrbanCitiesMultiplier, 0.0f, 20.0f);
 
             optionsRH.End();
         }

@@ -51,10 +51,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="X2_WorkGiver_AIRobot_RepairRobot.cs" />
     <Compile Include="X2_Dialog_ChangeNameTriple_Robots.cs" />
     <Compile Include="X2_JobDriver_GoDespawning.cs" />
     <Compile Include="X2_JobDriver_GoToCellAndDeconstructDisabledRobot.cs" />
     <Compile Include="X2_JobDriver_RepairDamagedRobot.cs" />
+    <Compile Include="X2_JobDriver_RepairStationRobot.cs" />
     <Compile Include="X2_AIRobot_Pawn_WorkSettings.cs" />
     <Compile Include="X2_AIRobot_disabled.cs" />
     <Compile Include="X2_AIRobot_Helper.cs" />

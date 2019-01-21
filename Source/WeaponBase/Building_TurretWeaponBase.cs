@@ -7,11 +7,11 @@ using UnityEngine;
 using Verse;
 using Verse.AI;
 using Verse.Sound;
-using RimWorld; 
+using RimWorld;
 //using RimWorld.Planet;
 //using RimWorld.SquadAI;
 
-using CommonMisc;
+//using CommonMisc;
 
 namespace TurretWeaponBase
 {
@@ -525,29 +525,32 @@ namespace TurretWeaponBase
         public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn pawn)
         {
             if (gun != null)
-                return base.GetFloatMenuOptions(pawn);
+                foreach (FloatMenuOption fmo in base.GetFloatMenuOptions(pawn))
+                    yield return fmo;
 
             // Do only, when no gun installed
             List<FloatMenuOption> list = new List<FloatMenuOption>();
 
             if (gun != null)
-                return null;
+            {
+                if (DebugSettings.godMode)
+                    yield return new FloatMenuOption("DEBUG: Gun is already installed.".Translate(), null, MenuOptionPriority.Low);
+                yield break;
+            }
 
             //is not a memory
             // Check if this is reservable by the pawn
             if (!pawn.CanReserve(this, 1))
             {
-                FloatMenuOption item = new FloatMenuOption("CannotUseReserved".Translate(), null, MenuOptionPriority.Default, null, null);
-                list.Add( item );
-                return list.AsEnumerable();
+                yield return new FloatMenuOption("CannotUseReserved".Translate(), null, MenuOptionPriority.Default, null, null);
+                yield break;
             }
 
             // Check if this is reachable by the pawn
             if (!pawn.CanReach(this, PathEndMode.Touch, Danger.Deadly))
             {
-                FloatMenuOption item = new FloatMenuOption("CannotUseNoPath".Translate(), null, MenuOptionPriority.Default, null, null);
-                list.Add(item);
-                return list.AsEnumerable();
+                yield return new FloatMenuOption("CannotUseNoPath".Translate(), null, MenuOptionPriority.Default, null, null);
+                yield break;
             }
 
 
@@ -563,7 +566,7 @@ namespace TurretWeaponBase
             List<IntVec3> HomeAreaCells = null;
             if (Map.areaManager.Home.ActiveCells.FirstOrDefault<IntVec3>() != null)
                 HomeAreaCells = Map.areaManager.Home.ActiveCells.ToList();
-
+            
             List<Thing> availableGuns = new List<Thing>();
             if (foundThingList != null && HomeAreaCells != null)
             {
@@ -576,7 +579,11 @@ namespace TurretWeaponBase
                         continue;
 
                     // only use weapons inside the home area
-                    if (!HomeAreaCells.Contains(thing.Position))
+                    //if (!HomeAreaCells.Contains(thing.Position) )
+                    //    continue;
+
+                    // New: use weapons inside a storage AND inside home
+                    if (!thing.IsInAnyStorage() && !HomeAreaCells.Contains(thing.Position))
                         continue;
 
                     // can not reserve or reach?
@@ -606,7 +613,8 @@ namespace TurretWeaponBase
                                                                                                    !t.IsForbidden(pawn.Faction) &&
                                                                                                    pawn.CanReserveAndReach(t, PathEndMode.Touch, Danger.Deadly, 1));
 
-                    haulThing = Helper.FindNearestThing(allAvailableThings, Position);
+                    //haulThing = Helper.FindNearestThing(allAvailableThings, Position);
+                    haulThing = WeaponBaseHelper.FindNearestThing(allAvailableThings, Position);
                 }
 
                 if (haulThing == null)
@@ -634,7 +642,7 @@ namespace TurretWeaponBase
                         MoteMaker.MakeStaticMote(haulThing.Position, Map, ThingDefOf.Mote_FeedbackGoto);
                 };
 
-            list.Add(new FloatMenuOption(txtFloatMenuInstallWeapon.Translate() + " " + haulThing.Label, action, MenuOptionPriority.Default, hoverAction));
+                list.Add(new FloatMenuOption(txtFloatMenuInstallWeapon.Translate() + " " + haulThing.Label, action, MenuOptionPriority.Default, hoverAction));
 
                 // save shown item position for next call
                 lastShownEntry = i;
@@ -673,9 +681,10 @@ namespace TurretWeaponBase
 
             // No usable weapons found
             if (list.Count == 0)
-                list.Add(new FloatMenuOption("NoWeaponFoundForTurretBase".Translate(), null, MenuOptionPriority.Low)); 
+                list.Add(new FloatMenuOption("NoWeaponFoundForTurretBase".Translate(), null, MenuOptionPriority.Low));
 
-            return list.AsEnumerable();
+            foreach (FloatMenuOption fmo in list)
+                yield return fmo;
         }
 
         private static int CompareThings(Thing x, Thing y)

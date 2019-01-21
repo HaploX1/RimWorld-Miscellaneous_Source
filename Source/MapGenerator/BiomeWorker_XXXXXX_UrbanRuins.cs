@@ -16,7 +16,7 @@ namespace MapGenerator
     {
         public override float GetScore(Tile tile, int tileID)
         {
-            float chance = 0.0008f;
+            float chance = 0.0009f * MapGenerator_ModSettings.chance4UrbanCitiesMultiplier;
             float baseValue = base.GetScore(tile, tileID);
 
             if (baseValue <= 0 || Rand.Value > chance)
@@ -30,7 +30,7 @@ namespace MapGenerator
     {
         public override float GetScore(Tile tile, int tileID)
         {
-            float chance = 0.002f;
+            float chance = 0.002f * MapGenerator_ModSettings.chance4UrbanCitiesMultiplier;
             float baseValue = base.GetScore(tile, tileID);
 
             if (baseValue <= 0 || Rand.Value > chance)
@@ -44,7 +44,7 @@ namespace MapGenerator
     {
         public override float GetScore(Tile tile, int tileID)
         {
-            float chance = 0.0008f;
+            float chance = 0.0008f * MapGenerator_ModSettings.chance4UrbanCitiesMultiplier;
             float baseValue = base.GetScore(tile, tileID);
 
             if (baseValue <= 0 || Rand.Value > chance)
@@ -58,7 +58,7 @@ namespace MapGenerator
     {
         public override float GetScore(Tile tile, int tileID)
         {
-            float chance = 0.002f;
+            float chance = 0.002f * MapGenerator_ModSettings.chance4UrbanCitiesMultiplier;
             float baseValue = base.GetScore(tile, tileID);
 
             if (baseValue <= 0 || Rand.Value > chance)
@@ -73,7 +73,7 @@ namespace MapGenerator
         
         public override float GetScore(Tile tile, int tileID)
         {
-            float chance = 0.0008f;
+            float chance = 0.0009f * MapGenerator_ModSettings.chance4UrbanCitiesMultiplier;
             float baseValue = base.GetScore(tile, tileID);
 
             if (baseValue <= 0 || Rand.Value > chance)

@@ -21,7 +21,8 @@ namespace AIRobot
         {
             if (Widgets.ButtonImage(rect, texShutDown))
             {
-                List<X2_Building_AIRobotRechargeStation> buildings = pawn.Map.listerThings.AllThings.OfType<X2_Building_AIRobotRechargeStation>().ToList();
+                //List<X2_Building_AIRobotRechargeStation> buildings = pawn.MapHeld.listerThings.AllThings.OfType<X2_Building_AIRobotRechargeStation>().ToList();
+                List<X2_Building_AIRobotRechargeStation> buildings = Find.CurrentMap.listerThings.AllThings.OfType<X2_Building_AIRobotRechargeStation>().ToList();
                 for (int i = buildings.Count; i > 0; i--)
                 {
                     X2_Building_AIRobotRechargeStation building = buildings[i - 1];

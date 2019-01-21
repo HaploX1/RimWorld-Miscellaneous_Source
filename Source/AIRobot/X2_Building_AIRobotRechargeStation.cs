@@ -28,6 +28,12 @@ namespace AIRobot
         public static string lbActivateAllRobots = "AIRobot_Label_ActivateAllRobots";
         public static string txtActivateAllRobots = "AIRobot_ActivateAllRobots";
 
+        public static string txtRobotNotDeactivated = "AIRobot_CannotRepairRobotIsActive";
+
+        public static string txtRapairRequested = "AIRobot_RepairRobotInProgress";
+        public static string lbRepairRobot = "AIRobot_RepairRobot";
+        public static string txtRepairRobot = "AIRobot_RepairRobot_hint";
+
         public static string txtDisabledBecauseNotHomeMap = "AIRobot_Disabled_OnlyStartOnHomeMap";
 
         public static string lbFindRobot = "AIRobot_Label_FindRobot";
@@ -42,17 +48,22 @@ namespace AIRobot
         public static Texture2D UI_ButtonForceRechargeAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDownAll");
         public static Texture2D UI_ButtonForceActivateAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_StartAll");
         public static Texture2D UI_ButtonSearch = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Search");
+        public static Texture2D UI_ButtonRepair_Active = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_Active");
+        public static Texture2D UI_ButtonRepair_NotActive = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_NotActive");
 
         private string spawnThingDef = "";
 
         public List<X2_AIRobot> container;
 
         public X2_AIRobot robot;
-        private bool robotSpawnedOnce = false;
-        private bool robotIsDestroyed = false;
+        public bool robotSpawnedOnce = false;
+        public bool robotIsDestroyed = false;
         public bool SpawnRobotAfterRecharge = true;
 
         public bool isRechargeActive = false;
+
+        public bool isRepairRequestActive = false;
+        public Dictionary<ThingDef, int> isRepairRequestCosts = null;
 
         private float rechargeEfficiency = 1.0f;
         private float calcDistanceRestCheck = -1f;
@@ -115,6 +126,17 @@ namespace AIRobot
 
             if (UI_ButtonStart == null)
                 UI_ButtonStart = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Start");
+
+            if (UI_ButtonForceRechargeAll == null)
+                UI_ButtonForceRechargeAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_ShutDownAll");
+            if (UI_ButtonForceActivateAll == null)
+                UI_ButtonForceActivateAll = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_StartAll");
+            if (UI_ButtonSearch == null)
+                UI_ButtonSearch = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Search");
+            if (UI_ButtonRepair_Active == null)
+                UI_ButtonRepair_Active = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_Active");
+            if (UI_ButtonRepair_NotActive == null)
+                UI_ButtonRepair_NotActive = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_NotActive");
 
         }
 
@@ -210,6 +232,7 @@ namespace AIRobot
                 Scribe_Values.Look<bool>(ref this.robotIsDestroyed, "robotDestroyed", false);
                 Scribe_Values.Look<bool>(ref this.SpawnRobotAfterRecharge, "autospawn", true);
                 Scribe_Values.Look<bool>(ref this.isRechargeActive, "isRechargeActive", false);
+                Scribe_Values.Look<bool>(ref this.isRepairRequestActive, "isRepairRequestActive", false);
 
                 try
                 {
@@ -309,15 +332,8 @@ namespace AIRobot
             UpdateGraphic();
 
             // robot in container => recharge or release needed?
-            if (robot == null && IsRobotInContainer())
+            if (robot == null)
             {
-                X2_AIRobot containedRobot = container[0] as X2_AIRobot;
-                if (containedRobot == null)
-                {
-                    container.Remove(container[0]);
-                    return;
-                }
-
                 if (notify_spawnRequested)
                 {
                     notify_spawnRequested = false;
@@ -325,28 +341,38 @@ namespace AIRobot
                     return;
                 }
 
-                if (SpawnRobotAfterRecharge && containedRobot.needs.rest.CurLevel >= 0.99f)
+                if (IsRobotInContainer())
                 {
-                    Button_SpawnBot();
-                }
-                else if (containedRobot.needs.rest.CurLevel < 1f)
-                {
-                    containedRobot.needs.rest.CurLevel += (0.1f / GenDate.TicksPerHour) * rechargeEfficiency;
-                    if (containedRobot.needs.rest.CurLevel > 1f)
-                        containedRobot.needs.rest.CurLevel = 1f;
+                    X2_AIRobot containedRobot = container[0] as X2_AIRobot;
+                    if (containedRobot == null)
+                    {
+                        container.Remove(container[0]);
+                        return;
+                    }
 
-                    TryThrowBatteryMote(containedRobot);
-                }
+                    if (SpawnRobotAfterRecharge && containedRobot.needs.rest.CurLevel >= 0.99f)
+                    {
+                        Button_SpawnBot();
+                    }
+                    else if (containedRobot.needs.rest.CurLevel < 1f)
+                    {
+                        containedRobot.needs.rest.CurLevel += (0.1f / GenDate.TicksPerHour) * rechargeEfficiency;
+                        if (containedRobot.needs.rest.CurLevel > 1f)
+                            containedRobot.needs.rest.CurLevel = 1f;
 
-                // Try to heal robot
-                TryHealDamagedBodyPartOfRobot(containedRobot);
-                return;
+                        TryThrowBatteryMote(containedRobot);
+                    }
+
+                    // Try to heal robot
+                    TryHealDamagedBodyPartOfRobot(containedRobot);
+                    return;
+                }
             }
             notify_spawnRequested = false;
 
             if (robotIsDestroyed)
             {
-                // TODO: What do we do, when the robot is destroyed?
+                // What do we do, when the robot is destroyed?
 
 
                 // Last step: do nothing more!
@@ -400,8 +426,6 @@ namespace AIRobot
             if (calcDistanceRestCheck == -1)
                 calcDistanceRestCheck = AIRobot_Helper.GetSlopePoint(robot.GetStatValue(StatDefOf.MoveSpeed, true), 1f, 6f, 15f, 40f); // movementspeed slope: speed 1 -> 30 cells, speed 6 -> 50 cells
 
-            //Log.Error("Max allowed distance: " + calcDistanceRestCheck.ToString("0.##") + " / MoveSpeed: " + robot.GetStatValue(StatDefOf.MoveSpeed, true).ToString());
-
             // If battery of robot is < 40% and distance > 25 cells => try to recall him
             // Also recall if battery is < 10% (emergency if ThinkTree isn't working)
             if ((robot.needs.rest.CurLevel < 0.40f && !AIRobot_Helper.IsInDistance(this.Position, robot.Position, calcDistanceRestCheck)) ||
@@ -430,16 +454,12 @@ namespace AIRobot
                 return;
 
             if (batteryLevel > 0.90f)
-                //MoteMaker.ThrowMetaIcon(this.Position, DefDatabase<ThingDef>.GetNamed("Mote_BatteryGreen"));
                 MoteThrowHelper.ThrowBatteryGreen(this.Position.ToVector3(), Map, 0.8f);
             else if (batteryLevel > 0.70f)
-                //MoteMaker.ThrowMetaIcon(this.Position, DefDatabase<ThingDef>.GetNamed("Mote_BatteryYellowYellow"));
                 MoteThrowHelper.ThrowBatteryYellowYellow(this.Position.ToVector3(), Map, 0.8f);
             else if (batteryLevel > 0.35f)
-                //MoteMaker.ThrowMetaIcon(this.Position, DefDatabase<ThingDef>.GetNamed("Mote_BatteryYellow"));
                 MoteThrowHelper.ThrowBatteryYellow(this.Position.ToVector3(), Map, 0.8f);
             else
-                //MoteMaker.ThrowMetaIcon(this.Position, DefDatabase<ThingDef>.GetNamed("Mote_BatteryRed"));
                 MoteThrowHelper.ThrowBatteryRed(this.Position.ToVector3(), Map, 0.8f);
         }
         private void TryUpdateAllowedArea(X2_AIRobot robot)
@@ -564,13 +584,16 @@ namespace AIRobot
                 act2.action = Button_SpawnBot;
                 if (!Map.IsPlayerHome || Map.IsTempIncidentMap)
                 {
-                    act2.disabled = !Map.IsPlayerHome || Map.IsTempIncidentMap;
+                    act2.disabled = true;
                     act2.disabledReason = txtDisabledBecauseNotHomeMap.Translate();
                 }
                 else
                 {
-                    act2.disabled = powerComp != null && !powerComp.PowerOn;
-                    act2.disabledReason = txtNoPower.Translate();
+                    act2.disabled = (powerComp != null && !powerComp.PowerOn) || isRepairRequestActive;
+                    if (!isRepairRequestActive)
+                        act2.disabledReason = txtNoPower.Translate();
+                    else
+                        act2.disabledReason = txtRapairRequested.Translate();
                 }
                 act2.groupKey = groupBaseKey + 1;
                 yield return act2;
@@ -589,8 +612,11 @@ namespace AIRobot
                 act1.hotKey = KeyBindingDefOf.Misc7;
                 act1.activateSound = SoundDef.Named("Click");
                 act1.action = Notify_CallBotForShutdown;
-                act1.disabled = powerComp != null && !powerComp.PowerOn;
-                act1.disabledReason = txtNoPower.Translate();
+                act1.disabled = (powerComp != null && !powerComp.PowerOn) || isRepairRequestActive;
+                if (!isRepairRequestActive)
+                    act1.disabledReason = txtNoPower.Translate();
+                else
+                    act1.disabledReason = txtRapairRequested.Translate();
                 act1.groupKey = groupBaseKey + 2;
                 yield return act1;
             }
@@ -627,6 +653,43 @@ namespace AIRobot
                 yield return act4;
             }
 
+            float health = GetHealthOfRobot(GetRobot, -1f);
+
+            if (health != -1f && health < 0.99f || GetRobot == null && robotSpawnedOnce )
+            {
+                Dictionary<ThingDef, int> resources = CalculateResourcesNeededForRepairingRobot(this, robotSpawnedOnce);
+                string hintText = txtRepairRobot.Translate();
+                bool first = true;
+                foreach (ThingDef thingDef in resources.Keys)
+                {
+                    int count = resources[thingDef];
+                    if (!first)
+                        hintText = hintText + ", ";
+                    else
+                        hintText = hintText + "\n";
+
+                    hintText = hintText + count.ToString() + "x " + AIRobot_Helper.GetThingDefLabel(thingDef);
+                    first = false;
+                }
+
+                // Key-Binding O - Request repair of damaged robot
+                Command_Action act6;
+                act6 = new Command_Action();
+                act6.defaultLabel = lbRepairRobot.Translate();
+                act6.defaultDesc = hintText;
+                if (!isRepairRequestActive)
+                    act6.icon = UI_ButtonRepair_NotActive;
+                else
+                    act6.icon = UI_ButtonRepair_Active;
+                act6.hotKey = KeyBindingDefOf.Misc9;
+                act6.activateSound = SoundDef.Named("Click");
+                act6.action = Button_RequestRepair4Robot;
+                act6.disabled = this.robot != null && !this.robotIsDestroyed; // Disable when the robot is up and running
+                act6.disabledReason = txtRobotNotDeactivated.Translate();
+                act6.groupKey = groupBaseKey + 6;
+                yield return act6;
+            }
+
             {
                 // Key-Binding O - Find robot
                 Command_Action act5;
@@ -646,7 +709,7 @@ namespace AIRobot
 
             if (DebugSettings.godMode)
             {
-                // Key-Binding  - Reset robot
+                // Key-Binding  - (DEBUG) Reset robot
                 Command_Action act9;
                 act9 = new Command_Action();
                 act9.defaultLabel = "(DEBUG) Reset destroyed robot";
@@ -659,6 +722,21 @@ namespace AIRobot
                 act9.disabledReason = "";
                 act9.groupKey = groupBaseKey + 9;
                 yield return act9;
+
+
+                // Key-Binding  - (DEBUG) Repair damaged robot
+                Command_Action act10;
+                act10 = new Command_Action();
+                act10.defaultLabel = "(DEBUG) Repair damaged robot";
+                act10.defaultDesc = "";
+                act10.icon = BaseContent.BadTex;
+                act10.hotKey = null;
+                act10.activateSound = SoundDef.Named("Click");
+                act10.action = Button_RepairDamagedRobot;
+                act10.disabled = false;
+                act10.disabledReason = "";
+                act10.groupKey = groupBaseKey + 10;
+                yield return act10;
             }
 
         }
@@ -668,9 +746,20 @@ namespace AIRobot
             foreach (FloatMenuOption fmo in base.GetFloatMenuOptions(selPawn))
                 yield return fmo;
 
-            if (this.robotIsDestroyed && this.disabledRobot != null)
-                foreach (FloatMenuOption fmo in X2_AIRobot_disabled.GetFloatMenuOptions(selPawn, disabledRobot))
-                    yield return fmo;
+
+            X2_AIRobot bot = this.GetRobot;
+
+            if (GetHealthOfRobot(bot) <= 0.99f )
+            {
+
+                Dictionary<ThingDef, int> resources = CalculateResourcesNeededForRepairingRobot(this, robotSpawnedOnce);
+                if (resources.Count > 0)
+                {
+                    FloatMenuOption fmoStationRobot = AIRobot_Helper.GetFloatMenuOption4RepairStationRobot(selPawn, this, resources);
+                    if (fmoStationRobot != null)
+                        yield return fmoStationRobot;
+                }
+            }
         }
 
 
@@ -681,7 +770,10 @@ namespace AIRobot
             {
                 target = disabledRobot.Position;
                 if (target != IntVec3.Invalid)
+                {
                     Find.CameraDriver.JumpToCurrentMapLoc(target);
+                    MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                }
                 return;
             }
 
@@ -689,19 +781,30 @@ namespace AIRobot
             {
                 target = robot.Position;
                 if (target != IntVec3.Invalid)
+                {
                     Find.CameraDriver.JumpToCurrentMapLoc(target);
+                    MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                }
                 return;
             }
             target = this.Position;
             if (target != IntVec3.Invalid)
+            {
                 Find.CameraDriver.JumpToCurrentMapLoc(target);
+                MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+            }
             return;
         }
 
+        public void Button_RequestRepair4Robot()
+        {
+            isRepairRequestActive = !isRepairRequestActive;
+            isRepairRequestCosts = CalculateResourcesNeededForRepairingRobot(this, robotSpawnedOnce);
+        }
 
         public void Notify_RobotRepaired()
         {
-            Button_ResetDestroyedRobot(false);
+            Button_RepairDamagedRobot();
         }
         private void Button_ResetDestroyedRobot()
         {
@@ -719,12 +822,63 @@ namespace AIRobot
 
             disabledRobot = null;
         }
+        private void Button_RepairDamagedRobot()
+        {
+            NameTriple name = null;
+            string first = null, nick = null, last = null;
+
+            Area area = null;
+
+            X2_AIRobot bot = this.robot;
+            if (bot == null && this.container.FirstOrDefault() != null)
+                bot = this.container.FirstOrDefault();
+            
+            if (bot != null)
+                name = AIRobot_Helper.GetRobotName(bot);
+            if (bot != null && bot.playerSettings != null)
+                area = bot.playerSettings.AreaRestriction;
+            
+            if (name != null)
+            {
+                first = name.First;
+                nick = name.Nick;
+                last = name.Last;
+                name = null;
+            }
+
+            if (bot != null && !bot.Destroyed && bot.Spawned)
+                bot.Destroy(DestroyMode.Vanish);
+
+            this.container.Clear();
+            this.robot = null;
+            this.robotIsDestroyed = false;
+            this.isRepairRequestActive = false;
+
+            Button_SpawnBot();
+
+            this.disabledRobot = null;
+
+            if (first != null && nick != null && last != null)
+                name = new NameTriple(first, nick, last);
+
+            // Robot should again be filled (with the new robot)
+            if (this.robot != null)
+            {
+                if (name != null)
+                    AIRobot_Helper.SetRobotName(this.robot, name);
+                if (area != null)
+                    this.robot.playerSettings.AreaRestriction = area;
+            }
+        }
         public void Notify_SpawnBot()
         {
             notify_spawnRequested = true;
         }
         private void Button_SpawnBot()
         {
+            if (isRepairRequestActive)
+                return;
+
             if (this.robot != null || robotIsDestroyed)
             {
                 if (this.robot != null && this.robot.Spawned && AIRobot_Helper.IsInDistance(this.Position, robot.Position, 3))
@@ -842,7 +996,7 @@ namespace AIRobot
         }
 
         private ThingDef thingDefSpawn; 
-        private bool IsRobotInContainer()
+        public bool IsRobotInContainer()
         {
             if (container == null)
             {
@@ -860,6 +1014,75 @@ namespace AIRobot
                 return false;
 
             return true;
+        }
+
+        public Dictionary<ThingDef, int> CalculateResourcesNeededForRepairingRobot(X2_Building_AIRobotRechargeStation station, bool wasSpawned)
+        {
+
+            Dictionary<ThingDef, int> resources = new Dictionary<ThingDef, int>();
+            try
+            {
+                float health = 0f;
+                health = GetHealthOfRobot(station.GetRobot, 0f);
+                if (health < 0.99f)
+                {
+                    float missing = 1f - health;
+                    List<ThingDefCountClass> costs = null;
+
+                    //1st Try: get robotRepairCost
+                    if (station != null && station.def2 != null)
+                        costs = station.def2.robotRepairCosts;
+
+                    //2nd Try: Get costList * 0.6
+                    if (costs == null || costs.Count == 0)
+                    {
+                        List<ThingDefCountClass> costsCL = station.def2.costList;
+                        costs = new List<ThingDefCountClass>();
+                        foreach (ThingDefCountClass c in costsCL)
+                        {
+                            ThingDefCountClass _c = new ThingDefCountClass(c.thingDef, (int)(c.count * 0.6f));
+                            costs.Add(c);
+                        }
+                    }
+
+                    //Log.Error("robotRepairCosts:" + ( costs == null ? "null" : costs.Count.ToString() ));
+
+                    // 3rd Try: If still nothing is set, create a basic cost list with defined values
+                    if (costs == null || costs.Count == 0)
+                    {
+                        costs = new List<ThingDefCountClass>();
+
+                        ThingDefCountClass tDefCC;
+                        tDefCC = new ThingDefCountClass(ThingDefOf.Steel, 40);
+                        costs.Add(tDefCC);
+                        tDefCC = new ThingDefCountClass(ThingDefOf.ComponentIndustrial, 3);
+                        costs.Add(tDefCC);
+                        tDefCC = new ThingDefCountClass(ThingDefOf.Gold, 5);
+                        costs.Add(tDefCC);
+                    }
+                    foreach (ThingDefCountClass cost in costs)
+                    {
+
+                        int count = (int)Math.Floor(cost.count * missing);
+                        if (count <= 1) //if (count <= 0)
+                            continue;
+                        resources.Add(cost.thingDef, count);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Error(ex.Message + "\n" + ex.StackTrace);
+            }
+            return resources;
+        }
+        public float GetHealthOfRobot(X2_AIRobot robot, float invalidValue = -1f)
+        {
+            float health = invalidValue;
+            if (robot != null && robot.health != null && robot.health.summaryHealth != null)
+                health = robot.health.summaryHealth.SummaryHealthPercent;
+
+            return health;
         }
 
         // extracted from ThingContainer

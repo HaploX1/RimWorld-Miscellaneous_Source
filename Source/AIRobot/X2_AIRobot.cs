@@ -17,6 +17,8 @@ namespace AIRobot
 
         private static int activePawns = 0;
 
+        public bool ignoreSpawnRename = false;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -73,7 +75,13 @@ namespace AIRobot
             // To allow the robot to be drafted -> Still not possible to draft, because 1. not humanlike and 2. the GetGizmos in Pawn_Drafter is internal! 
             //this.drafter = new Pawn_DraftController(this); // Maybe not needed because not usable?
 
-            SetBasename(this);
+            if (this.relations == null)
+                this.relations = new Pawn_RelationsTracker(this);
+            this.relations.ClearAllRelations();
+
+            if (!this.ignoreSpawnRename)
+                SetBasename(this);
+            ignoreSpawnRename = false;
 
             // Robots are not allowed to have JOY like partying!
             timetable = new Pawn_TimetableTracker(this);
@@ -86,22 +94,49 @@ namespace AIRobot
             IntVec3 oldPos = this.Position != IntVec3.Invalid ? this.Position : this.PositionHeld;
             Map oldMap = this.Map != null ? this.Map : this.MapHeld;
             X2_Building_AIRobotRechargeStation oldRechargeStation = this.rechargeStation;
-            
+
             ThingDef wDef = null;
             if (this != null && this.def2 != null && this.def2.destroyedDef != null)
                 wDef = this.def2.destroyedDef;
-            
-            base.Destroy(DestroyMode.Vanish);
-            
+
+            //if (mode != DestroyMode.Vanish)
+            //    this.TrySpawnResources();
+
+            try
+            {
+                base.Destroy(DestroyMode.Vanish);
+            } catch (Exception ex)
+            {
+                Log.Warning(ex.Message + "\n" + ex.StackTrace);
+            }
+
             // spawn destroyed object here
             if (mode != DestroyMode.Vanish && wDef != null)
             {
                 X2_AIRobot_disabled thing = (X2_AIRobot_disabled)GenSpawn.Spawn(wDef, oldPos, oldMap);
                 thing.stackCount = 1;
                 thing.rechargestation = oldRechargeStation;
+                thing.SetFactionDirect(this.Faction);
 
                 // set the disabled robot in the recharge station
                 oldRechargeStation.disabledRobot = thing;
+            }
+        }
+        private void TrySpawnResources()
+        {
+            float returnMulti = 0.6f;
+
+            if (this.rechargeStation != null && rechargeStation.def2 != null && rechargeStation.def2.robotRepairCosts != null)
+            {
+                foreach (ThingDefCountClass tDefCC in rechargeStation.def2.robotRepairCosts)
+                {
+                    int count = (int)Math.Floor(tDefCC.count * returnMulti);
+                    if (count < 1)
+                        continue;
+
+                    Thing t = GenSpawn.Spawn(tDefCC.thingDef, this.PositionHeld, this.MapHeld);
+                    t.stackCount = count;
+                }
             }
         }
 
@@ -123,7 +158,6 @@ namespace AIRobot
                 this.Destroy(DestroyMode.KillFinalize);
                 return;
             }
-
 
             base.Tick();
             

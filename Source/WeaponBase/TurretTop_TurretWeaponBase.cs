@@ -11,7 +11,7 @@ using RimWorld;
 //using RimWorld.Planet;
 //using RimWorld.SquadAI;
 
-using CommonMisc; // for Helper class
+//using CommonMisc; // for Helper class
 
 
 namespace TurretWeaponBase

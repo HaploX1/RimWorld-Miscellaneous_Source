@@ -86,6 +86,103 @@ namespace AIRobot
             }
         }
 
+        public static int jobRepairRobotSkillMin = 6;
+
+        public static FloatMenuOption GetFloatMenuOption4RepairStationRobot(Pawn selPawn, X2_Building_AIRobotRechargeStation station, Dictionary<ThingDef, int> resources)
+        {
+            if (station.robot != null && !station.robotIsDestroyed)
+                return new FloatMenuOption("AIRobot_CannotRepairRobotIsActive".Translate().CapitalizeFirst(), null);
+
+            if (!selPawn.CanReach(station, PathEndMode.InteractionCell, Danger.Deadly))
+                return new FloatMenuOption("CannotUseNoPath".Translate().CapitalizeFirst(), null);
+
+            if (selPawn.skills.GetSkill(SkillDefOf.Construction).Level < AIRobot_Helper.jobRepairRobotSkillMin)
+                return new FloatMenuOption("ConstructionSkillTooLow".Translate().CapitalizeFirst() + ": " + "MinSkill".Translate() + " " + AIRobot_Helper.jobRepairRobotSkillMin.ToString(), null);
+
+            List<string> missingResources = GetStationRepairJobMissingThingStrings(resources, selPawn);
+
+            if (missingResources == null || missingResources.Count == 0)
+            {
+                return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst(), delegate { StartStationRepairJob(selPawn, station, resources); });
+            }
+            else
+            {
+                string missingResourcesFull = "";
+                foreach (string str in missingResources)
+                {
+                    missingResourcesFull += "\n" + str;
+                }
+                //Log.Error(missingResourcesFull);
+                return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + missingResourcesFull, null);
+            }
+        }
+
+        public static void StartStationRepairJob(Pawn pawn, X2_Building_AIRobotRechargeStation station, Dictionary<ThingDef, int> resources)
+        {
+            Job job = GetStationRepairJob(pawn, station, resources);
+            if (job == null)
+                return;
+
+            pawn.jobs.StopAll();
+            pawn.jobs.StartJob(job);
+        }
+
+        public static Job GetStationRepairJob(Pawn pawn, X2_Building_AIRobotRechargeStation station, Dictionary<ThingDef, int> resources)
+        {
+            string jobDefName = "AIRobot_RepairStationRobot";
+
+            List<Thing> foundIngredients = new List<Thing>();
+            List<int> foundIngredientsCount = new List<int>();
+            List<Thing> workIngredients = new List<Thing>();
+            List<int> workIngredientCount = new List<int>();
+
+            foreach (ThingDef ingredientDef in resources.Keys)
+            {
+                if (!AIRobot_Helper.GetAllNeededIngredients(pawn, ingredientDef, resources[ingredientDef], out workIngredients, out workIngredientCount) ||
+                    workIngredients == null || workIngredients.Count == 0)
+                    return null;
+                foundIngredients.AddRange(workIngredients);
+                foundIngredientsCount.AddRange(workIngredientCount);
+            }
+
+            X2_JobDriver_RepairStationRobot repairRobot = new X2_JobDriver_RepairStationRobot();
+            Job job = new Job(DefDatabase<JobDef>.GetNamed(jobDefName), station, null, station.Position);
+
+            job.count = 1;
+            job.targetQueueB = new List<LocalTargetInfo>(); //new List<LocalTargetInfo>(foundIngredients.Count);
+            job.countQueue = new List<int>(foundIngredients.Count);
+
+            for (int i = 0; i < foundIngredients.Count; i++)
+            {
+                job.targetQueueB.Add(foundIngredients[i]);
+                job.countQueue.Add(foundIngredientsCount[i]);
+            }
+            job.haulMode = HaulMode.ToCellNonStorage;
+
+            return job;
+        }
+        public static List<string> GetStationRepairJobMissingThingStrings(Dictionary<ThingDef, int> resources, Pawn pawn)
+        {
+
+            if (resources == null)
+                return null;
+
+            List<string> missingResources = new List<string>();
+
+            foreach (ThingDef ingredientDef in resources.Keys)
+            {
+                int availableResources;
+                AIRobot_Helper.FindAvailableNearbyResources(ingredientDef, pawn, out availableResources);
+
+                if (availableResources < resources[ingredientDef])
+                {
+                    missingResources.Add("(" + availableResources.ToString() + " / " + resources[ingredientDef].ToString() + " " + GetThingDefLabel(ingredientDef) + ")");
+                    //return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + " (" + availableResources.ToString() + " / " + resources[ingredientDef].ToString() + " " + ingredientDef.LabelCap + ")", null);
+                }
+            }
+            return missingResources;
+        }
+
 
         public static void RemoveCommUnit(X2_AIRobot pawn)
         {
@@ -164,10 +261,6 @@ namespace AIRobot
         /// <returns></returns>
         public static bool GetAllNeededIngredients(Pawn pawn, ThingDef ingredientDef, int countNeeded, out List<Thing> ingredients, out List<int> ingredientsCount)
         {
-           
-
-            //ingredients = null; ingredientsCount = null;
-
             ingredients = new List<Thing>();
             ingredientsCount = new List<int>();
 
@@ -241,6 +334,34 @@ namespace AIRobot
         }
 
 
+
+        public static NameTriple GetRobotName(X2_AIRobot robot)
+        {
+            if (robot == null || robot.Name == null)
+                return null;
+
+            NameTriple nameTriple = robot.Name as NameTriple;
+            if (nameTriple != null)
+            {
+                return new NameTriple(nameTriple.First, nameTriple.Nick, nameTriple.Last);
+            }
+            return null;
+        }
+        public static void SetRobotName(X2_AIRobot robot, NameTriple name)
+        {
+            if (robot == null)
+                return;
+            robot.Name = name;
+        }
+
+
+        public static string GetThingDefLabel(ThingDef thingDef, int count = 1, bool capitalizeFirst = true)
+        {
+            string label = GenLabel.ThingLabel(thingDef, null, count);
+            if (capitalizeFirst)
+                label = label.CapitalizeFirst();
+            return label;
+        }
 
 
         /// <summary>

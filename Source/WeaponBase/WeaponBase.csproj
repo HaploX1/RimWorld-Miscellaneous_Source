@@ -7,7 +7,7 @@
     <ProjectGuid>{9F4C4E12-DE51-47A3-A5AF-F1FE3549A407}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>WeaponBase</RootNamespace>
+    <RootNamespace>TurretWeaponBase</RootNamespace>
     <AssemblyName>WeaponBase</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -50,6 +50,7 @@
     <Compile Include="CompRemainingLifetime.cs" />
     <Compile Include="Building_TurretWeaponBase.cs" />
     <Compile Include="Command_Verb_TurretWeaponBase.cs" />
+    <Compile Include="Helper.cs" />
     <Compile Include="JobDriver_HaulToCellAndDoWork.cs" />
     <Compile Include="Projectile_ThingSpawner.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

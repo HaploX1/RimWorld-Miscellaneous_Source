@@ -62,12 +62,6 @@
     <Compile Include="WorkGiver_FillNanoPrinter.cs" />
     <Compile Include="_Test.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CommonFunctionsMisc\CommonMisc.csproj">
-      <Project>{d1e15ad4-b68e-4358-babf-676f8256f008}</Project>
-      <Name>CommonMisc</Name>
-    </ProjectReference>
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>"C:\Program Files (x86)\Mono\bin\pdb2mdb.bat" "$(TargetPath)"</PostBuildEvent>

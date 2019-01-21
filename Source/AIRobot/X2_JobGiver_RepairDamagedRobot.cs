@@ -48,7 +48,7 @@ namespace AIRobot
             foreach (Thing t in foundIngredients)
                 ingredientsLTI.Add(t);
 
-            X2_JobDriver_RepairDamagedRobot repairRobot = new X2_JobDriver_RepairDamagedRobot();
+            X2_JobDriver_RepairStationRobot repairRobot = new X2_JobDriver_RepairStationRobot();
             Job job = new Job(DefDatabase<JobDef>.GetNamed(this.jobDefName), this.rechargeStation, foundIngredients[0], disabledRobot);
             job.targetQueueB = ingredientsLTI;
             job.countQueue = foundIngredientsCount;
