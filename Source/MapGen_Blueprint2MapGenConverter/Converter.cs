@@ -131,7 +131,7 @@ namespace Blueprint2MapGenConverter
                                                                     ref Dictionary<string, string> mappingBuildingRotation2LegendKey,
                                                                     ref Dictionary<string, string> mappingFloor2LegendKey)
         {
-            string placeholders = "abcdefghijklmnopqrstuvwxyz1234567890+-*#&?!@€";
+            string placeholders = "abcdefghijklmnopqrstuvwxyz1234567890+-*#?!@€";
 
             // Find all different items
             HashSet<string> buildingRotationHash = new HashSet<string>();
@@ -153,11 +153,17 @@ namespace Blueprint2MapGenConverter
             Dictionary<string, string> buildingRotationMap = new Dictionary<string, string>();
             for (int i = 0; i < buildingRotationHash.Count; i++)
             {
+                if (i >= placeholders.Length)
+                    break;
+
                 buildingRotationMap.Add(buildingRotationHash.ElementAt(i), placeholders[i].ToString());
             }
             Dictionary<string, string> floorMap = new Dictionary<string, string>();
             for (int i = 0; i < floorHash.Count; i++)
             {
+                if (i >= placeholders.Length)
+                    break;
+
                 floorMap.Add(floorHash.ElementAt(i), placeholders[i].ToString());
             }
 
@@ -175,6 +181,10 @@ namespace Blueprint2MapGenConverter
                 if (element.ThingDef != null)
                 {
                     string keyMap = element.ThingDef + element.Rotation;
+
+                    if (!buildingRotationMap.Keys.Contains(keyMap))
+                        continue;
+
                     string key = buildingRotationMap[keyMap];
                     bool found = false;
                     foreach (Misc_Blueprint.LegendData ld in buildingLegend)
@@ -199,6 +209,11 @@ namespace Blueprint2MapGenConverter
                 if (element.TerrainDef != null)
                 {
                     string keyMap = element.TerrainDef;
+
+
+                    if (!floorMap.Keys.Contains(keyMap))
+                        continue;
+
                     string key = floorMap[keyMap];
                     bool found = false;
                     foreach (Misc_Blueprint.LegendData ld in floorLegend)
