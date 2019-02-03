@@ -38,8 +38,22 @@ namespace Incidents
 
         public override void Generate(Map map, GenStepParams parms)
         {
-            if (!TryFindFightingFactions(out enemyFaction, out friendlyFaction))
-                return;
+            int cycle = 0;
+            while (1==1)
+            {
+                cycle += 1;
+                if (cycle > 20)
+                    return;
+
+                if (!TryFindFightingFactions(out enemyFaction, out friendlyFaction))
+                    continue;
+
+                // Check result for valid pawnGroupMakers --> This should normally not be invalid as it is checked in the faction finder, but someone still got invalid factions..
+                if (enemyFaction != null && !enemyFaction.def.pawnGroupMakers.NullOrEmpty() &&
+                    friendlyFaction == null && !friendlyFaction.def.pawnGroupMakers.NullOrEmpty())
+                    return;
+                break;
+            }
 
             float defaultPoints = defaultPointsRange.RandomInRange;
             if ((parms.siteCoreOrPart != null) && parms.siteCoreOrPart.parms.threatPoints < defaultPoints)
@@ -67,13 +81,13 @@ namespace Incidents
             }
             else // --> not Mechanoid fighting
             {
-                // Friednlies are a bit weaker!
+                // Friendlies are a bit weaker!
                 if (parmsFriendly.siteCoreOrPart != null)
                     parmsFriendly.siteCoreOrPart.parms.threatPoints = parmsFriendly.siteCoreOrPart.parms.threatPoints * multiNormalFight_Friendlies;
 
-                // 40% chance that friendlies are NOT the attacker but the defender
+                // 20% chance that friendlies are NOT the attacker but the defender
                 // This is a bit more dangerous for the watching colonists as they might spawn directly next to you..
-                if (Rand.Value < 0.40f)
+                if (Rand.Value < 0.20f)
                 {
                     Faction tmpFaction = friendlyFaction;
                     friendlyFaction = enemyFaction;
@@ -179,7 +193,7 @@ namespace Incidents
 
                 bool foundEnemy = (from x in Find.FactionManager.AllFactionsListForReading
                                    where !x.IsPlayer && !x.defeated && x.HostileTo(Faction.OfPlayer) && !x.def.hidden && x.def.humanlikeFaction &&
-                                            x.def.pawnGroupMakers != null && x.def.pawnGroupMakers.Count > 0
+                                            !x.def.pawnGroupMakers.NullOrEmpty()
                                    select x).TryRandomElement(out tmpEnemyFaction);
 
                 if (tmpEnemyFaction == null)
@@ -187,7 +201,7 @@ namespace Incidents
 
                 bool foundFriend = (from x in Find.FactionManager.AllFactionsListForReading
                                     where !x.IsPlayer && !x.defeated && !x.HostileTo(Faction.OfPlayer) && x.HostileTo(tmpEnemyFaction) && !x.def.hidden && x.def.humanlikeFaction &&
-                                            x.def.pawnGroupMakers != null && x.def.pawnGroupMakers.Count > 0
+                                            !x.def.pawnGroupMakers.NullOrEmpty()
                                     select x).TryRandomElement(out tmpFriendFaction);
 
                 if (foundEnemy && foundFriend)

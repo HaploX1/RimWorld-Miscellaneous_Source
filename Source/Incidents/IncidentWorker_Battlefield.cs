@@ -25,13 +25,18 @@ namespace Incidents
                     possibleSitePartsInt.Add(SitePartDefOf.Manhunters);
                     possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
                     possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
+                    possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
+                    possibleSitePartsInt.Add(SitePartDefOf.Outpost);
+                    possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Turrets);
                     possibleSitePartsInt.Add(SitePartDefOf.Turrets);
-                    possibleSitePartsInt.Add(SitePartDefOf.Turrets);
-                    possibleSitePartsInt.Add(SitePartDefOf.Turrets);
+
+                    // Add one of each possible part (to add modding parts)
+                    foreach (SitePartDef sp in DefDatabase<SitePartDef>.AllDefs)
+                        possibleSitePartsInt.Add(sp);
                 }
                 List<SitePartDef> list = new List<SitePartDef>();
                 SitePartDef sitePartDef = possibleSitePartsInt.RandomElement();
@@ -77,13 +82,15 @@ namespace Incidents
             float chance = Rand.Value;
             if (chance < 0.25f)
                 core = SiteCoreDefOf.ItemStash;
-            else if (chance < 0.35f)
+            else if (chance < 0.40f)
                 core = SiteCoreDefOf.PreciousLump;
-            else
+            else if (chance < 0.95f)
                 core = SiteCoreDefOf.Nothing;
+            else
+                core = DefDatabase<SiteCoreDef>.AllDefs.RandomElement();
 
             List<SitePartDef> parts = new List<SitePartDef>();
-            if (Rand.Value > 0.60f)
+            if (Rand.Value < 0.40f)
                 parts = GetRandomSitePartDefs;
 
             // And allways add the Misc_Battlefield part
