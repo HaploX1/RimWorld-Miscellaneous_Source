@@ -30,9 +30,13 @@ namespace AIRobot
             if (curLevel > 0.70f )
                 return ThinkResult.NoJob;
 
-            double distance = AIRobot_Helper.GetDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position);
+            //double distance = AIRobot_Helper.GetDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position);
+            //
+            //if (distance > 15f)
+            //    return ThinkResult.NoJob;
 
-            if (distance > 15f)
+            Boolean isInDistance = AIRobot_Helper.IsInDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position, 15);
+            if (isInDistance)
                 return ThinkResult.NoJob;
 
             X2_AIRobot robot = pawn as X2_AIRobot;

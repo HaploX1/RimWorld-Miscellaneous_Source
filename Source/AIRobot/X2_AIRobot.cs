@@ -73,7 +73,7 @@ namespace AIRobot
             this.Drawer.renderer.graphics.ResolveApparelGraphics();
 
             // To allow the robot to be drafted -> Still not possible to draft, because 1. not humanlike and 2. the GetGizmos in Pawn_Drafter is internal! 
-            //this.drafter = new Pawn_DraftController(this); // Maybe not needed because not usable?
+            //this.drafter = new Pawn_DraftController(this); // Not needed because not usable
 
             if (this.relations == null)
                 this.relations = new Pawn_RelationsTracker(this);
@@ -98,10 +98,7 @@ namespace AIRobot
             ThingDef wDef = null;
             if (this != null && this.def2 != null && this.def2.destroyedDef != null)
                 wDef = this.def2.destroyedDef;
-
-            //if (mode != DestroyMode.Vanish)
-            //    this.TrySpawnResources();
-
+            
             try
             {
                 base.Destroy(DestroyMode.Vanish);
@@ -110,31 +107,78 @@ namespace AIRobot
                 Log.Warning(ex.Message + "\n" + ex.StackTrace);
             }
 
-            // spawn destroyed object here
-            if (mode != DestroyMode.Vanish && wDef != null)
-            {
-                X2_AIRobot_disabled thing = (X2_AIRobot_disabled)GenSpawn.Spawn(wDef, oldPos, oldMap);
-                thing.stackCount = 1;
-                thing.rechargestation = oldRechargeStation;
-                thing.SetFactionDirect(this.Faction);
 
-                // set the disabled robot in the recharge station
-                oldRechargeStation.disabledRobot = thing;
+
+            // --- !!! NEW Approach !!! ---
+            TrySpawnResources(oldMap, oldPos);
+
+            try
+            {
+                IEnumerable<Thing> corpses = oldMap.listerThings.AllThings.Where<Thing>(t => t.Spawned && t == this.Corpse);
+                foreach (Thing corpse in corpses)
+                    corpse.Destroy(DestroyMode.Vanish);
+            } catch (Exception ex)
+            {
+                Log.Warning("Couldn't destroy corpses.\n"+ex.StackTrace);
             }
+
+
+
+            // --- !!! OLD Approach !!! ---
+            //// spawn destroyed object here
+            //if (mode != DestroyMode.Vanish && wDef != null)
+            //{
+            //    X2_AIRobot_disabled thing = (X2_AIRobot_disabled)GenSpawn.Spawn(wDef, oldPos, oldMap);
+            //    thing.stackCount = 1;
+            //    thing.rechargestation = oldRechargeStation;
+            //    thing.SetFactionDirect(this.Faction);
+
+            //    // set the disabled robot in the recharge station
+            //    oldRechargeStation.disabledRobot = thing;
+            //}
+
         }
-        private void TrySpawnResources()
+
+        private void TrySpawnResources(Map oldMap, IntVec3 oldPos)
         {
-            float returnMulti = 0.6f;
+            float returnMulti;
 
             if (this.rechargeStation != null && rechargeStation.def2 != null && rechargeStation.def2.robotRepairCosts != null)
             {
+                returnMulti = 0.4f;
                 foreach (ThingDefCountClass tDefCC in rechargeStation.def2.robotRepairCosts)
                 {
                     int count = (int)Math.Floor(tDefCC.count * returnMulti);
                     if (count < 1)
                         continue;
 
-                    Thing t = GenSpawn.Spawn(tDefCC.thingDef, this.PositionHeld, this.MapHeld);
+                    Thing t = GenSpawn.Spawn(tDefCC.thingDef, oldPos, oldMap);
+                    t.stackCount = count;
+                }
+            }
+            else if (this.rechargeStation != null && rechargeStation.def2 != null && rechargeStation.def2.costList != null)
+            {
+                returnMulti = 0.2f;
+                foreach (ThingDefCountClass tDefCC in rechargeStation.def2.costList)
+                {
+                    int count = (int)Math.Floor(tDefCC.count * returnMulti);
+                    if (count < 1)
+                        continue;
+
+                    Thing t = GenSpawn.Spawn(tDefCC.thingDef, oldPos, oldMap);
+                    t.stackCount = count;
+                }
+            }
+            else
+            {
+                returnMulti = 0.3f;
+                foreach (ThingDefCountClass tDefCC in def.costList)
+                {
+                    int count = (int)Math.Floor(tDefCC.count * returnMulti);
+                    if (count < 1)
+                        continue;
+
+                    Thing t = GenSpawn.Spawn(tDefCC.thingDef, oldPos, oldMap);
                     t.stackCount = count;
                 }
             }
@@ -450,6 +494,13 @@ namespace AIRobot
               typeof(Hediff_HeartAttack),
               typeof(Hediff_Pregnant),
 });
+        public static List<Type> nonremoveablehediffs = new List<Type>(new Type[]
+{
+              typeof(Hediff_AddedPart),
+              typeof(Hediff_Implant),
+              typeof(Hediff_Injury),
+              typeof(Hediff_MissingPart),
+});
 
         // removing hediffs, like alcohol etc.
         // Provided by SkyArchAngel
@@ -458,10 +509,17 @@ namespace AIRobot
             var hediffs = p.health.hediffSet.hediffs;
             for (var i = 0; i < hediffs.Count; i++)
             {
+                // Whitelist approach
                 if (removeablehediffs.Contains(hediffs[i].def.hediffClass))
                 {
                     p.health.RemoveHediff(hediffs[i]);
                 }
+
+                // Blacklist approach
+                //if (nonremoveablehediffs.Contains(hediffs[i].def.hediffClass) == false)
+                //{
+                //    p.health.RemoveHediff(hediffs[i]);
+                //}
             }
         }
 

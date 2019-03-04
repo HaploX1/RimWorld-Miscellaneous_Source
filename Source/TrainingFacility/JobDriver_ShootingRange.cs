@@ -98,7 +98,7 @@ namespace TrainingFacility
                 {
                     // dangerous weapons --> Throw some stones instead
                     MoteMaker.ThrowStone(pawn, TargetA.Cell);
-                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(5);
+                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(6);
 
                     // Alternate: Shoot some arrows?
                     //JobDriver_Archery.ShootArrow(pawn, TargetA.Cell);
@@ -114,20 +114,38 @@ namespace TrainingFacility
             //JoyUtility.JoyTickCheckEnd(this.pawn, false, 1f); // changed; => needs to be disabled when not joy activity or it will end the job!
 
             Job curJob = pawn.CurJob;
-            if (pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error: joyKind NullRef ???
+
+            // Done because the mod CE likes to throw errors in .GainJoy! Why?
+            try
             {
-                pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f, curJob.def.joyKind);
-            }
-            if (curJob.def.joySkill != null)
+                if (pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
+                {
+                    pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f * 1.5f, curJob.def.joyKind);
+                }
+            } catch (Exception ex)
             {
-                pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                Log.Warning("Could not assign gained joy.." + "\n" + ex.StackTrace);
+                //Log.ErrorOnce("Could not assign gained joy!" + "\n" + ex.StackTrace, 31385971);
             }
+            try
+            {
+                if (curJob.def.joySkill != null)
+                {
+                    pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                }
+            }
+            catch (Exception ex)
+            {
+                Log.Warning("Could not assign gained skill.." + "\n" + ex.StackTrace);
+                //Log.ErrorOnce("Could not assign gained skill!" + "\n" + ex.StackTrace, 31385972);
+            }
+
             if (joyCanEndJob)
             {
                 if (!pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment
                     pawn.jobs.curDriver.EndJobWith(JobCondition.InterruptForced);
 
-                if (pawn.needs.joy.CurLevel > 0.9999f) // changed => disable Max Joy
+                if (pawn.needs.joy.CurLevel > 0.999f) // changed => disable Max Joy
                     pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
 
             }

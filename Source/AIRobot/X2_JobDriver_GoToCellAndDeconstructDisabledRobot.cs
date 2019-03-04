@@ -116,8 +116,8 @@ namespace AIRobot
             Toil toil = new Toil();
             toil.initAction = () =>
             {
-                if (target.rechargestation != null)
-                    target.rechargestation.Destroy(DestroyMode.Deconstruct);
+                if (target.rechargeStation != null)
+                    target.rechargeStation.Destroy(DestroyMode.Deconstruct);
             };
 
             toil.defaultCompleteMode = ToilCompleteMode.Instant;
