@@ -60,7 +60,7 @@ namespace TrainingFacility
                     return false;
                 }
                 CompPowerTrader compPowerTrader = t.TryGetComp<CompPowerTrader>();
-                return (compPowerTrader == null || compPowerTrader.PowerOn) && (!this.def.unroofedOnly || !t.Position.Roofed(pawn.Map));
+                return (compPowerTrader == null || compPowerTrader.PowerOn); // && (!this.def.unroofedOnly || !t.Position.Roofed(pawn.Map));
             };
             Predicate<Thing> validator = predicate;
 
