@@ -209,17 +209,11 @@ namespace AIRobot
             if (needs.food != null && needs.food.CurLevel < 1.0f)
                 needs.food.CurLevel = 1f;
 
-            // Learning disabled?
+            // Learning disabled --> reset skills every x ticks
             if (def2 == null || !def2.allowLearning)
             {
-                foreach (SkillRecord skill in skills.skills)
-                {
-                    if (skill.xpSinceLastLevel > 1)
-                    {
-                        skill.xpSinceLastLevel = 1;
-                        skill.xpSinceMidnight = 1;
-                    }
-                }
+                if (this.IsHashIntervalTick(4800))
+                    SetSkills(true);
             }
 
             if (this.Spawned)
@@ -465,12 +459,10 @@ namespace AIRobot
 
             return 0;
         }
-        private void SetSkills()
+        private void SetSkills(bool isTickUpdate = false)
         {
             if (def2 == null)
-            {
                 return;
-            }
             
             foreach (SkillRecord skill in this.skills.skills)
             {
@@ -478,8 +470,13 @@ namespace AIRobot
                 {
                     if (skill.def == robotSkills.skillDef)
                     {
+                        skill.xpSinceLastLevel = skill.XpRequiredForLevelUp / 3;
+                        skill.xpSinceMidnight = 0f;
+
                         skill.levelInt = robotSkills.level;
-                        skill.passion = robotSkills.passion;
+
+                        if (!isTickUpdate)
+                            skill.passion = robotSkills.passion;
                     }
                 }
             }
