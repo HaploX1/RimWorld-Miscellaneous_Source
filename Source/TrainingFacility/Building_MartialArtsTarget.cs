@@ -52,7 +52,7 @@ namespace TrainingFacility
             // Check weapon status
             Verb attackVerb = null;
             if (selPawn != null)
-                attackVerb = selPawn.TryGetAttackVerb(this, false);
+                attackVerb = selPawn.TryGetAttackVerb(this, true);
 
             if (attackVerb != null && attackVerb.verbProps != null && attackVerb.verbProps.IsMeleeAttack)
             {
