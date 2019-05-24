@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28803.352
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Miscellaneous", "Miscellaneous\Miscellaneous.csproj", "{46D4463F-C644-4582-B459-F432B522C7EA}"
 EndProject
@@ -32,6 +32,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeaponRepair", "WeaponRepair\WeaponRepair.csproj", "{B621E46C-BB2F-4B7E-81CB-762F415191CA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PawnCreator", "PawnCreator\PawnCreator.csproj", "{7E62D493-693C-43DC-9A0E-A9335A64630B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EndGame", "EndGame\EndGame.csproj", "{F619234C-4287-495B-A7A4-B26B4DD18A4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,8 +101,15 @@ Global
 		{7E62D493-693C-43DC-9A0E-A9335A64630B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7E62D493-693C-43DC-9A0E-A9335A64630B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7E62D493-693C-43DC-9A0E-A9335A64630B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F619234C-4287-495B-A7A4-B26B4DD18A4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F619234C-4287-495B-A7A4-B26B4DD18A4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F619234C-4287-495B-A7A4-B26B4DD18A4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F619234C-4287-495B-A7A4-B26B4DD18A4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {6CA2B97C-87B0-4208-8A44-36A5EF8874A7}
 	EndGlobalSection
 EndGlobal

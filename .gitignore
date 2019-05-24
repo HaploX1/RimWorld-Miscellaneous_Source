@@ -4,3 +4,8 @@ Release
 .hg
 obj/
 _RimWorldDLLs
+Source/.vs/Miscellaneous/v16/Server/sqlite3/storage.ide
+Source/.vs/Miscellaneous/v16/Server/sqlite3/db.lock
+Source/.vs/Miscellaneous/v15/Server/sqlite3/storage.ide-wal
+Source/.vs/Miscellaneous/DesignTimeBuild/.dtbcache
+Source/.vs/Miscellaneous/v15/Server/sqlite3/storage.ide-shm
