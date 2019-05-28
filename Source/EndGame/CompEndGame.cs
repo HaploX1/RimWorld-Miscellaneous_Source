@@ -35,6 +35,17 @@ namespace EndGame
             }
         }
 
+        public int NewTicksUntilNextIncident
+        {
+            get
+            {
+                int remainingTicks = deactivateAtGameTick - Find.TickManager.TicksGame;
+                if (deactivateAtGameTick > 0 && remainingTicks < Props.dangerIncreaseOnDay * GenDate.TicksPerDay)
+                    return Props.ticksBetweenIncidents.RandomInRange / 2;
+                return Props.ticksBetweenIncidents.RandomInRange;
+            }
+        }
+
         public bool IsActivatingPossible
         {
             get
@@ -63,7 +74,7 @@ namespace EndGame
             base.PostSpawnSetup(respawningAfterLoad);
             powerComp = parent.GetComp<CompPowerTrader>();
             IsActive = false;
-            ticksUntilNextIncident = Props.ticksBetweenIncidents.RandomInRange;
+            ticksUntilNextIncident = NewTicksUntilNextIncident;
         }
 
         public override void PostExposeData()
@@ -126,7 +137,7 @@ namespace EndGame
 
                     //GenGameEnd.EndGameDialogMessage(victoryText, true);
 
-                    // Last: Destroy this building
+                    // Last: Destroy this building --> disabled
                     //parent.Destroy(DestroyMode.Vanish);
                     return;
                 }
@@ -134,7 +145,7 @@ namespace EndGame
                 if (ticksUntilNextIncident < 0)
                 {
                     Try2InitiateRaid();
-                    ticksUntilNextIncident = Props.ticksBetweenIncidents.RandomInRange;
+                    ticksUntilNextIncident = NewTicksUntilNextIncident;
                     return;
                 }
 
@@ -218,15 +229,14 @@ namespace EndGame
                 }
             };
 
-            yield return new Command_Action
-            {
-                defaultLabel = "Debug: Set remaining time to 10s",
-                action = delegate
-                {
-                    deactivateAtGameTick = Find.TickManager.TicksGame + 600;
-                }
-            };
-
+            //yield return new Command_Action
+            //{
+            //    defaultLabel = "Debug: Set remaining time to 10s",
+            //    action = delegate
+            //    {
+            //        deactivateAtGameTick = Find.TickManager.TicksGame + 600;
+            //    }
+            //};
         }
 
 
