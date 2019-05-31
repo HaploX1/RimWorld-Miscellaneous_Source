@@ -35,7 +35,7 @@ namespace EndGame
             }
         }
 
-        public int NewTicksUntilNextIncident
+        public int GetNewTicksUntilNextIncident
         {
             get
             {
@@ -73,8 +73,9 @@ namespace EndGame
         {
             base.PostSpawnSetup(respawningAfterLoad);
             powerComp = parent.GetComp<CompPowerTrader>();
-            IsActive = false;
-            ticksUntilNextIncident = NewTicksUntilNextIncident;
+
+            if (ticksUntilNextIncident < 0)
+                ticksUntilNextIncident = GetNewTicksUntilNextIncident;
         }
 
         public override void PostExposeData()
@@ -87,7 +88,6 @@ namespace EndGame
 
             //if (Scribe.mode == LoadSaveMode.PostLoadInit)
             //{
-            //    RecacheEffectiveAreaPct();
             //}
         }
 
@@ -105,12 +105,12 @@ namespace EndGame
             if ( IsActive )
             {
                 int remainingTicks = deactivateAtGameTick - Find.TickManager.TicksGame;
-                if (remainingTicks <= 600)
+                if (remainingTicks <= 1200)
                 {
                     Find.ActiveLesson.Deactivate();
-                    if (remainingTicks <= 600)
+                    if (remainingTicks <= 1200)
                     {
-                        // last 10s: every second a sound
+                        // last 20s: every second a sound
                         if (remainingTicks % 60 == 0)
                             SoundDefOf.Click.PlayOneShotOnCamera(null);
                     }
@@ -145,7 +145,7 @@ namespace EndGame
                 if (ticksUntilNextIncident < 0)
                 {
                     Try2InitiateRaid();
-                    ticksUntilNextIncident = NewTicksUntilNextIncident;
+                    ticksUntilNextIncident = GetNewTicksUntilNextIncident;
                     return;
                 }
 
