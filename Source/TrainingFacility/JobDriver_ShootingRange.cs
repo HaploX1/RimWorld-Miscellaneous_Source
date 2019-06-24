@@ -71,8 +71,10 @@ namespace TrainingFacility
                 {
                     ThingDef primaryDef = pawn.equipment.Primary.def;
 
-                    if (attackVerb.IsEMP() || attackVerb.IsIncendiary() || attackVerb.verbProps.ai_IsBuildingDestroyer ||
-                        primaryDef.destroyOnDrop || attackVerb is Verb_ShootOneUse || primaryDef.thingCategories.Any(d => d == DefDatabase<ThingCategoryDef>.GetNamed("Grenades")))
+                    if (attackVerb.IsEMP() || attackVerb.IsIncendiary() || attackVerb.UsesExplosiveProjectiles() || attackVerb.verbProps.ai_IsBuildingDestroyer || 
+                        primaryDef.destroyOnDrop || attackVerb is Verb_ShootOneUse || primaryDef.thingCategories.Any(d => d == DefDatabase<ThingCategoryDef>.GetNamed("Grenades")) ||
+                        primaryDef.thingSetMakerTags.Contains("SingleUseWeapon")
+                    )
                     {
                         weaponCheckResult = -1;
 

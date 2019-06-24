@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("ShootingRange")]
-[assembly: AssemblyCopyright("Copyright © 2015-2018 by Haplo")]
+[assembly: AssemblyCopyright("Copyright © 2015-2019 by Haplo")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
