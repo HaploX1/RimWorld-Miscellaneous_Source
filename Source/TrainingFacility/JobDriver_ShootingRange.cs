@@ -73,7 +73,7 @@ namespace TrainingFacility
 
                     if (attackVerb.IsEMP() || attackVerb.IsIncendiary() || attackVerb.UsesExplosiveProjectiles() || attackVerb.verbProps.ai_IsBuildingDestroyer || 
                         primaryDef.destroyOnDrop || attackVerb is Verb_ShootOneUse || primaryDef.thingCategories.Any(d => d == DefDatabase<ThingCategoryDef>.GetNamed("Grenades")) ||
-                        primaryDef.thingSetMakerTags.Contains("SingleUseWeapon")
+                        ( primaryDef.thingSetMakerTags != null && primaryDef.thingSetMakerTags.Contains("SingleUseWeapon") )
                     )
                     {
                         weaponCheckResult = -1;
