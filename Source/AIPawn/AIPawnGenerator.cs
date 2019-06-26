@@ -343,7 +343,11 @@ namespace AIPawn
         {
             try
             {
-                pawn.apparel.DestroyAll(DestroyMode.Vanish);
+                if (pawn.apparel != null)
+                    pawn.apparel.DestroyAll(DestroyMode.Vanish);
+                else
+                    pawn.apparel = new Pawn_ApparelTracker(pawn);
+
                 ThingDef item = DefDatabase<ThingDef>.GetNamed(AIPawn_ApparelDefName);
                 Apparel apparel = (Apparel)ThingMaker.MakeThing(item);
                 if (ApparelUtility.HasPartsToWear(pawn, apparel.def))
