@@ -13,7 +13,8 @@ namespace EndGame
 
         public FloatRange raidPointsFactorRange = new FloatRange(0.8f, 3.5f);
 
-        public float dangerIncreaseOnDay = 20.0f;
+        public float dangerIncreaseOnDay = 26.0f;
+        public float dangerLowUntilDay = 10.0f;
 
         public List<IncidentDef> possibleIncidents = new List<IncidentDef>()
         {

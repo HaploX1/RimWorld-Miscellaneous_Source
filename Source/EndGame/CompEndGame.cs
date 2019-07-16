@@ -17,6 +17,9 @@ namespace EndGame
         private int ticksUntilNextIncident = -1;
         private int deactivateAtGameTick = -1;
 
+        // internal fixed value
+        private float reducedDanger_RaidPointMultiplier = 0.66f;
+
         private CompPowerTrader powerComp;
 
         public CompProperties_EndGame Props
@@ -39,9 +42,15 @@ namespace EndGame
         {
             get
             {
-                int remainingTicks = deactivateAtGameTick - Find.TickManager.TicksGame;
-                if (deactivateAtGameTick > 0 && remainingTicks < Props.dangerIncreaseOnDay * GenDate.TicksPerDay)
+                // Between day 26 and max --> Increase danger : half the ticks between incidents
+                if (IsDangerIncreased)
                     return Props.ticksBetweenIncidents.RandomInRange / 2;
+
+                // Between day 0 and 10 --> Reduced danger : double the ticks between incidents
+                if (IsDangerReduced)
+                    return Props.ticksBetweenIncidents.RandomInRange * 2;
+
+                // normal : between day 10 and 26
                 return Props.ticksBetweenIncidents.RandomInRange;
             }
         }
@@ -66,6 +75,31 @@ namespace EndGame
                     deactivateAtGameTick = Mathf.RoundToInt((float)Find.TickManager.TicksGame + Props.maxDaysActive * GenDate.TicksPerDay);
                 
                 isActive = value;
+            }
+        }
+
+        public bool IsDangerIncreased
+        {
+            get
+            {
+                // Between day 26 and max --> Increase danger : half the ticks between incidents
+                return IsActive && GetRemainingTicks < (Props.maxDaysActive - Props.dangerIncreaseOnDay) * GenDate.TicksPerDay;
+            }
+        }
+        public bool IsDangerReduced
+        {
+            get
+            {
+                // Between day 0 and 10 --> Reduced danger : double the ticks between incidents
+                return !IsActive || GetRemainingTicks > (Props.maxDaysActive - Props.dangerLowUntilDay) * GenDate.TicksPerDay;
+            }
+        }
+
+        public int GetRemainingTicks
+        {
+            get
+            {
+                return deactivateAtGameTick - Find.TickManager.TicksGame;
             }
         }
 
@@ -104,7 +138,7 @@ namespace EndGame
 
             if ( IsActive )
             {
-                int remainingTicks = deactivateAtGameTick - Find.TickManager.TicksGame;
+                int remainingTicks = GetRemainingTicks;
                 if (remainingTicks <= 1200)
                 {
                     Find.ActiveLesson.Deactivate();
@@ -116,12 +150,11 @@ namespace EndGame
                     }
                     if (remainingTicks == 300)
                     {
-                        //ScreenFader.StartFade(Color.black, 5f);
                         ScreenFader.StartFade(Color.white, 5f);
                     }
                 }
 
-                if (Find.TickManager.TicksGame >= deactivateAtGameTick)
+                if (remainingTicks <= 0)
                 {
                     // Endgame finished
                     IsActive = false;
@@ -149,7 +182,7 @@ namespace EndGame
                     return;
                 }
 
-                ticksUntilNextIncident = ticksUntilNextIncident - interval;
+                ticksUntilNextIncident -= interval;
                 return;
             } 
         }
@@ -159,11 +192,20 @@ namespace EndGame
         {
             if (IsActive)
             {
-                int remainingTicks = deactivateAtGameTick - Find.TickManager.TicksGame;
-                string str = "EndGame_RemainingTime".Translate( GetTimeString(remainingTicks) );
+                string str = "EndGame_RemainingTime".Translate( GetTimeString(GetRemainingTicks) );
 
                 if (DebugSettings.godMode)
                     str += "\n" + "DEBUG: Next Raid in " + (ticksUntilNextIncident).ToStringTicksToDays();
+
+                bool isReduced = IsDangerReduced;
+                bool isIncreased = IsDangerIncreased;
+
+                if (DebugSettings.godMode && isReduced)
+                    str += "\n *-- Reduced Danger --*";
+                if (DebugSettings.godMode && !isReduced && !isIncreased)
+                    str += "\n **- Normal Danger -**";
+                if (DebugSettings.godMode && isIncreased)
+                    str += "\n *** Increased Danger ***";
 
                 return str;
             }
@@ -217,26 +259,27 @@ namespace EndGame
                 disabledReason = "CommandStartEndGame_DisabledReason".Translate(),
             };
 
-            if (!Prefs.DevMode && !DebugSettings.godMode)
+            if (!Prefs.DevMode || !DebugSettings.godMode)
                 yield break;
 
             yield return new Command_Action
             {
                 defaultLabel = "Debug: Initiate Raid",
+                defaultDesc = "Initiate a new Raid.",
                 action = delegate
                 {
                     Try2InitiateRaid();
                 }
             };
 
-            //yield return new Command_Action
-            //{
-            //    defaultLabel = "Debug: Set remaining time to 10s",
-            //    action = delegate
-            //    {
-            //        deactivateAtGameTick = Find.TickManager.TicksGame + 600;
-            //    }
-            //};
+            yield return new Command_Action
+            {
+                defaultLabel = "Debug: Reduce time",
+                defaultDesc = "Reduce the remaining time by 1/2 day.",
+                action = delegate { deactivateAtGameTick -= (int)(GenDate.TicksPerDay / 2); },
+                disabled = !IsActive,
+                disabledReason = "Not Active..."
+            };
         }
 
 
@@ -259,6 +302,7 @@ namespace EndGame
             //if (!TryFindSpawnSpot(map, out spawnSpot))
             //    return;
 
+
             IncidentParms raidParms = StorytellerUtility.DefaultParmsNow(IncidentCategoryDefOf.ThreatBig, map);
             raidParms.forced = true;
             raidParms.faction = faction;
@@ -268,6 +312,10 @@ namespace EndGame
             raidParms.points = Mathf.Max(raidParms.points * Props.raidPointsFactorRange.RandomInRange, faction.def.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
             //raidParms.points = 20000.0f; // DEBUG
             raidParms.pawnGroupMakerSeed = Rand.Int;
+
+            // Between day 0 and 10 --> Reduced danger : reduced raid points
+            if (IsDangerReduced)
+                raidParms.points = (float)(raidParms.points * reducedDanger_RaidPointMultiplier);
 
             QueuedIncident qi = new QueuedIncident(new FiringIncident(Props.possibleIncidents.RandomElement(), null, raidParms), Find.TickManager.TicksGame + 10, 0);
             Find.Storyteller.incidentQueue.Add(qi);
