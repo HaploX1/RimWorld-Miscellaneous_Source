@@ -17,8 +17,6 @@ namespace EndGame
         private int ticksUntilNextIncident = -1;
         private int deactivateAtGameTick = -1;
 
-        // internal fixed value
-        private float reducedDanger_RaidPointMultiplier = 0.66f;
 
         private CompPowerTrader powerComp;
 
@@ -43,11 +41,11 @@ namespace EndGame
             get
             {
                 // Between day 26 and max --> Increase danger : half the ticks between incidents
-                if (IsDangerIncreased)
+                if (IsDangerHigh)
                     return Props.ticksBetweenIncidents.RandomInRange / 2;
 
                 // Between day 0 and 10 --> Reduced danger : double the ticks between incidents
-                if (IsDangerReduced)
+                if (IsDangerLow)
                     return Props.ticksBetweenIncidents.RandomInRange * 2;
 
                 // normal : between day 10 and 26
@@ -78,27 +76,30 @@ namespace EndGame
             }
         }
 
-        public bool IsDangerIncreased
+        public bool IsDangerHigh
         {
             get
             {
                 // Between day 26 and max --> Increase danger : half the ticks between incidents
-                return IsActive && GetRemainingTicks < (Props.maxDaysActive - Props.dangerIncreaseOnDay) * GenDate.TicksPerDay;
+                return IsActive && GetActiveRemainingTicks < (Props.maxDaysActive - Props.dangerHighOnDay) * GenDate.TicksPerDay;
             }
         }
-        public bool IsDangerReduced
+        public bool IsDangerLow
         {
             get
             {
                 // Between day 0 and 10 --> Reduced danger : double the ticks between incidents
-                return !IsActive || GetRemainingTicks > (Props.maxDaysActive - Props.dangerLowUntilDay) * GenDate.TicksPerDay;
+                return !IsActive || GetActiveRemainingTicks > (Props.maxDaysActive - Props.dangerLowUntilDay) * GenDate.TicksPerDay;
             }
         }
 
-        public int GetRemainingTicks
+        public int GetActiveRemainingTicks
         {
             get
             {
+                if (!IsActive)
+                    return 0;
+
                 return deactivateAtGameTick - Find.TickManager.TicksGame;
             }
         }
@@ -138,7 +139,7 @@ namespace EndGame
 
             if ( IsActive )
             {
-                int remainingTicks = GetRemainingTicks;
+                int remainingTicks = GetActiveRemainingTicks;
                 if (remainingTicks <= 1200)
                 {
                     Find.ActiveLesson.Deactivate();
@@ -192,13 +193,13 @@ namespace EndGame
         {
             if (IsActive)
             {
-                string str = "EndGame_RemainingTime".Translate( GetTimeString(GetRemainingTicks) );
+                string str = "EndGame_RemainingTime".Translate( GetTimeString(GetActiveRemainingTicks) );
 
                 if (DebugSettings.godMode)
                     str += "\n" + "DEBUG: Next Raid in " + (ticksUntilNextIncident).ToStringTicksToDays();
 
-                bool isReduced = IsDangerReduced;
-                bool isIncreased = IsDangerIncreased;
+                bool isReduced = IsDangerLow;
+                bool isIncreased = IsDangerHigh;
 
                 if (DebugSettings.godMode && isReduced)
                     str += "\n *-- Reduced Danger --*";
@@ -314,8 +315,12 @@ namespace EndGame
             raidParms.pawnGroupMakerSeed = Rand.Int;
 
             // Between day 0 and 10 --> Reduced danger : reduced raid points
-            if (IsDangerReduced)
-                raidParms.points = (float)(raidParms.points * reducedDanger_RaidPointMultiplier);
+            if (IsDangerLow)
+                raidParms.points = (float)(raidParms.points * Props.dangerLow_RaidPointMultiplier);
+
+            // Between day 24 and max --> Increased danger : increased raid points
+            if (IsDangerHigh)
+                raidParms.points = (float)(raidParms.points * Props.dangerHigh_RaidPointMultiplier);
 
             QueuedIncident qi = new QueuedIncident(new FiringIncident(Props.possibleIncidents.RandomElement(), null, raidParms), Find.TickManager.TicksGame + 10, 0);
             Find.Storyteller.incidentQueue.Add(qi);
