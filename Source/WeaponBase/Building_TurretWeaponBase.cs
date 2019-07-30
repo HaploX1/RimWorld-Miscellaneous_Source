@@ -911,7 +911,7 @@ namespace TurretWeaponBase
             }
         }
 
-        protected void BeginBurst()
+        protected virtual void BeginBurst()
         {
             GunCompEq.PrimaryVerb.TryStartCastOn(CurrentTarget, false, true);
             base.OnAttackedTarget(this.CurrentTarget);

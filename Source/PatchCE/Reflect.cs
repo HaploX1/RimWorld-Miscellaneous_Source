@@ -10,7 +10,7 @@ using RimWorld;
 using Verse;
 using Verse.AI;
 
-namespace CommonMisc
+namespace Patches_Misc_CE
 {
 
     // This is a small Reflection helper class
@@ -56,7 +56,7 @@ namespace CommonMisc
         public static void SetValue(object target, string fieldName, object value, BindingFlags bindingFlags = BindingFlags.Default)
         {
             if (bindingFlags == BindingFlags.Default)
-                bindingFlags = fieldBindings; 
+                bindingFlags = fieldBindings;
 
             //FieldInfo fieldInfo = GetFieldInfo(target, fieldName, bindingFlags);
             FieldInfo fieldInfo = target.GetType().GetField(fieldName, bindingFlags);
