@@ -373,7 +373,7 @@ namespace AIRobot
             if (robotIsDestroyed)
             {
                 // What do we do, when the robot is destroyed?
-
+                TryThrowNoRobotMote(this);
 
                 // Last step: do nothing more!
                 return;
@@ -461,6 +461,26 @@ namespace AIRobot
                 MoteThrowHelper.ThrowBatteryYellow(this.Position.ToVector3(), Map, 0.8f);
             else
                 MoteThrowHelper.ThrowBatteryRed(this.Position.ToVector3(), Map, 0.8f);
+        }
+
+
+        private int timerNoRobotMoteThrow = 0;
+        private void TryThrowNoRobotMote(X2_Building_AIRobotRechargeStation station)
+        {
+            if (station == null)
+                return;
+
+
+            timerNoRobotMoteThrow--;
+            if (timerNoRobotMoteThrow > 0)
+                return;
+            timerNoRobotMoteThrow = 800;
+
+
+            if (!station.robotIsDestroyed)
+                return;
+
+            MoteThrowHelper.ThrowNoRobotSign(this.Position.ToVector3(), Map, 0.8f);
         }
         private void TryUpdateAllowedArea(X2_AIRobot robot)
         {
