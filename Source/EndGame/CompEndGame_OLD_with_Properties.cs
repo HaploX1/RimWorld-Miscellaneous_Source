@@ -11,7 +11,7 @@ using Verse.Sound;
 namespace EndGame
 {
 
-    public class CompEndGame : ThingComp
+    public class CompEndGame_OLD_with_Properties : ThingComp
     {
         private bool isActive = false;
         private int ticksUntilNextIncident = -1;
@@ -20,21 +20,19 @@ namespace EndGame
 
         private CompPowerTrader powerComp;
 
-        //public CompProperties_EndGame Props
-        //{
-        //    get
-        //    {
-        //        return (CompProperties_EndGame)props;
-        //    }
-        //}
+        public CompProperties_EndGame Props
+        {
+            get
+            {
+                return (CompProperties_EndGame)props;
+            }
+        }
 
         private List<IncidentDef> GetPossibleIncidentDefs
         {
             get
             {
-                return new List<IncidentDef>() {
-                    DefDatabase<IncidentDef>.GetNamedSilentFail("RaidEnemy"),
-                };
+                return Props.possibleIncidents;
             }
         }
 
@@ -44,14 +42,14 @@ namespace EndGame
             {
                 // Between day 26 and max --> Increase danger : half the ticks between incidents
                 if (IsDangerHigh)
-                    return (int)(EndGame_ModSettings.ticksBetweenIncidents.RandomInRange * EndGame_ModSettings.dangerHighTimeFactor);
+                    return (int)(Props.ticksBetweenIncidents.RandomInRange * 0.5);
 
                 // Between day 0 and 10 --> Reduced danger : double the ticks between incidents
                 if (IsDangerLow)
-                    return (int)(EndGame_ModSettings.ticksBetweenIncidents.RandomInRange * EndGame_ModSettings.dangerLowTimeFactor);
+                    return (int)(Props.ticksBetweenIncidents.RandomInRange * 2.0);
 
                 // normal : between day 10 and 26
-                return (int)(EndGame_ModSettings.ticksBetweenIncidents.RandomInRange);
+                return (int)(Props.ticksBetweenIncidents.RandomInRange);
             }
         }
 
@@ -72,7 +70,7 @@ namespace EndGame
             set
             {
                 if (value && !isActive)
-                    deactivateAtGameTick = Mathf.RoundToInt((float)Find.TickManager.TicksGame + EndGame_ModSettings.maxDaysActive * GenDate.TicksPerDay);
+                    deactivateAtGameTick = Mathf.RoundToInt((float)Find.TickManager.TicksGame + Props.maxDaysActive * GenDate.TicksPerDay);
                 
                 isActive = value;
             }
@@ -83,7 +81,7 @@ namespace EndGame
             get
             {
                 // Between day 26 and max --> Increase danger : half the ticks between incidents
-                return IsActive && GetActiveRemainingTicks < (EndGame_ModSettings.maxDaysActive - EndGame_ModSettings.dangerHighFromDay) * GenDate.TicksPerDay;
+                return IsActive && GetActiveRemainingTicks < (Props.maxDaysActive - Props.dangerHighOnDay) * GenDate.TicksPerDay;
             }
         }
         public bool IsDangerLow
@@ -91,7 +89,7 @@ namespace EndGame
             get
             {
                 // Between day 0 and 10 --> Reduced danger : double the ticks between incidents
-                return !IsActive || GetActiveRemainingTicks > (EndGame_ModSettings.maxDaysActive - EndGame_ModSettings.dangerLowUntilDay) * GenDate.TicksPerDay;
+                return !IsActive || GetActiveRemainingTicks > (Props.maxDaysActive - Props.dangerLowUntilDay) * GenDate.TicksPerDay;
             }
         }
 
@@ -312,23 +310,19 @@ namespace EndGame
             raidParms.raidStrategy = null;
             raidParms.raidArrivalMode = null;
             //raidParms.spawnCenter = spawnSpot;
-            raidParms.points = Mathf.Max(raidParms.points * (EndGame_ModSettings.raidPointsFactorRangePercent.RandomInRange / 100f), faction.def.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
+            raidParms.points = Mathf.Max(raidParms.points * Props.raidPointsFactorRange.RandomInRange, faction.def.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
             //raidParms.points = 20000.0f; // DEBUG
             raidParms.pawnGroupMakerSeed = Rand.Int;
 
-            // Between day 0 and 7 --> Reduced danger : reduced raid points
+            // Between day 0 and 10 --> Reduced danger : reduced raid points
             if (IsDangerLow)
-                raidParms.points = (float)(raidParms.points * EndGame_ModSettings.dangerLowRaidPointFactor);
-
-            // Between day 7 and 24 --> Medium danger : average raid points
-            if (!IsDangerLow && !IsDangerHigh)
-                raidParms.points = (float)(raidParms.points * EndGame_ModSettings.dangerMidRaidPointFactor);
+                raidParms.points = (float)(raidParms.points * Props.dangerLow_RaidPointMultiplier);
 
             // Between day 24 and max --> Increased danger : increased raid points
             if (IsDangerHigh)
-                raidParms.points = (float)(raidParms.points * EndGame_ModSettings.dangerHighRaidPointFactor);
+                raidParms.points = (float)(raidParms.points * Props.dangerHigh_RaidPointMultiplier);
 
-            QueuedIncident qi = new QueuedIncident(new FiringIncident(GetPossibleIncidentDefs.RandomElement(), null, raidParms), Find.TickManager.TicksGame + 10, 0);
+            QueuedIncident qi = new QueuedIncident(new FiringIncident(Props.possibleIncidents.RandomElement(), null, raidParms), Find.TickManager.TicksGame + 10, 0);
             Find.Storyteller.incidentQueue.Add(qi);
         }
 

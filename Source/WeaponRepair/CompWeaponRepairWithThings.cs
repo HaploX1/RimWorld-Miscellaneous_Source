@@ -10,7 +10,7 @@ using Verse.AI;
 namespace WeaponRepair
 {
     // Most of this is based on the CompLongRangeMineralScanner
-    public class CompWeaponRepairTwo2One : ThingComp
+    public class CompWeaponRepairWithThings : ThingComp
     {
 
         public bool CanBeRepaired
@@ -36,11 +36,31 @@ namespace WeaponRepair
             }
         }
 
-        public CompProperties_WeaponRepairTwo2One Props
+        public int NeededComponentCount
         {
             get
             {
-                return (CompProperties_WeaponRepairTwo2One)props;
+                float neededRepairPercent = (parent.MaxHitPoints * Props.maxRepair) - parent.HitPoints;
+
+                if (neededRepairPercent <= 0)
+                    return 0;
+
+                return (int)Math.Ceiling(CostPerPercent * neededRepairPercent);
+            }
+        }
+        public double CostPerPercent
+        {
+            get
+            {
+                return (parent.MarketValue / Props.repairRatioPrice2Thing) / 100;
+            }
+        }
+
+        public CompProperties_WeaponRepairWithThings Props
+        {
+            get
+            {
+                return (CompProperties_WeaponRepairWithThings)props;
             }
         }
         
@@ -109,7 +129,7 @@ namespace WeaponRepair
                 yield break;
             }
 
-            if (GetAvailableTwinThing(selPawn) == null)
+            if (GetAvailableRepairThing(selPawn) == null)
             {
                 yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("WeaponRepair_NoWeaponTwinFound".Translate(), null), selPawn, parent);
                 yield break;
@@ -145,7 +165,7 @@ namespace WeaponRepair
 
             Action hoverAction = delegate
             {
-                Thing twin = GetAvailableTwinThing(selPawn);
+                Thing twin = GetAvailableRepairThing(selPawn);
                 MoteMaker.MakeStaticMote(twin.Position, parent.Map, ThingDefOf.Mote_FeedbackGoto);
             };
             Action giveRepairJob = delegate { TryGiveWeaponRepairJobToPawn(selPawn); };
@@ -161,7 +181,7 @@ namespace WeaponRepair
 
             Building workTable = GetClosestValidWorktable(pawn);
             Thing thingMain = parent;
-            Thing thingIngredient = GetAvailableTwinThing(pawn);
+            Thing thingIngredient = GetAvailableRepairThing(pawn);
 
             if (workTable == null || thingMain == null || thingIngredient == null)
                 return false;
@@ -174,7 +194,7 @@ namespace WeaponRepair
             return pawn.jobs.TryTakeOrderedJob(job);
         }
 
-        private Thing GetAvailableTwinThing(Pawn pawn)
+        private Thing GetAvailableRepairThing(Pawn pawn, ThingDef tDef)
         {
             if (!CanBeRepaired || pawn == null || !pawn.Spawned || pawn.Downed || pawn.Map == null)
                 return null;
@@ -189,14 +209,6 @@ namespace WeaponRepair
             {
                 if (currentThing == parent)
                     continue;
-
-                if (Props.compareQuality)
-                {
-                    QualityCategory qc;
-                    currentThing.TryGetQuality(out qc);
-                    if (checkQuality && (!currentThing.TryGetQuality(out qc) || ((int)qcParent < (int)qc)))
-                        continue;
-                }
 
                 if (currentThing.IsBurning() || currentThing.IsBrokenDown() || currentThing.IsForbidden(pawn))
                     continue;

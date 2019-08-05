@@ -7,7 +7,6 @@ namespace WeaponRepair
     public class CompProperties_WeaponRepairTwo2One : CompProperties
     {
         public List<ThingDef> worktableDefs = new List<ThingDef>();
-        public string allowedDefSubName = "Gun_";
         public WorkTypeDef workTypeDef;
         public bool compareQuality = true;
         public JobDef jobDef;

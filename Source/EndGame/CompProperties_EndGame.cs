@@ -6,6 +6,7 @@ using Verse;
 
 namespace EndGame
 {
+    // TODO: Delete this, as it is no longer needed --> ModSettings
     public class CompProperties_EndGame : CompProperties
     {
         public float maxDaysActive = 30.0f;

@@ -10,7 +10,7 @@ namespace MapGenerator
 
         public float chance = 1;
         public IntVec2 size;
-        public ThingDef buildingMaterial = null;
+        public string buildingMaterial = null;
         public string buildingData;
         public string floorData;
         public string pawnData;
@@ -19,12 +19,12 @@ namespace MapGenerator
         public bool createTrigger;
         public string TriggerLetterLabel = null;
         public string TriggerLetterMessageText = null;
-        public LetterDef TriggerLetterDef = null;// DefDatabase<LetterDef>.GetNamed("ThreatSmall");// LetterDefOf.ThreatSmall;
-        public Dictionary<string, ThingDef> buildingLegend;
+        public LetterDef TriggerLetterDef = null;
+        public Dictionary<string, string> buildingLegend;
         public Dictionary<string, Rot4> rotationLegend;
-        public Dictionary<string, TerrainDef> floorLegend;
-        public Dictionary<string, PawnKindDef> pawnLegend;
-        public Dictionary<string, ThingDef> itemLegend;
+        public Dictionary<string, string> floorLegend;
+        public Dictionary<string, string> pawnLegend;
+        public Dictionary<string, string> itemLegend;
         public float pawnSpawnChance = 0;
         public float itemSpawnChance = 0;
         public FactionDef factionDef = null;

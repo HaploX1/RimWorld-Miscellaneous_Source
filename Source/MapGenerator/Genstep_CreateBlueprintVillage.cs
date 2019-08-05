@@ -301,8 +301,8 @@ namespace MapGenerator
             }
 
             // If a building material is defined, use this
-            if (blueprint.buildingMaterial != null)
-                wallStuff = blueprint.buildingMaterial;
+            if (blueprint.buildingMaterial != null && blueprint.buildingMaterial != "")
+                wallStuff = DefDatabase<ThingDef>.GetNamedSilentFail(blueprint.buildingMaterial);
 
             int w = 0;
             while (true)
@@ -500,7 +500,7 @@ namespace MapGenerator
             if (!blueprint.floorLegend.ContainsKey(key))
                 return null;
 
-            return blueprint.floorLegend[key];
+            return DefDatabase<TerrainDef>.GetNamedSilentFail( blueprint.floorLegend[key] );
         }
 
         // 2nd step: Get the ThingDef of the position from the BuildingData of the blueprint.
@@ -516,7 +516,7 @@ namespace MapGenerator
             if (!blueprint.buildingLegend.ContainsKey(key))
                 return null;
 
-            return blueprint.buildingLegend[key];
+            return DefDatabase<ThingDef>.GetNamedSilentFail( blueprint.buildingLegend[key] );
         }
         // 2nd step (b): Get the Rotation of the position from the BuildingData of the blueprint.
         private Rot4 TryGetRotationFromBuildingData(MapGeneratorBlueprintDef blueprint, int itemPos)
@@ -548,7 +548,7 @@ namespace MapGenerator
             if (!blueprint.itemLegend.ContainsKey(key))
                 return null;
 
-            return blueprint.itemLegend[key];
+            return DefDatabase<ThingDef>.GetNamedSilentFail( blueprint.itemLegend[key] );
         }
 
         // 4th step: Get the PawnKindDef of the position from the PawnData of the blueprint.
@@ -564,7 +564,7 @@ namespace MapGenerator
             if (!blueprint.pawnLegend.ContainsKey(key))
                 return null;
 
-            return blueprint.pawnLegend[key];
+            return DefDatabase<PawnKindDef>.GetNamedSilentFail( blueprint.pawnLegend[key] );
         }
 
         // Clear the cell from other destroyable objects

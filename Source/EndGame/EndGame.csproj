@@ -48,6 +48,8 @@
   <ItemGroup>
     <Compile Include="CompEndGame.cs" />
     <Compile Include="CompProperties_EndGame.cs" />
+    <Compile Include="EndGame_ModSettings.cs" />
+    <Compile Include="EndGame_Mod.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

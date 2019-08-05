@@ -14,7 +14,7 @@ namespace MapGenerator
         public TechLevel techLevelMax = TechLevel.Undefined;
         public float chance = 1;
         public IntVec2 size;
-        public ThingDef buildingMaterial = null;
+        public string buildingMaterial = null;
         public string buildingData;
         public string nonbuildingData;
         public string floorData;
@@ -25,12 +25,12 @@ namespace MapGenerator
         public string TriggerLetterLabel = null;
         public string TriggerLetterMessageText = null;
         public LetterDef TriggerLetterDef = null;
-        public Dictionary<string, ThingDef> buildingLegend;
-        public Dictionary<string, ThingDef> nonbuildingLegend;
+        public Dictionary<string, string> buildingLegend;
+        public Dictionary<string, string> nonbuildingLegend;
         public Dictionary<string, Rot4> rotationLegend;
-        public Dictionary<string, TerrainDef> floorLegend;
-        public Dictionary<string, PawnKindDef> pawnLegend;
-        public Dictionary<string, ThingDef> itemLegend;
+        public Dictionary<string, string> floorLegend;
+        public Dictionary<string, string> pawnLegend;
+        public Dictionary<string, string> itemLegend;
         public FactionDef factionDef = null;
         public float itemSpawnChance = 70;
         public float pawnSpawnChance = 70;
