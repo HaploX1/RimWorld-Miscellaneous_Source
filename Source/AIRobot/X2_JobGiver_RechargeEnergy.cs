@@ -18,7 +18,6 @@ namespace AIRobot
     /// <permission>Usage of this code is free. All I ask is that you mention my name somewhere.</permission>
     public class X2_JobGiver_RechargeEnergy : ThinkNode_JobGiver
     {
-
         public override float GetPriority(Pawn pawn)
         {
             if (pawn == null || pawn.needs == null)

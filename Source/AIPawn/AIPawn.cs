@@ -771,7 +771,8 @@ namespace AIPawn
                 if (rs == null)
                     return;
 
-                rs.TryAssignPawn(this);
+                this.ownership.ClaimBedIfNonMedical( rs );
+                //rs.TryAssignPawn(this); OLD
 
                 if (this.ownership.OwnedBed == null)
                     return;

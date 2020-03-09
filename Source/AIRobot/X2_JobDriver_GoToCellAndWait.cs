@@ -10,12 +10,12 @@ using Verse.AI;
 
 namespace AIRobot
 {
-    public class X2_JobDriver_GoDespawning : JobDriver
+    public class X2_JobDriver_GoToCellAndWait : JobDriver
     {
         public bool despawn = true;
-        public int waitTicks = GenDate.TicksPerHour * 12;
+        public int waitTicks = GenDate.TicksPerHour * 1;
 
-        public X2_JobDriver_GoDespawning() { }
+        public X2_JobDriver_GoToCellAndWait() { }
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
@@ -25,10 +25,7 @@ namespace AIRobot
             yield return GotoThing(TargetA.Cell, Map, PathEndMode.OnCell)
                                                     .FailOnDespawnedOrNull(TargetIndex.A);
 
-            yield return DespawnIntoContainer(despawn);
-
-            if (!despawn)
-                yield return Toil_Wait(waitTicks);
+            yield return Toil_Wait(waitTicks);
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -65,29 +62,6 @@ namespace AIRobot
             };
             toil.defaultCompleteMode = ToilCompleteMode.PatherArrival;
             //toil.AddFinishAction(new Action(DoSleep));
-            return toil;
-        }
-
-        private Toil DespawnIntoContainer(bool doDespawn)
-        {
-            Toil toil = new Toil();
-
-            toil.initAction = delegate
-            {
-                X2_AIRobot robot = toil.actor as X2_AIRobot;
-                if (robot != null && robot.rechargeStation != null)
-                {
-                    if (doDespawn)
-                        // Despawn active --> robot into the container
-                        robot.rechargeStation.AddRobotToContainer(robot);
-                    else
-                        // Only recharge --> robot waits and let recharge
-                        robot.rechargeStation.isRechargeActive = true;
-                }
-            };
-
-            toil.defaultCompleteMode = ToilCompleteMode.Instant;
-
             return toil;
         }
 

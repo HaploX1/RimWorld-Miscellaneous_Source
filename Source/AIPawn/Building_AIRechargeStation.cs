@@ -238,7 +238,7 @@ namespace AIPawn
             // Key-Binding B - Call owner To rest
             Command_Action opt1;
             opt1 = new Command_Action();
-            opt1.disabled = this.owners == null;
+            opt1.disabled = this.OwnersForReading == null || this.OwnersForReading.Count == 0;
             opt1.disabledReason = txtNoOwner.Translate();
             opt1.defaultDesc = txtSendOwnerToSleep.Translate();
             opt1.icon = UI_ForceSleepButton;
@@ -253,7 +253,7 @@ namespace AIPawn
 
         public void Button_CallOwnerToRecharge()
         {
-            if (owners == null)
+            if (OwnersForReading == null)
                 return;
 
             DoWork_ForceOwnerToSleep();
@@ -266,18 +266,18 @@ namespace AIPawn
         private void DoWork_ForceOwnerToSleep()
         {
 
-            for (int i = 0; i < owners.Count; i++)
+            for (int i = 0; i < OwnersForReading.Count; i++)
             {
 
                 // preparation: stop all other jobs
-                if (owners[i].jobs != null)
-                    owners[i].jobs.StopAll();
+                if (OwnersForReading[i].jobs != null)
+                    OwnersForReading[i].jobs.StopAll();
 
                 // Do Job with JobGiver  -> Force owner to sleep
                 JobGiver_GetRest getRest = new JobGiver_GetRest();
                 JobIssueParams jobParms = new JobIssueParams();
-                ThinkResult thinkResult = getRest.TryIssueJobPackage(owners[i], jobParms);
-                owners[i].jobs.StartJob(thinkResult.Job);
+                ThinkResult thinkResult = getRest.TryIssueJobPackage(OwnersForReading[i], jobParms);
+                OwnersForReading[i].jobs.StartJob(thinkResult.Job);
 
 
 

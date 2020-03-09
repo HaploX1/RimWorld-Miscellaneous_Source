@@ -15,7 +15,7 @@ namespace BeeAndHoney
     {
         public Placeworker_ShowBeeRange() { }
 
-        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color ghostCol)
+        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color ghostCol, Thing thing = null)
         {
             CompProperties_BeeHive comp = def.comps.Where(c => c as CompProperties_BeeHive != null).FirstOrDefault() as CompProperties_BeeHive;
             if (comp == null)

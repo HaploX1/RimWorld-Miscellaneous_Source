@@ -71,7 +71,7 @@ namespace AIPawn
             if (rechargeStation == null)
                 return null;
 
-            if (rechargeStation.owners != null && !rechargeStation.owners.Contains(aiPawn) && !rechargeStation.Medical)
+            if (rechargeStation.CurOccupants != null && !rechargeStation.CurOccupants.Contains(aiPawn) && !rechargeStation.Medical)
                 aiPawn.ownership.ClaimBedIfNonMedical(rechargeStation);
 
             if (aiPawn.ownership.OwnedBed == null || aiPawn.ownership.OwnedBed != rechargeStation)

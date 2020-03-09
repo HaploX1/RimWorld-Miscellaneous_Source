@@ -12,7 +12,7 @@ namespace TrainingFacility
 {
     public class PlaceWorker_MartialArtsTarget : PlaceWorker
     {
-        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color ghostCol)
+        public override void DrawGhost(ThingDef def, IntVec3 center, Rot4 rot, Color ghostCol, Thing thing = null)
         {
             //JoyGiverDef joyGiverDef = DefDatabase<JoyGiverDef>.GetNamed("PracticeMartialArts");
             

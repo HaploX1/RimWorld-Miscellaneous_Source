@@ -41,7 +41,7 @@ namespace AIPawn
         public static AIPawn GenerateAIPawn(string kindDefName, Faction faction, Map map, Gender gender = Gender.Female)
         {
             //return GeneratePawn(PawnKindDef.Named(kindDefName), faction, map, gender);
-            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, null, null, 0f, 0f, 0f, gender, 0.1f, null);
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, false, 0, null, 0,null,null,null,null,null,0f, 0f, gender, 0.1f, null, null, null);
             return GenerateAIPawn(ref request, map);
 
         }

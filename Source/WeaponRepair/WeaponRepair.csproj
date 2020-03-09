@@ -9,8 +9,9 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>WeaponRepair</RootNamespace>
     <AssemblyName>WeaponRepair</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -44,13 +45,14 @@
       <HintPath>..\_RimWorldDLLs\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\_RimWorldDLLs\UnityEngine.CoreModule.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CompProperties_WeaponRepairWithThings.cs" />
     <Compile Include="CompProperties_WeaponRepairTwo2One.cs" />
-    <Compile Include="CompWeaponRepairWithThings.cs" />
     <Compile Include="CompWeaponRepairTwo2One.cs" />
-    <Compile Include="JobDriver_WeaponRepairWithThings.cs" />
     <Compile Include="JobDriver_WeaponRepairTwo2One.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

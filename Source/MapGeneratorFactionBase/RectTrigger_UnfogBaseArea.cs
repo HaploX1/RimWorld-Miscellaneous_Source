@@ -52,7 +52,7 @@ namespace MapGenerator
         private void ActivatedBy(Pawn p, Map map)
         {
             if (signalTag != null && signalTag != "")
-                Find.SignalManager.SendSignal(new Signal(signalTag, new object[] { p }));
+                Find.SignalManager.SendSignal(new Signal(signalTag, p ));
 
             FloodFillerFog.FloodUnfog(p.Position, map);
             p.Position.GetRoom(map).Notify_RoomShapeOrContainedBedsChanged();

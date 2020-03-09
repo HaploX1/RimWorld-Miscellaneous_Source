@@ -551,10 +551,10 @@ namespace MapGenerator
 
                 // If it is a hive, it needs to be deactivated
                 Hive newHive = newItem as Hive;
-                if (newHive != null)
-                {
-                    newHive.active = false;
-                }
+                //if (newHive != null)
+                //{
+                //    newHive.active = false;
+                //}
             }
 
         }

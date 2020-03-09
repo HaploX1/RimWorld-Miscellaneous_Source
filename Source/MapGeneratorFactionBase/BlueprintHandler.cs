@@ -87,28 +87,32 @@ namespace MapGenerator
                 {
                     int nextSignalTagID = Find.UniqueIDsManager.GetNextSignalTagID();
                     string signalTag = "unfogBaseAreaTriggerSignal-" + nextSignalTagID;
-                    SignalAction_Letter signalAction_Letter = (SignalAction_Letter)ThingMaker.MakeThing(ThingDefOf.SignalAction_Letter, null);
-                    signalAction_Letter.signalTag = signalTag;
+                    SignalAction_Letter signalAction_Letter = ThingMaker.MakeThing(ThingDefOf.SignalAction_Letter, null) as SignalAction_Letter;
+                    if (signalAction_Letter != null) {
+                        signalAction_Letter.signalTag = signalTag;
 
-                    if (blueprint.TriggerLetterMessageText != null)
-                    {
-                        if (blueprint.TriggerLetterDef == null)
-                            blueprint.TriggerLetterDef = LetterDefOf.ThreatSmall;
+                        if (blueprint.TriggerLetterMessageText != null)
+                        {
+                            if (blueprint.TriggerLetterDef == null)
+                                blueprint.TriggerLetterDef = LetterDefOf.ThreatSmall;
 
-                        if (blueprint.TriggerLetterLabel != null)
-                            signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
-                        else
-                            signalAction_Letter.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                            if (blueprint.TriggerLetterLabel != null)
+                                signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
+                            else
+                                signalAction_Letter.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
 
-                        GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
+                            GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
+                        }
                     }
 
-                    RectTrigger_UnfogBaseArea rectTrigger = (RectTrigger_UnfogBaseArea)ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogBaseArea"), null);
-                    rectTrigger.signalTag = signalTag;
-                    rectTrigger.destroyIfUnfogged = true;
-                    rectTrigger.Rect = mapRect;
+                    RectTrigger_UnfogBaseArea rectTrigger = ThingMaker.MakeThing(ThingDef.Named("RectTrigger_UnfogBaseArea"), null) as RectTrigger_UnfogBaseArea;
+                    if (rectTrigger != null) {
+                        rectTrigger.signalTag = signalTag;
+                        rectTrigger.destroyIfUnfogged = true;
+                        rectTrigger.Rect = mapRect;
 
-                    GenSpawn.Spawn(rectTrigger, mapRect.CenterCell, map);
+                        GenSpawn.Spawn(rectTrigger, mapRect.CenterCell, map);
+                    }
                 }
 
 
@@ -118,7 +122,7 @@ namespace MapGenerator
                 foreach (IntVec3 current in mapRect.Cells)
                 {
                     // Find all created rooms
-                    Room room = current.GetRoom(map);
+                    Room room = current.GetRoom(map, RegionType.Set_All);
                     if (room != null && !room.TouchesMapEdge)
                         rooms.Add(room);
                 }
@@ -136,7 +140,11 @@ namespace MapGenerator
             }
             catch (Exception ex)
             {
-                Log.Error("Error in BlueprintHandler.CreateBlueprintAt(..): " + ex);
+                string errBP = "";
+                if (blueprint != null)
+                    errBP = blueprint.defName;
+
+                Log.Error("Error in BlueprintHandler.CreateBlueprintAt(..) '" + errBP + "': " + ex);
             }
             finally
             {
@@ -575,10 +583,10 @@ namespace MapGenerator
 
                 // If it is a hive, it needs to be deactivated
                 Hive newHive = newItem as Hive;
-                if (newHive != null)
-                {
-                    newHive.active = false;
-                }
+                //if (newHive != null)
+                //{
+                //    newHive.active = false;
+                //}
             }
 
         }

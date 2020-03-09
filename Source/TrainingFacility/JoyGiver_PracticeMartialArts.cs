@@ -30,7 +30,7 @@ namespace TrainingFacility
                 attackVerb = pawn.TryGetAttackVerb(targetThing, false);
 
                 if (pawn.story == null ||
-                    (pawn.story.CombinedDisabledWorkTags & WorkTags.Violent) == WorkTags.Violent)
+                    (pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.Violent) == WorkTags.Violent)
                 {
                     //Log.Error("Prevented Joy because of Incapable of Violent!");
                     attackVerb = null;
@@ -38,7 +38,7 @@ namespace TrainingFacility
 
             }
 
-            if (attackVerb == null || attackVerb.verbProps == null || !attackVerb.verbProps.IsMeleeAttack)
+            if (attackVerb == null || attackVerb.verbProps == null) // || !attackVerb.verbProps.IsMeleeAttack)
                 return null;
 
             //return base.TryGiveJob(pawn);
@@ -70,11 +70,11 @@ namespace TrainingFacility
             Thing thing = null;
             if (targetThing != null)
             {
-                if (pawn.CanReach(targetThing.Position, PathEndMode.Touch, Danger.Deadly) && validator(targetThing))
+                if (pawn.CanReach(targetThing.Position, PathEndMode.Touch, Danger.Some) && validator(targetThing))
                     thing = targetThing;
             }
             if (targetThing == null)
-                thing = GenClosest.ClosestThing_Global_Reachable(pawn.Position, pawn.Map, searchSet, PathEndMode.OnCell, TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false), 9999f, validator, null);
+                thing = GenClosest.ClosestThing_Global_Reachable(pawn.Position, pawn.Map, searchSet, PathEndMode.OnCell, TraverseParms.For(pawn, Danger.Some, TraverseMode.ByPawn, false), 9999f, validator, null);
             // ---
 
             if (thing != null)

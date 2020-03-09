@@ -32,12 +32,12 @@ namespace TurretWeaponBase
             base.ProcessInput(ev);
             SoundDefOf.Tick_Tiny.PlayOneShotOnCamera(null);
             Targeter targeter = Find.Targeter;
-            if (this.verb.CasterIsPawn && targeter.targetingVerb != null && targeter.targetingVerb.verbProps == this.verb.verbProps)
+            if (this.verb.CasterIsPawn && targeter.targetingSource != null && targeter.targetingSource.GetVerb.verbProps == this.verb.verbProps)
             {
                 Pawn casterPawn = this.verb.CasterPawn;
                 if (!targeter.IsPawnTargeting(casterPawn))
                 {
-                    targeter.targetingVerbAdditionalPawns.Add(casterPawn);
+                    targeter.targetingSourceAdditionalPawns.Add(casterPawn);
                 }
             }
             else

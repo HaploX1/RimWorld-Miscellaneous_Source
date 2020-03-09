@@ -25,7 +25,7 @@ namespace MapGenerator
         protected static DateTime usedCells_lastChange = DateTime.UtcNow;
         protected static HashSet<IntVec3> usedCells = new HashSet<IntVec3>();
 
-        protected override void ScatterAt(IntVec3 loc, Map map, int count = 1)
+        protected override void ScatterAt(IntVec3 loc, Map map, GenStepParams parms, int count = 1)
         {
             throw new NotImplementedException();
         }

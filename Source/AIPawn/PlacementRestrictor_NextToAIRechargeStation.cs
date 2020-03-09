@@ -20,7 +20,7 @@ namespace AIPawn
         private string NextToThingDef2 = "AIPawn_RechargeStation2x";
         private string txtMustPlaceNextToAIRechargeStation = "AIPawn_MustPlaceNextToAIPawnRechargeStation";
 
-        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 cell, Rot4 rot, Map map, Thing thingToIgnore = null)
+        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 cell, Rot4 rot, Map map, Thing thingToIgnore = null, Thing thing = null)
         {
             for (int i = 0; i < 4; i++)
             {

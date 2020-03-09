@@ -30,12 +30,12 @@ namespace AIRobot
             if (roomRecharge == roomRobot)
                 return ThinkResult.NoJob;
 
-            // Find target pos, but max 10 cells away!
+            // Find target pos, but max 5 cells away!
             Map mapRecharge = rechargeStation.Map;
             IntVec3 posRecharge = rechargeStation.Position;
             IntVec3 cell = roomRecharge.Cells.Where(c => 
                                 c.Standable(mapRecharge) && !c.IsForbidden(pawn) &&
-                                AIRobot_Helper.IsInDistance(c, posRecharge, 10) &&
+                                AIRobot_Helper.IsInDistance(c, posRecharge, 5) &&
                                 pawn.CanReach(c, PathEndMode.OnCell, Danger.Some, false, TraverseMode.ByPawn)
                                 )
                             .FirstOrDefault();

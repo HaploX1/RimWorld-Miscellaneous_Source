@@ -113,6 +113,7 @@ namespace TrainingFacility
                 else
                 {
                     soundDef = SoundDef.Named("Pawn_Melee_Punch_Miss");
+                    fighter.skills.Learn(SkillDefOf.Melee, 10f);
                 }
                 
                 soundDef.PlayOneShot(new TargetInfo(targetInfo.Cell, Map, false));

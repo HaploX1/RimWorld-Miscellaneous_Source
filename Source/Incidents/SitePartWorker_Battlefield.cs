@@ -30,24 +30,19 @@ namespace Incidents
             return arrivedLetterPart;
         }
 
-        public override string GetPostProcessedDescriptionDialogue(Site site, SiteCoreOrPartBase siteCoreOrPart)
+        public override string GetPostProcessedThreatLabel(Site site, SitePart sitePart)
         {
-            return string.Format(base.GetPostProcessedDescriptionDialogue(site, siteCoreOrPart), GetPawnCount(site, siteCoreOrPart.parms));
+            return base.GetPostProcessedThreatLabel(site, sitePart) + " (" + GetPawnCount(site, sitePart.parms) + ")";
         }
 
-        public override string GetPostProcessedThreatLabel(Site site, SiteCoreOrPartBase siteCoreOrPart)
+        public override SitePartParams GenerateDefaultParams(float myThreatPoints, int tile, Faction faction)
         {
-            return base.GetPostProcessedThreatLabel(site, siteCoreOrPart) + " (" + GetPawnCount(site, siteCoreOrPart.parms) + ")";
+            SitePartParams parms = base.GenerateDefaultParams(myThreatPoints, tile, faction);
+            parms.threatPoints = Mathf.Max(parms.threatPoints, FactionDefOf.AncientsHostile.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
+            return parms;
         }
 
-        public override SiteCoreOrPartParams GenerateDefaultParams(Site site, float myThreatPoints)
-        {
-            SiteCoreOrPartParams siteCoreOrPartParams = base.GenerateDefaultParams(site, myThreatPoints);
-            siteCoreOrPartParams.threatPoints = Mathf.Max(siteCoreOrPartParams.threatPoints, FactionDefOf.AncientsHostile.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
-            return siteCoreOrPartParams;
-        }
-
-        private int GetPawnCount(Site site, SiteCoreOrPartParams parms)
+        private int GetPawnCount(Site site, SitePartParams parms)
         {
             PawnGroupMakerParms pawnGroupMakerParms1 = new PawnGroupMakerParms();
             pawnGroupMakerParms1.tile = site.Tile;

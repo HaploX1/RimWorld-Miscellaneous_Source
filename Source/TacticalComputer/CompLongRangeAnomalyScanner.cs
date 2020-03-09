@@ -50,6 +50,7 @@ namespace TacticalComputer
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Turrets);
                     possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
+                    possibleSitePartsInt.Add(SitePartDefOf.PossibleUnknownThreatMarker);
 
                     SitePartDef spdBattlefield = DefDatabase<SitePartDef>.GetNamedSilentFail("Misc_Battlefield");
                     if (spdBattlefield != null)
@@ -67,20 +68,20 @@ namespace TacticalComputer
             }
         }
 
-        private List<SiteCoreDef> siteCoreDefs = null;
-        public SiteCoreDef GetRandomSiteCoreDef()
+        private List<SitePartDef> siteCoreDefs = null;
+        public SitePartDef GetRandomSiteCoreDef()
         {
             if (siteCoreDefs == null)
             {
-                siteCoreDefs = new List<SiteCoreDef>();
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_Nothing));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_ItemStash));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_PreciousLumb));
-                siteCoreDefs.Add(DefDatabase<SiteCoreDef>.GetNamed(defName_PreciousLumb));
+                siteCoreDefs = new List<SitePartDef>();
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_Nothing));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_ItemStash));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_PreciousLumb));
+                siteCoreDefs.Add(DefDatabase<SitePartDef>.GetNamed(defName_PreciousLumb));
             }
 
             return siteCoreDefs.RandomElement();
@@ -180,14 +181,19 @@ namespace TacticalComputer
             Site site;
             bool spacerUsable = false;
 
+            List<SitePartDef> siteParts = new List<SitePartDef>();
             if (Rand.Chance(Props.chanceForNoSitePart))
             {
-                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), null, tile, false, null);
+                siteParts.Add(GetRandomSiteCoreDef());
+
+                site = SiteMaker.TryMakeSite(siteParts, tile, false, null, true);
                 spacerUsable = true;
             }
             else
             {
-                site = SiteMaker.TryMakeSite(GetRandomSiteCoreDef(), GetRandomSitePartDefs, tile, true, null);
+                siteParts.Add(GetRandomSiteCoreDef());
+                siteParts.AddRange(GetRandomSitePartDefs);
+                site = SiteMaker.TryMakeSite(siteParts, tile, true, null, false);
             }
 
             // if spacerUsable -> 35% chance that the faction is spacer

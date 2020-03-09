@@ -31,9 +31,8 @@ namespace MapGenerator
         private List<Pawn> allSpawnedPawns;
 
 
-        protected override void ScatterAt(IntVec3 loc, Map map, int stackCount = 1)
+        protected override void ScatterAt(IntVec3 loc, Map map, GenStepParams genStepParms, int stackCount = 1)
         {
-            
             // After 5 min reset the saved cells!
             if (usedCells_lastChange.AddMinutes(5) < DateTime.UtcNow)
             {

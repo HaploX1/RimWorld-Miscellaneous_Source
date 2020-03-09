@@ -18,8 +18,8 @@ namespace NanoPrinter
     {
         private string NanoPrinterDef = "NanoPrinter";
         private string txtMustPlaceNextToNanoPrinter = "NanoScanner_MustPlaceNextToNanoPrinter";
-        
-        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc, Rot4 rot, Map map, Thing thingToIgnore = null)
+
+        public override AcceptanceReport AllowsPlacing(BuildableDef checkingDef, IntVec3 loc, Rot4 rot, Map map, Thing thingToIgnore = null, Thing thing = null)
         {
             for (int i = 0; i < 4; i++)
             {

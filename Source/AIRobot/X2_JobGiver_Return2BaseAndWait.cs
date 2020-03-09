@@ -16,7 +16,7 @@ namespace AIRobot
     /// </summary>
     /// <author>Haplo</author>
     /// <permission>Usage of this code is free. All I ask is that you mention my name somewhere.</permission>
-    public class X2_JobGiver_Return2BaseDespawn : X2_JobGiver_RechargeEnergy
+    public class X2_JobGiver_Return2BaseAndWait : X2_JobGiver_RechargeEnergy
     {
         protected override Job TryGiveJob(Pawn pawn)
         {
@@ -29,7 +29,7 @@ namespace AIRobot
             if (aiRobot.rechargeStation != rechargeStation)
                 return null;
 
-            Job job = new Job(DefDatabase<JobDef>.GetNamed("AIRobot_GoDespawn"), rechargeStation);
+            Job job = new Job(JobDefOf.Goto, rechargeStation);
 
             return job;
         }

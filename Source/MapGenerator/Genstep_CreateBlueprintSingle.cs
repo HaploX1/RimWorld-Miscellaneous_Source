@@ -19,8 +19,8 @@ namespace MapGenerator
         private List<Pawn> allSpawnedPawns;
 
         private static bool mapCenterBlueprintUsed = false;
-
-        protected override void ScatterAt(IntVec3 loc, Map map, int stackCount = 1)
+        
+        protected override void ScatterAt(IntVec3 loc, Map map, GenStepParams genStepParms, int stackCount = 1)
         {
             // Once a mapcenter blueprint is placed, don't do anything more
             if (mapCenterBlueprintUsed)
@@ -551,10 +551,10 @@ namespace MapGenerator
 
                 // If it is a hive, it needs to be deactivated
                 Hive newHive = newItem as Hive;
-                if (newHive != null)
-                {
-                    newHive.active = false;
-                }
+                //if (newHive != null)
+                //{
+                //    newHive..active = false;
+                //}
             }
             
 

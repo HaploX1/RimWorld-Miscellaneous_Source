@@ -194,7 +194,7 @@ namespace AIRobot
                                     bool forceGlobalSearch = enumerable != null;
                                     try
                                     { 
-                                    thing = GenClosest.ClosestThingReachable(intVec, map, potentialWorkThingRequest, pathEndMode, traverseParams, 9999f, validator, enumerable, 0, scanner.LocalRegionsToScanFirst, forceGlobalSearch, RegionType.Set_Passable, false);
+                                    thing = GenClosest.ClosestThingReachable(intVec, map, potentialWorkThingRequest, pathEndMode, traverseParams, 9999f, validator, enumerable, 0, scanner.MaxRegionsToScanBeforeGlobalSearch, forceGlobalSearch, RegionType.Set_Passable, false);
                                     }
                                     catch //(Exception ex)
                                     {
@@ -278,7 +278,7 @@ namespace AIRobot
                         Job job3 = null;
                         try
                         {
-                            pawn.mindState.lastGivenWorkType = workGiver.def.workType;
+                            //pawn.mindState.lastGivenWorkType = workGiver.def.workType;
                             job3 = (!targetInfo.HasThing) ? workGiver_Scanner.JobOnCell(pawn, targetInfo.Cell, false) : workGiver_Scanner.JobOnThing(pawn, targetInfo.Thing, false);
                         }
                         catch //(Exception ex)

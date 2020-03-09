@@ -129,7 +129,9 @@ namespace WeaponRepair
                 yield break;
             }
 
-            if (GetAvailableRepairThing(selPawn) == null)
+            List<ThingDef> repairMaterialsRaw = GetNeededRepairMaterialsRaw();
+
+            if (GetAvailableRepairThings(selPawn, repairMaterialsRaw) == null)
             {
                 yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("WeaponRepair_NoWeaponTwinFound".Translate(), null), selPawn, parent);
                 yield break;
@@ -163,38 +165,84 @@ namespace WeaponRepair
                 yield break;
             }
 
-            Action hoverAction = delegate
-            {
-                Thing twin = GetAvailableRepairThing(selPawn);
-                MoteMaker.MakeStaticMote(twin.Position, parent.Map, ThingDefOf.Mote_FeedbackGoto);
-            };
-            Action giveRepairJob = delegate { TryGiveWeaponRepairJobToPawn(selPawn); };
+            Action hoverAction = null;
+            //Action hoverAction = delegate
+            //{
+            //    Thing twin = GetAvailableRepairThings(selPawn);
+            //    MoteMaker.MakeStaticMote(twin.Position, parent.Map, ThingDefOf.Mote_FeedbackGoto);
+            //};
+            Action giveRepairJob = delegate { TryGiveWeaponRepairJob2ToPawn(selPawn); };
             yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("WeaponRepair_RepairWeapon".Translate(), giveRepairJob, MenuOptionPriority.Default, hoverAction), selPawn, parent);
          
         }
 
 
-        private bool TryGiveWeaponRepairJobToPawn(Pawn pawn)
+        private bool TryGiveWeaponRepairJob2ToPawn(Pawn pawn)
         {
             if (!CanBeRepaired)
                 return false;
 
             Building workTable = GetClosestValidWorktable(pawn);
             Thing thingMain = parent;
-            Thing thingIngredient = GetAvailableRepairThing(pawn);
+            List<Thing> thingIngredients = GetAvailableRepairThings(pawn, GetNeededRepairMaterialsRaw());
 
-            if (workTable == null || thingMain == null || thingIngredient == null)
+            if (workTable == null || thingMain == null || thingIngredients == null || thingIngredients.Count == 0)
                 return false;
 
             if (JobDriver_WeaponRepairTwo2One.maxAllowedRepair != Props.maxRepair)
                 JobDriver_WeaponRepairTwo2One.maxAllowedRepair = Props.maxRepair;
 
-            Job job = new Job(Props.jobDef, workTable, thingMain, thingIngredient);
+            Job job = new Job(Props.jobDef, workTable, thingMain, thingIngredients[0]);
+            foreach (Thing thingIngredient in thingIngredients)
+            {
+                if (thingIngredient == thingIngredients[0])
+                    continue;
+                job.AddQueuedTarget(TargetIndex.C, thingIngredient);
+            }
             job.count = 1;
             return pawn.jobs.TryTakeOrderedJob(job);
         }
 
-        private Thing GetAvailableRepairThing(Pawn pawn, ThingDef tDef)
+        private List<RepairCurveValues> GetNeededRepairMaterials()
+        {
+            QualityCategory qc;
+            if (!parent.TryGetQuality(out qc))
+                qc = QualityCategory.Normal;
+
+            // No repair when over repair threshold
+            if (parent.HitPoints > parent.MaxHitPoints * Props.maxRepair)
+                return null;
+
+            // Find next lowest fitting repair-cost element
+            if (Props.repairCostCurve == null || Props.repairCostCurve.Count == 0)
+                return null;
+            if (Props.repairCostCurve.ContainsKey(qc))
+                return Props.repairCostCurve[qc];
+
+            List<RepairCurveValues> repairValues = null;
+            for (int i = 0; i <= (int)QualityCategory.Legendary; i++)
+            {
+                if (i > (int)qc)
+                    break;
+                if (Props.repairCostCurve.ContainsKey(qc))
+                    repairValues = Props.repairCostCurve[(QualityCategory)i];
+            }
+            return repairValues;
+        }
+        private List<ThingDef> GetNeededRepairMaterialsRaw()
+        {
+            List<RepairCurveValues> repairMaterials = GetNeededRepairMaterials();
+            List<ThingDef> repairMaterialsRaw = null;
+            if (repairMaterials != null)
+            {
+                repairMaterialsRaw = new List<ThingDef>();
+                foreach (RepairCurveValues rcv in repairMaterials)
+                    repairMaterialsRaw.Add(rcv.thingDef);
+            }
+            return repairMaterialsRaw;
+}
+
+        private List<Thing> GetAvailableRepairThings(Pawn pawn, List<ThingDef> tDefs)
         {
             if (!CanBeRepaired || pawn == null || !pawn.Spawned || pawn.Downed || pawn.Map == null)
                 return null;
@@ -205,67 +253,27 @@ namespace WeaponRepair
             checkQuality = parent.TryGetQuality(out qcParent);
 
             List<Thing> possibleThings = new List<Thing>();
-            foreach (Thing currentThing in parent.Map.listerThings.ThingsOfDef(parent.def))
+            foreach (ThingDef tDef in tDefs)
             {
-                if (currentThing == parent)
-                    continue;
-
-                if (currentThing.IsBurning() || currentThing.IsBrokenDown() || currentThing.IsForbidden(pawn))
-                    continue;
-
-                if (!currentThing.IsInAnyStorage())
-                    continue;
-
-                if (!pawn.Map.reservationManager.CanReserve(pawn, currentThing, 1, -1, null, false))
-                    continue;
-
-                possibleThings.Add(currentThing);
-            }
-
-            //string log1 = "";
-            //string log2 = "";
-            //string log3 = "";
-
-            Thing bestThing = null;
-            foreach (Thing currentThing in possibleThings)
-            {
-                //log1 += currentThing.LabelMouseover;
-
-                // Check if quality of thing is lower than quality of t
-                QualityCategory qcBestThing;
-                QualityCategory qcCurrentThing;
-                bestThing.TryGetQuality(out qcBestThing);
-                currentThing.TryGetQuality(out qcCurrentThing);
-
-                //select lowest quality item
-                if (checkQuality && bestThing != null)
+                foreach (Thing currentThing in parent.Map.listerThings.ThingsOfDef(tDef))
                 {
-                    if ( (int)qcCurrentThing > (int)qcBestThing )
+                    if (currentThing == parent)
                         continue;
 
-                    if ( (int)qcCurrentThing < (int)qcBestThing )
-                    {
-                        bestThing = currentThing;
+                    if (currentThing.IsBurning() || currentThing.IsBrokenDown() || currentThing.IsForbidden(pawn))
                         continue;
-                    }
-                }
 
+                    if (!currentThing.IsInAnyStorage())
+                        continue;
 
-                //log2 += currentThing.LabelMouseover;
+                    if (!pawn.Map.reservationManager.CanReserve(pawn, currentThing, 1, -1, null, false))
+                        continue;
 
-                if (bestThing == null)
-                    bestThing = currentThing;
-                else
-                {
-                    // take the thing with the lower hitpoints
-                    if (bestThing.HitPoints > currentThing.HitPoints )
-                        bestThing = currentThing;
+                    possibleThings.Add(currentThing);
                 }
             }
-            //log3 = bestThing.LabelMouseover;
-            //Log.Error(log1 + "\n" + log2 + "\n" + log3);
 
-            return bestThing;
+            return possibleThings;
         }
 
         private Building GetClosestValidWorktable(Pawn pawn)

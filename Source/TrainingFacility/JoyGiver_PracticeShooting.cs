@@ -40,7 +40,7 @@ namespace TrainingFacility
                 }
 
                 if (pawn.story == null ||
-                    (pawn.story.CombinedDisabledWorkTags & WorkTags.Violent) == WorkTags.Violent)
+                    (pawn.story.DisabledWorkTagsBackstoryAndTraits & WorkTags.Violent) == WorkTags.Violent)
                 {
                     //Log.Error("Prevented Joy because of Incapable of Violent!");
                     attackVerb = null;

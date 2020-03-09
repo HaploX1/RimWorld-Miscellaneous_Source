@@ -72,7 +72,7 @@ namespace AIPawn
 
                 if (!foundRechargeStation.AnyUnoccupiedSleepingSlot && (!sleeper.InBed() || sleeper.CurrentBed() != foundRechargeStation))
                 {
-                    foreach (Pawn owner in foundRechargeStation.owners)
+                    foreach (Pawn owner in foundRechargeStation.OwnersForReading)
                     {
                         if (owner as AIPawn != null)
                             return false;
@@ -112,17 +112,18 @@ namespace AIPawn
                         return false;
                     }
                 }
-                else if (foundRechargeStation.owners.Any<Pawn>() && !foundRechargeStation.owners.Contains(sleeper))
+                else if (foundRechargeStation.OwnersForReading.Any<Pawn>() && !foundRechargeStation.OwnersForReading.Contains(sleeper))
                 {
                     
                     // The pawn in the recharge station is not an AIPawn. UnassignPawn!
-                    foreach (Pawn owner in foundRechargeStation.owners)
+                    foreach (Pawn owner in foundRechargeStation.OwnersForReading)
                     {
                         if (owner as AIPawn == null)
                         {
-                            if (foundRechargeStation.owners.Find((Pawn x) => LovePartnerRelationUtility.LovePartnerRelationExists(sleeper, x)) == null)
+                            if (foundRechargeStation.OwnersForReading.Find((Pawn x) => LovePartnerRelationUtility.LovePartnerRelationExists(sleeper, x)) == null)
                             {
-                                foundRechargeStation.TryUnassignPawn(owner);
+                                owner.ownership.UnclaimBed();
+                                //foundRechargeStation.TryUnassignPawn(owner);
                                 break;
                             }
                         }

@@ -36,7 +36,7 @@ namespace MapGenerator
         }
 
 
-        protected override void ScatterAt(IntVec3 c, Map map, int stackCount = 1)
+        protected override void ScatterAt(IntVec3 c, Map map, GenStepParams genStepParms, int stackCount = 1)
         {
             if (testActive)
                 Log.Warning("Genstep_CreateBlueprintBase - Test-Mode is active!");
@@ -103,7 +103,7 @@ namespace MapGenerator
             {
                 // No blueprint for this faction techlevel found?
                 // Use basic base builder code instead!
-                Core_ScatterAt(c, map, stackCount);
+                Core_ScatterAt(c, map, genStepParms, stackCount);
                 return;
             }
 
@@ -156,12 +156,14 @@ namespace MapGenerator
 
         private static readonly IntRange FactionBaseSizeRange = new IntRange(22, 23);
 
-        protected void Core_ScatterAt(IntVec3 c, Map map, int stackCount = 1)
+        protected void Core_ScatterAt(IntVec3 c, Map map, GenStepParams genStepParms, int stackCount = 1)
         {
 
             GenStep_Settlement gs = new GenStep_Settlement();
-            //gs.ForceScatterAt(c, map);
-            gs.ReflectCall("ScatterAt", c, map, stackCount);
+
+            gs.ForceScatterAt(c, map);
+
+            //gs.ReflectCall("ScatterAt", c, map, genStepParms, stackCount);
             
             return;
 

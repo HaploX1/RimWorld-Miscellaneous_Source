@@ -54,8 +54,8 @@ namespace TrainingFacility
             if (selPawn != null)
                 attackVerb = selPawn.TryGetAttackVerb(this, true);
 
-            if (attackVerb != null && attackVerb.verbProps != null && attackVerb.verbProps.IsMeleeAttack)
-            {
+            //if (attackVerb != null && attackVerb.verbProps != null && attackVerb.verbProps.IsMeleeAttack)
+            //{
                 Thing chair;
                 JoyGiverDef joyGiverDef = this.GetJoyGiverDef();
                 IntVec3 standCell = Utility_PositionFinder.TryFindWatchBuildingPosition(selPawn, this, this.def.building.watchBuildingStandDistanceRange, joyGiverDef.desireSit, out chair);
@@ -70,11 +70,11 @@ namespace TrainingFacility
                         selPawn.jobs.TryTakeOrderedJob(job);
                 };
                 yield return new FloatMenuOption("TrainingFacility_PracticeMartialArts".Translate(), action_PracticeMartialArts);
-            }
-            else
-            {
-                yield return new FloatMenuOption("TrainingFacility_MeleeWeaponRequired".Translate(), null);
-            }
+            //}
+            //else
+            //{
+            //    yield return new FloatMenuOption("TrainingFacility_MeleeWeaponRequired".Translate(), null);
+            //}
         }
     }
 

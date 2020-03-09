@@ -8,9 +8,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Patches_Misc_CE</RootNamespace>
     <AssemblyName>Patches_Misc_CE</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectGuid>{4F141E39-C295-405A-B5E6-AF0E801DB2F8}</ProjectGuid>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,6 +47,10 @@
     </Reference>
     <Reference Include="CombatExtended">
       <HintPath>..\_RimWorldDLLs\CombatExtended.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\_RimWorldDLLs\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>

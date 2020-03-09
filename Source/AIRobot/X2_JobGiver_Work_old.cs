@@ -89,7 +89,7 @@ namespace AIRobot
                                 {
                                     Predicate<Thing> validator = predicate;
                                     bool forceGlobalSearch = enumerable != null;
-                                    thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, scanner.PotentialWorkThingRequest, scanner.PathEndMode, TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false), 9999f, validator, enumerable, 0, scanner.LocalRegionsToScanFirst, forceGlobalSearch, RegionType.Set_Passable, false);
+                                    thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, scanner.PotentialWorkThingRequest, scanner.PathEndMode, TraverseParms.For(pawn, Danger.Deadly, TraverseMode.ByPawn, false), 9999f, validator, enumerable, 0, scanner.MaxRegionsToScanBeforeGlobalSearch, forceGlobalSearch, RegionType.Set_Passable, false);
                                 }
                                 if (thing != null)
                                 {
@@ -149,7 +149,7 @@ namespace AIRobot
                     }
                     if (targetInfo.IsValid)
                     {
-                        pawn.mindState.lastGivenWorkType = workGiver.def.workType;
+                        //pawn.mindState.lastGivenWorkType = workGiver.def.workType;
                         Job job3;
                         if (targetInfo.HasThing)
                         {
@@ -218,30 +218,31 @@ namespace AIRobot
                             Thing thing = thingList[i];
                             if (scanner.PotentialWorkThingRequest.Accepts(thing) && predicate(thing))
                             {
-                                pawn.mindState.lastGivenWorkType = giver.def.workType;
-                                Job result = scanner.JobOnThing(pawn, thing);
-                                return result;
+                                Job job2 = scanner.JobOnThing(pawn, thing);
+                                if (job2 != null)
+                                {
+                                    //pawn.mindState.lastGivenWorkType = giver.def.workType;
+                                    job2.workGiverDef = giver.def;
+                                    return job2;
+                                }
                             }
                         }
                     }
                     if (giver.def.scanCells && !cell.IsForbidden(pawn) && scanner.HasJobOnCell(pawn, cell))
                     {
-                        pawn.mindState.lastGivenWorkType = giver.def.workType;
-                        Job result = scanner.JobOnCell(pawn, cell);
-                        return result;
+                        Job job3 = scanner.JobOnCell(pawn, cell);
+                        if (job3 != null)
+                        {
+                            //pawn.mindState.lastGivenWorkType = giver.def.workType;
+                            job3.workGiverDef = giver.def;
+                        }
+                        return job3;
                     }
                 }
             }
             catch (Exception ex)
             {
-                Log.Error(string.Concat(new object[]
-                {
-                    pawn,
-                    " threw exception in GiverTryGiveJobTargeted on WorkGiver ",
-                    giver.def.defName,
-                    ": ",
-                    ex.ToString()
-                }));
+                Log.Error(pawn + " threw exception in GiverTryGiveJobTargeted on WorkGiver " + giver.def.defName + ": " + ex.ToString());
             }
             return null;
         }

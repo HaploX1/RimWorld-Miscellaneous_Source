@@ -47,7 +47,7 @@ namespace AIPawn
                         if (DropBed.AnyUnownedSleepingSlot &&
                            DropBed.CurOccupants != Takee) return true;
                     }
-                    else if (DropBed.owners != null && !DropBed.owners.Contains(Takee)) return true;
+                    else if (DropBed.OwnersForReading != null && !DropBed.OwnersForReading.Contains(Takee)) return true;
                     return false;
                 };
 
@@ -123,7 +123,7 @@ namespace AIPawn
                         ((HealthAIUtility.ShouldSeekMedicalRest(Takee) || HealthAIUtility.ShouldBeTendedNowByPlayer(Takee) || HealthAIUtility.ShouldBeTendedNowByPlayerUrgent(Takee)) && 
                         DropBed.Medical))
                     && !DropBed.Destroyed
-                    && (DropBed.owners.Contains( Takee) || (DropBed.Medical && DropBed.AnyUnoccupiedSleepingSlot))  //They could have lost ownership and the last toil would continue
+                    && (DropBed.OwnersForReading.Contains( Takee) || (DropBed.Medical && DropBed.AnyUnoccupiedSleepingSlot))  //They could have lost ownership and the last toil would continue
                   )
                 {
                     Takee.jobs.Notify_TuckedIntoBed(DropBed);
