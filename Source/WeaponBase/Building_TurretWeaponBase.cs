@@ -311,7 +311,6 @@ namespace TurretWeaponBase
                     this.ResetForcedTarget();
 
                 if (!this.CanToggleHoldFire)
-
                     this.holdFire = false;
 
                 if (this.forcedTarget.ThingDestroyed)
@@ -817,32 +816,30 @@ namespace TurretWeaponBase
             if (gun == null)
                 return LocalTargetInfo.Invalid;
 
-            IAttackTargetSearcher attackTargetSearcher = TargSearcher();
+            IAttackTargetSearcher attackTargetSearcher = this.TargSearcher();
             Faction faction = attackTargetSearcher.Thing.Faction;
-
-            float range = this.GunCompEq.PrimaryVerb.verbProps.range;
-            float minRange = this.GunCompEq.PrimaryVerb.verbProps.minRange;
+            float range = this.AttackVerb.verbProps.range;
             Building t;
-            if (Rand.Value < 0.5f && this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && faction.HostileTo(Faction.OfPlayer) && base.Map.listerBuildings.allBuildingsColonist.Where(delegate (Building x)
+            if (Rand.Value < 0.5f && this.AttackVerb.ProjectileFliesOverhead() && faction.HostileTo(Faction.OfPlayer) && base.Map.listerBuildings.allBuildingsColonist.Where(delegate (Building x)
             {
-                float num = (float)x.Position.DistanceToSquared(this.Position);
-                return num > minRange * minRange && num < range * range;
+                float num = this.AttackVerb.verbProps.EffectiveMinRange(x, this);
+                float num2 = (float)x.Position.DistanceToSquared(this.Position);
+                return num2 > num * num && num2 < range * range;
             }).TryRandomElement(out t))
             {
                 return t;
             }
-
-            TargetScanFlags targetScanFlags = TargetScanFlags.NeedThreat;
-            if (!this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead())
+            TargetScanFlags targetScanFlags = TargetScanFlags.NeedThreat | TargetScanFlags.NeedAutoTargetable;
+            if (!this.AttackVerb.ProjectileFliesOverhead())
             {
                 targetScanFlags |= TargetScanFlags.NeedLOSToAll;
                 targetScanFlags |= TargetScanFlags.LOSBlockableByGas;
             }
-            if (this.GunCompEq.PrimaryVerb.IsIncendiary())
+            if (this.AttackVerb.IsIncendiary())
             {
                 targetScanFlags |= TargetScanFlags.NeedNonBurning;
             }
-            return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, targetScanFlags, this.IsValidTarget, 0f, 9999f);
+            return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, targetScanFlags, new Predicate<Thing>(this.IsValidTarget), 0f, 9999f);
         }
         private IAttackTargetSearcher TargSearcher()
         {
@@ -872,7 +869,8 @@ namespace TurretWeaponBase
             if (gun == null)
                 return;
 
-            if (!base.Spawned || (this.holdFire && this.CanToggleHoldFire) || (this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && base.Map.roofGrid.Roofed(base.Position)))
+            if (!base.Spawned || (this.holdFire && this.CanToggleHoldFire) || (this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && base.Map.roofGrid.Roofed(base.Position)) || 
+                !this.AttackVerb.Available() )
             {
                 ResetCurrentTarget();
                 return;
@@ -890,25 +888,22 @@ namespace TurretWeaponBase
             {
                 SoundDefOf.TurretAcquireTarget.PlayOneShot(new TargetInfo(base.Position, base.Map, false));
             }
-            if (this.currentTargetInt.IsValid)
-            {
-                if (this.def.building.turretBurstWarmupTime > 0f)
-                {
-                    this.burstWarmupTicksLeft = this.def.building.turretBurstWarmupTime.SecondsToTicks();
-                }
-                else if (canBeginBurstImmediately)
-                {
-                    this.BeginBurst();
-                }
-                else
-                {
-                    this.burstWarmupTicksLeft = 1;
-                }
-            }
-            else
+            if (!this.currentTargetInt.IsValid)
             {
                 this.ResetCurrentTarget();
+                return;
             }
+            if (this.def.building.turretBurstWarmupTime > 0f)
+            {
+                this.burstWarmupTicksLeft = this.def.building.turretBurstWarmupTime.SecondsToTicks();
+                return;
+            }
+            if (canBeginBurstImmediately)
+            {
+                this.BeginBurst();
+                return;
+            }
+            this.burstWarmupTicksLeft = 1;
         }
 
         protected virtual void BeginBurst()
