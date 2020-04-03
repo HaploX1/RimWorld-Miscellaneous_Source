@@ -225,7 +225,7 @@ namespace TacticalComputer
                 if (HasImprovedSensors)
                 {
                     ItemStashContentsComp itemStash = site.GetComponent<ItemStashContentsComp>();
-                    if (itemStash != null && site.core.def.defName == defName_ItemStash)
+                    if (itemStash != null && siteParts.Contains(DefDatabase<SitePartDef>.GetNamedSilentFail(defName_ItemStash)))
                     {
                         items = GenerateItems(site.Faction, StorytellerUtility.DefaultSiteThreatPointsNow());
                         itemStash.contents.TryAddRangeOrTransfer(items);
@@ -426,7 +426,7 @@ namespace TacticalComputer
         protected List<Thing> GenerateItems(Faction siteFaction, float siteThreatPoints)
         {
             ThingSetMakerParams parms = default(ThingSetMakerParams);
-            parms.totalMarketValueRange = SiteTuning.ItemStashQuestMarketValueRange * SiteTuning.QuestRewardMarketValueThreatPointsFactor.Evaluate(siteThreatPoints);
+            parms.totalMarketValueRange = new FloatRange(0.7f, 1.3f);
 
             ThingSetMakerDef thingSetMakerDef = DefDatabase<ThingSetMakerDef>.GetNamedSilentFail("Reward_Incidents_ItemStashQuestContents");
 

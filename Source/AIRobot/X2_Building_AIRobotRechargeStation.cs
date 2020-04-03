@@ -51,6 +51,11 @@ namespace AIRobot
         public static Texture2D UI_ButtonRepair_Active = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_Active");
         public static Texture2D UI_ButtonRepair_NotActive = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_NotActive");
 
+        public static Texture2D UI_ButtonGoUp = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoUp");
+        public static Texture2D UI_ButtonGoDown = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoDown");
+        public static Texture2D UI_ButtonGoLeft = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoLeft");
+        public static Texture2D UI_ButtonGoRight = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoRight");
+
         private string spawnThingDef = "";
 
         public List<X2_AIRobot> container;
@@ -233,6 +238,7 @@ namespace AIRobot
                 Scribe_Values.Look<bool>(ref this.SpawnRobotAfterRecharge, "autospawn", true);
                 Scribe_Values.Look<bool>(ref this.isRechargeActive, "isRechargeActive", false);
                 Scribe_Values.Look<bool>(ref this.isRepairRequestActive, "isRepairRequestActive", false);
+                Scribe_Collections.Look<ThingDef, int>(ref this.isRepairRequestCosts, "isRepairRequestCosts", LookMode.Def, LookMode.Value);
 
                 try
                 {
@@ -259,7 +265,7 @@ namespace AIRobot
                 Log.Error("X2_Building_AIRobot_RechargeStation -- Unknown error while loading:\n" + ex.Message + "\n" + ex.StackTrace);
             }
 
-            if (Scribe.mode == LoadSaveMode.PostLoadInit)
+            if (Scribe.mode == LoadSaveMode.PostLoadInit )
             {
                 updateGraphicForceNeeded= true;
 
@@ -531,6 +537,10 @@ namespace AIRobot
                 }
             }
 
+            // No self-healing without power
+            if (powerComp != null && !powerComp.PowerOn)
+                return;
+
             // Apply healing
             if (hediff_injuries != null && hediff_injuries.Count() > 0)
             {
@@ -545,12 +555,17 @@ namespace AIRobot
                 //Log.Error("PRE:" + hediff_Injury2.Severity.ToString());
 
                 //hediff_Injury2.Heal(1f);
-                hediff_Injury2.Heal(22f * num2 * robot.HealthScale * 0.1f * 0.5f);
+                hediff_Injury2.Heal(22f * num2 * robot.HealthScale * 0.1f * 0.25f);
 
                 //Log.Error("POST:" + hediff_Injury2.Severity.ToString());
 
                 // Throw Healing Mote
                 MoteMaker.ThrowMetaIcon(this.Position, this.Map, ThingDefOf.Mote_HealingCross);
+            } else
+            {
+                if (robot != null && isRechargeActive && !robotIsDestroyed)
+                    // If Robot uninjured -> reset 
+                    isRepairRequestActive = false;
             }
         }
 
@@ -675,7 +690,7 @@ namespace AIRobot
 
             float health = GetHealthOfRobot(GetRobot, -1f);
 
-            if (health != -1f && health < 0.99f || GetRobot == null && robotSpawnedOnce )
+            if (health != -1f && health < 0.90f || GetRobot == null && robotSpawnedOnce )
             {
                 Dictionary<ThingDef, int> resources = CalculateResourcesNeededForRepairingRobot(this, robotSpawnedOnce);
                 string hintText = txtRepairRobot.Translate();
@@ -691,6 +706,8 @@ namespace AIRobot
                     hintText = hintText + count.ToString() + "x " + AIRobot_Helper.GetThingDefLabel(thingDef);
                     first = false;
                 }
+                hintText += "\n";
+                hintText += AIRobot_Helper.GetPossiblePawnsForRobotRepair(Map);
 
                 // Key-Binding O - Request repair of damaged robot
                 Command_Action act6;
@@ -1038,7 +1055,6 @@ namespace AIRobot
 
         public Dictionary<ThingDef, int> CalculateResourcesNeededForRepairingRobot(X2_Building_AIRobotRechargeStation station, bool wasSpawned)
         {
-
             Dictionary<ThingDef, int> resources = new Dictionary<ThingDef, int>();
             try
             {

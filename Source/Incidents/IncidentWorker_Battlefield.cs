@@ -78,37 +78,44 @@ namespace Incidents
 
             Site site;
 
-            SiteCoreDef core;
+            SitePartDef core;
             float chance = Rand.Value;
-            if (chance < 0.25f)
-                core = SiteCoreDefOf.ItemStash;
-            else if (chance < 0.40f)
-                core = SiteCoreDefOf.PreciousLump;
-            else if (chance < 0.95f)
-                core = SiteCoreDefOf.Nothing;
+            if (chance < 0.10f)
+                core = DefDatabase<SitePartDef>.GetNamedSilentFail("BanditCamp");
+            if (chance < 0.35f)
+                core = DefDatabase<SitePartDef>.GetNamedSilentFail("ItemStash");
+            else if (chance < 0.50f)
+                core = SitePartDefOf.PreciousLump;
+            else if (chance < 0.90f)
+                core = null;
             else
-                core = DefDatabase<SiteCoreDef>.AllDefs.RandomElement();
+                core = DefDatabase<SitePartDef>.AllDefs.RandomElement();
 
             List<SitePartDef> parts = new List<SitePartDef>();
             if (Rand.Value < 0.40f)
                 parts = GetRandomSitePartDefs;
+            if (core != null)
+                parts.Add(core);
 
             // And allways add the Misc_Battlefield part
             parts.Add(DefDatabase<SitePartDef>.GetNamed("Misc_Battlefield"));
 
-            site = SiteMaker.TryMakeSite(core, parts, tile, false);
+            site = SiteMaker.TryMakeSite(parts, tile, false);
             
             if (site != null)
             {
                 // Try to add a railgun :)
-                Thing railgun = null;
                 ThingDef railgunDef = DefDatabase<ThingDef>.GetNamedSilentFail("Gun_RailgunMKI");
-                if (railgunDef != null && Rand.Value < 0.15)
+                if (railgunDef != null && Rand.Value < 0.35)
                 {
+                    Thing railgun = null;
                     railgun = ThingMaker.MakeThing(railgunDef);
 
+                    SitePartDef possible1 = DefDatabase<SitePartDef>.GetNamedSilentFail("ItemStash");
+                    SitePartDef possible2 = DefDatabase<SitePartDef>.GetNamedSilentFail("BanditCamp");
+
                     ItemStashContentsComp itemStash = site.GetComponent<ItemStashContentsComp>();
-                    if (itemStash != null && site.core.def == SiteCoreDefOf.ItemStash ) 
+                    if (itemStash != null && parts.Contains(possible1) || parts.Contains(possible2) || parts.Contains(SitePartDefOf.Outpost)) 
                     {
                         if (railgun != null)
                             itemStash.contents.TryAdd(railgun);

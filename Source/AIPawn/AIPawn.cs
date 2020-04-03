@@ -408,9 +408,9 @@ namespace AIPawn
                 }
             }
 
-            //// Disable food reduction
-            //if (needs != null && needs.food != null && needs.food.CurLevel <= 0.95f)
-            //    needs.food.CurLevel = 1.0f;
+            // Disable food reduction <-- Food is needed or some errors are thrown
+            if (needs != null && needs.food != null && needs.food.CurLevel <= 0.95f)
+                needs.food.CurLevel = 1.0f;
 
             //// Disable joy reduction
             //if (needs != null && needs.joy != null && needs.joy.CurLevel <= 0.95f)
@@ -504,7 +504,7 @@ namespace AIPawn
                 if (needs.rest.CurLevel <= 0.011f)
                 {
                     if (!Downed)
-                        HealthUtility.DamageUntilDowned(this);
+                        HealthUtility.DamageUntilDowned(this, false);
                 }
                 else if (needs.rest.CurLevel < 0.2f)
                     TryGoRecharging();
@@ -639,9 +639,9 @@ namespace AIPawn
                                                           where x.CanHealFromTending() || x.CanHealNaturally()
                                                           select x);
 
-            if (notTendedBodyParts.Count() == 0 && hediff_injuries.Count() == 0)
+            if (notTendedBodyParts.Count() == 0 ) // && hediff_injuries.Count() == 0)
             {
-                // Nothing to heal, check for missing body parts next
+                // Nothing to heal/tend, check for missing body parts next
                 DoHealMissingBodyPart(enhancedAI);
                 return;
             }
@@ -686,8 +686,8 @@ namespace AIPawn
             if (missingBodyParts == null || missingBodyParts.Count == 0)
                 return;
 
-            // 50% chance that a missing limb will be healed
-            if (Rand.Value < 0.5f)
+            // 40% chance that a missing limb will be healed
+            if (Rand.Value < 0.40f)
                 return;
 
             Building_AIPawnRechargeStation rechargeStation;
@@ -723,8 +723,8 @@ namespace AIPawn
 
                 // Get random part
                 Hediff_MissingPart missingBodyPart = missingBodyParts.RandomElement();
-                
-                //Log.Error("Restoring missing part..");
+
+                //Log.Error("Restore missingBodyPart:" + missingBodyPart.ToString());
 
                 // restore random part
                 BodyPartRecord part = missingBodyPart.Part;
@@ -743,13 +743,14 @@ namespace AIPawn
 
             List<Hediff_MissingPart> missingParts = new List<Hediff_MissingPart>();
 
-            List<Hediff> hedifflist = health.hediffSet.hediffs;
+            //List<Hediff> hedifflist = health.hediffSet.hediffs;
+            //for (int i = 0; i < hedifflist.Count; i++)
+            //{
+            //    if (hedifflist[i] is Hediff_MissingPart)
+            //        missingParts.Add((Hediff_MissingPart)hedifflist[i]);
+            //}
 
-            for (int i = 0; i < hedifflist.Count; i++)
-            {
-                if (hedifflist[i] is Hediff_MissingPart)
-                    missingParts.Add((Hediff_MissingPart)hedifflist[i]);
-            }
+            missingParts = health.hediffSet.GetMissingPartsCommonAncestors();
 
             if (missingParts.Count == 0)
                 return null;

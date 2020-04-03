@@ -160,11 +160,11 @@ namespace ArtefactFound
 
             float value = Rand.Range(0.0f, 100.0f);
 
-            if (value < 5.1f) // Pawn Released (5%)
+            if (value < 10.1f) // Pawn Released (10%)
             {
                 DoPawnReleased();
             }
-            else if (value < 30.1f) // Raider attack (25%)
+            else if (value < 30.1f) // Raider attack (20%)
             {
                 DoRaiderAttack();
             }
@@ -208,6 +208,7 @@ namespace ArtefactFound
                 return true;
             }, Map);
 
+            IncidentParms parms = StorytellerUtility.DefaultParmsNow(IncidentCategoryDefOf.ThreatBig, Map);
 
             int countPawns;
             Faction faction = Faction.OfMechanoids;
@@ -276,12 +277,12 @@ namespace ArtefactFound
             }
 
             // Create Lord
-            string empty = string.Empty;
-            string empty2 = string.Empty;
-            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref empty, ref empty2, "LetterFamilyMembersRaidFriendly".Translate(), false);
-            if (!empty2.NullOrEmpty())
+            TaggedString baseLetterLabel = null;
+            TaggedString baseLetterText = null;
+            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref baseLetterLabel, ref baseLetterText, GetRelatedPawnsRaidFriendlyInfoLetterText(faction), false, true);
+            if (!baseLetterText.NullOrEmpty())
             {
-                Find.LetterStack.ReceiveLetter(empty, empty2, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
+                Find.LetterStack.ReceiveLetter(baseLetterLabel, baseLetterText, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
             }
 
             LordJob lordJob = new LordJob_AssaultColony(faction, true, false, false);
@@ -302,7 +303,6 @@ namespace ArtefactFound
 
         }
 
-
         private void DoRaiderAttack()
         {
 
@@ -320,6 +320,8 @@ namespace ArtefactFound
             {
                 return;
             }
+
+            IncidentParms parms = StorytellerUtility.DefaultParmsNow(IncidentCategoryDefOf.ThreatBig, Map);
 
             List<Pawn> pawns = new List<Pawn>();
 
@@ -353,11 +355,11 @@ namespace ArtefactFound
             }
 
             // Create Lord
-            string empty = string.Empty;
-            string empty2 = string.Empty;
-            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref empty, ref empty2, "LetterFamilyMembersRaidFriendly".Translate(), false);
-            if (!empty2.NullOrEmpty())
-                Find.LetterStack.ReceiveLetter(empty, empty2, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
+            TaggedString baseLetterLabel = null;
+            TaggedString baseLetterText = null;
+            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref baseLetterLabel, ref baseLetterText, this.GetRelatedPawnsRaidEnemyInfoLetterText(parms), true, true);
+            if (!baseLetterText.NullOrEmpty())
+                Find.LetterStack.ReceiveLetter(baseLetterLabel, baseLetterText, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
 
             LordJob lordJob = new LordJob_AssaultColony(faction, false, false, false);
             Lord lord = LordMaker.MakeNewLord(faction, lordJob, Map, pawns);
@@ -377,7 +379,14 @@ namespace ArtefactFound
             storyWatcher.numRaidsEnemy = storyWatcher.numRaidsEnemy + 1;
 
         }
-
+        private string GetRelatedPawnsRaidEnemyInfoLetterText(IncidentParms parms)
+        {
+            return "LetterRelatedPawnsRaidEnemy".Translate(Faction.OfPlayer.def.pawnsPlural, parms.faction.def.pawnsPlural);
+        }
+        private string GetRelatedPawnsRaidFriendlyInfoLetterText(Faction faction)
+        {
+            return "LetterRelatedPawnsRaidFriendly".Translate(Faction.OfPlayer.def.pawnsPlural, faction.def.pawnsPlural);
+        }
 
         private void DoSpawnResources()
         {

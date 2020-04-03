@@ -56,14 +56,14 @@ namespace Incidents
             }
 
             float defaultPoints = defaultPointsRange.RandomInRange;
-            if ((parms.siteCoreOrPart != null) && parms.siteCoreOrPart.parms.threatPoints < defaultPoints)
-                parms.siteCoreOrPart.parms.threatPoints = defaultPoints;
+            if ((parms.sitePart != null) && parms.sitePart.parms.threatPoints < defaultPoints)
+                parms.sitePart.parms.threatPoints = defaultPoints;
 
             GenStepParams parmsEnemy = parms;
             GenStepParams parmsFriendly = parms;
 
             float randomForMechanoids = Rand.Value;
-            if (randomForMechanoids < chanceForMechanoids && parms.siteCoreOrPart != null)
+            if (randomForMechanoids < chanceForMechanoids && parms.sitePart != null)
             {
                 // 50% chance that the fighting faction against the mechanoid is an enemy of the colony
                 if (Rand.Value > 0.5f)
@@ -71,19 +71,19 @@ namespace Incidents
 
                 // define mechanoid side
                 enemyFaction = Faction.OfMechanoids;
-                parmsEnemy.siteCoreOrPart.parms.threatPoints = parmsEnemy.siteCoreOrPart.parms.threatPoints * multiMechFight_Mechanoids;
+                parmsEnemy.sitePart.parms.threatPoints = parmsEnemy.sitePart.parms.threatPoints * multiMechFight_Mechanoids;
 
                 // define human side
                 if (friendlyFaction.def.techLevel > TechLevel.Medieval)
-                    parmsFriendly.siteCoreOrPart.parms.threatPoints = parmsFriendly.siteCoreOrPart.parms.threatPoints * multiMechFight_Industrial;
+                    parmsFriendly.sitePart.parms.threatPoints = parmsFriendly.sitePart.parms.threatPoints * multiMechFight_Industrial;
                 else
-                    parmsFriendly.siteCoreOrPart.parms.threatPoints = parmsFriendly.siteCoreOrPart.parms.threatPoints * multiMechFight_Medieval;
+                    parmsFriendly.sitePart.parms.threatPoints = parmsFriendly.sitePart.parms.threatPoints * multiMechFight_Medieval;
             }
             else // --> not Mechanoid fighting
             {
                 // Friendlies are a bit weaker!
-                if (parmsFriendly.siteCoreOrPart != null)
-                    parmsFriendly.siteCoreOrPart.parms.threatPoints = parmsFriendly.siteCoreOrPart.parms.threatPoints * multiNormalFight_Friendlies;
+                if (parmsFriendly.sitePart != null)
+                    parmsFriendly.sitePart.parms.threatPoints = parmsFriendly.sitePart.parms.threatPoints * multiNormalFight_Friendlies;
 
                 // 20% chance that friendlies are NOT the attacker but the defender
                 // This is a bit more dangerous for the watching colonists as they might spawn directly next to you..
@@ -119,7 +119,7 @@ namespace Incidents
                 if (list.Any())
                 {
                     if (this.enemyFaction == Faction.OfMechanoids)
-                        LordMaker.MakeNewLord(Faction.OfMechanoids, new LordJob_SleepThenAssaultColony(Faction.OfMechanoids, Rand.Bool), map, list);
+                        LordMaker.MakeNewLord(Faction.OfMechanoids, new LordJob_SleepThenAssaultColony(Faction.OfMechanoids), map, list);
                     else
                         LordMaker.MakeNewLord(this.enemyFaction, new LordJob_DefendBase(this.enemyFaction, rectToDefend1.Cells.RandomElement()), map, list);
 
@@ -163,15 +163,15 @@ namespace Incidents
 
         private IEnumerable<Pawn> GeneratePawns(GenStepParams parms, Map map, Faction faction)
         {
-            float points = (parms.siteCoreOrPart == null) ? defaultPointsRange.RandomInRange : parms.siteCoreOrPart.parms.threatPoints;
+            float points = (parms.sitePart == null) ? defaultPointsRange.RandomInRange : parms.sitePart.parms.threatPoints;
             PawnGroupMakerParms pawnGroupMakerParms = new PawnGroupMakerParms();
             pawnGroupMakerParms.groupKind = PawnGroupKindDefOf.Combat;
             pawnGroupMakerParms.tile = map.Tile;
             pawnGroupMakerParms.faction = faction;
             pawnGroupMakerParms.points = points;
-            if (parms.siteCoreOrPart != null)
+            if (parms.sitePart != null)
             {
-                pawnGroupMakerParms.seed = SleepingMechanoidsSitePartUtility.GetPawnGroupMakerSeed(parms.siteCoreOrPart.parms);
+                pawnGroupMakerParms.seed = SleepingMechanoidsSitePartUtility.GetPawnGroupMakerSeed(parms.sitePart.parms);
             }
             return PawnGroupMakerUtility.GeneratePawns(pawnGroupMakerParms, true);
         }

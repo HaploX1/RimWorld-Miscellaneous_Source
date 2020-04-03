@@ -270,59 +270,59 @@ namespace AIRobot
                 yield return opt0;
             }
 
-            if (DebugSettings.godMode)
+            //if (DebugSettings.godMode)
             {
                 // Key-Binding 1
                 Command_Action opt1;
                 opt1 = new Command_Action();
-                opt1.icon = null;
-                opt1.defaultLabel = "LEFT";
-                opt1.defaultDesc = "Go 5 cells left";
+                opt1.icon = X2_Building_AIRobotRechargeStation.UI_ButtonGoLeft;
+                opt1.defaultLabel = "";// "LEFT";
+                opt1.defaultDesc = "Go 4 left";
                 opt1.hotKey = KeyBindingDefOf.Misc5;
-                opt1.activateSound = null;// SoundDef.Named("Click");
-                opt1.action = delegate { Debug_ForceGotoDistance(-5,0); };
+                opt1.activateSound = SoundDef.Named("Click");
+                opt1.action = delegate { Debug_ForceGotoDistance(-4,0); };
                 opt1.disabled = false;
                 opt1.disabledReason = "";
                 opt1.groupKey = 1234567 + 1;
                 yield return opt1;
 
-                // Key-Binding 2
-                Command_Action opt2;
-                opt2 = new Command_Action();
-                opt2.icon = null;
-                opt2.defaultLabel = "DOWN";
-                opt2.defaultDesc = "Go 5 cells down";
-                opt2.hotKey = KeyBindingDefOf.Misc8;
-                opt2.activateSound = null;// SoundDef.Named("Click");
-                opt2.action = delegate { Debug_ForceGotoDistance(0, -5); };
-                opt2.disabled = false;
-                opt2.disabledReason = "";
-                opt2.groupKey = 1234567 + 2;
-                yield return opt2;
-
                 // Key-Binding 3
                 Command_Action opt3;
                 opt3 = new Command_Action();
-                opt3.icon = null;
-                opt3.defaultLabel = "UP";
-                opt3.defaultDesc = "Go 5 cells up";
+                opt3.icon = X2_Building_AIRobotRechargeStation.UI_ButtonGoUp;
+                opt3.defaultLabel = "";// "UP";
+                opt3.defaultDesc = "Go 4 up";
                 opt3.hotKey = KeyBindingDefOf.Misc9;
-                opt3.activateSound = null;// SoundDef.Named("Click");
-                opt3.action = delegate { Debug_ForceGotoDistance(0, 5); };
+                opt3.activateSound = SoundDef.Named("Click");
+                opt3.action = delegate { Debug_ForceGotoDistance(0, 4); };
                 opt3.disabled = false;
                 opt3.disabledReason = "";
                 opt3.groupKey = 1234567 + 3;
                 yield return opt3;
 
+                // Key-Binding 2
+                Command_Action opt2;
+                opt2 = new Command_Action();
+                opt2.icon = X2_Building_AIRobotRechargeStation.UI_ButtonGoDown;
+                opt2.defaultLabel = "";// "DOWN";
+                opt2.defaultDesc = "Go 4 down";
+                opt2.hotKey = KeyBindingDefOf.Misc8;
+                opt2.activateSound = SoundDef.Named("Click");
+                opt2.action = delegate { Debug_ForceGotoDistance(0, -4); };
+                opt2.disabled = false;
+                opt2.disabledReason = "";
+                opt2.groupKey = 1234567 + 2;
+                yield return opt2;
+
                 // Key-Binding 4
                 Command_Action opt4;
                 opt4 = new Command_Action();
-                opt4.icon = null;
-                opt4.defaultLabel = "RIGHT";
-                opt4.defaultDesc = "Go 5 cells right";
+                opt4.icon = X2_Building_AIRobotRechargeStation.UI_ButtonGoRight;
+                opt4.defaultLabel = "";// "RIGHT";
+                opt4.defaultDesc = "Go 4 right";
                 opt4.hotKey = KeyBindingDefOf.Misc10;
-                opt4.activateSound = null;// SoundDef.Named("Click");
-                opt4.action = delegate { Debug_ForceGotoDistance(5, 0); };
+                opt4.activateSound = SoundDef.Named("Click");
+                opt4.action = delegate { Debug_ForceGotoDistance(4, 0); };
                 opt4.disabled = false;
                 opt4.disabledReason = "";
                 opt4.groupKey = 1234567 + 4;

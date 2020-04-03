@@ -86,8 +86,28 @@ namespace AIRobot
             }
         }
 
-        public static int jobRepairRobotSkillMin = 6;
+        public static int jobRepairRobotSkillMin = 5;
 
+        public static string GetPossiblePawnsForRobotRepair(Map map)
+        {
+            StringBuilder str = new StringBuilder();
+            List<Pawn> availablePawns = map.mapPawns.FreeColonistsSpawned;
+            int cnt = 0;
+            foreach (Pawn p in availablePawns)
+            {
+                if (p.skills.GetSkill(SkillDefOf.Crafting).Level < jobRepairRobotSkillMin)
+                    continue;
+                if (cnt > 0)
+                    str.Append(", ");
+                str.Append(p.NameShortColored);
+                cnt++;
+            }
+
+            if (cnt > 0)
+                return "WorkTagCrafting".Translate().CapitalizeFirst() + " " + jobRepairRobotSkillMin.ToString() + " -> " + str.ToString();
+            else
+                return "-> " + "SkillTooLowForConstruction".Translate("WorkTagCrafting".Translate()).CapitalizeFirst() + ": " + "MinSkill".Translate() + " " + jobRepairRobotSkillMin.ToString();
+        }
         public static FloatMenuOption GetFloatMenuOption4RepairStationRobot(Pawn selPawn, X2_Building_AIRobotRechargeStation station, Dictionary<ThingDef, int> resources)
         {
             if (station.robot != null && !station.robotIsDestroyed)
@@ -96,8 +116,8 @@ namespace AIRobot
             if (!selPawn.CanReach(station, PathEndMode.InteractionCell, Danger.Deadly))
                 return new FloatMenuOption("CannotUseNoPath".Translate().CapitalizeFirst(), null);
 
-            if (selPawn.skills.GetSkill(SkillDefOf.Construction).Level < AIRobot_Helper.jobRepairRobotSkillMin)
-                return new FloatMenuOption("ConstructionSkillTooLow".Translate().CapitalizeFirst() + ": " + "MinSkill".Translate() + " " + AIRobot_Helper.jobRepairRobotSkillMin.ToString(), null);
+            if (selPawn.skills.GetSkill(SkillDefOf.Crafting).Level < AIRobot_Helper.jobRepairRobotSkillMin)
+                return new FloatMenuOption("SkillTooLowForConstruction".Translate("WorkTagCrafting".Translate()).CapitalizeFirst() + ": " + "MinSkill".Translate() + " " + AIRobot_Helper.jobRepairRobotSkillMin.ToString(), null);
 
             List<string> missingResources = GetStationRepairJobMissingThingStrings(resources, selPawn);
 
@@ -136,16 +156,20 @@ namespace AIRobot
             List<Thing> workIngredients = new List<Thing>();
             List<int> workIngredientCount = new List<int>();
 
-            foreach (ThingDef ingredientDef in resources.Keys)
+            if (resources != null)
             {
-                if (!AIRobot_Helper.GetAllNeededIngredients(pawn, ingredientDef, resources[ingredientDef], out workIngredients, out workIngredientCount) ||
-                    workIngredients == null || workIngredients.Count == 0)
-                    return null;
-                foundIngredients.AddRange(workIngredients);
-                foundIngredientsCount.AddRange(workIngredientCount);
+                foreach (ThingDef ingredientDef in resources.Keys)
+                {
+                    if (!AIRobot_Helper.GetAllNeededIngredients(pawn, ingredientDef, resources[ingredientDef], out workIngredients, out workIngredientCount) ||
+                        workIngredients == null || workIngredients.Count == 0)
+                        return null;
+                    foundIngredients.AddRange(workIngredients);
+                    foundIngredientsCount.AddRange(workIngredientCount);
+                }
             }
 
-            X2_JobDriver_RepairStationRobot repairRobot = new X2_JobDriver_RepairStationRobot();
+            //X2_JobDriver_RepairStationRobot repairRobot = new X2_JobDriver_RepairStationRobot();
+
             Job job = new Job(DefDatabase<JobDef>.GetNamed(jobDefName), station, null, station.Position);
 
             job.count = 1;
@@ -163,11 +187,10 @@ namespace AIRobot
         }
         public static List<string> GetStationRepairJobMissingThingStrings(Dictionary<ThingDef, int> resources, Pawn pawn)
         {
+            List<string> missingResources = new List<string>();
 
             if (resources == null)
-                return null;
-
-            List<string> missingResources = new List<string>();
+                return missingResources;
 
             foreach (ThingDef ingredientDef in resources.Keys)
             {

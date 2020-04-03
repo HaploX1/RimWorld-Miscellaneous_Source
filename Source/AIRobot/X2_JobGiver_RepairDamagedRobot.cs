@@ -28,8 +28,22 @@ namespace AIRobot
 
         public override float GetPriority(Pawn pawn)
         {
-            if (pawn.GetLord() != null)
+            //if (pawn.GetLord() != null)
+            //    return 0f;
+
+            if (pawn.workSettings == null || !pawn.workSettings.EverWork)
+            {
+                return 0f;
+            }
+            TimeAssignmentDef timeAssignmentDef = (pawn.timetable == null) ? TimeAssignmentDefOf.Anything : pawn.timetable.CurrentAssignment;
+            if (timeAssignmentDef == TimeAssignmentDefOf.Anything)
+            {
+                return 5.5f;
+            }
+            if (timeAssignmentDef == TimeAssignmentDefOf.Work)
+            {
                 return 9f;
+            }
 
             return 0f;
         }
@@ -55,10 +69,6 @@ namespace AIRobot
 
             return job;
         }
-
-
-
-
 
     }
 }

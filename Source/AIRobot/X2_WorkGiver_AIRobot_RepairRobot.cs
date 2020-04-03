@@ -55,15 +55,16 @@ namespace AIRobot
             if (t1 == null)
                 return false;
 
-            if (!t1.isRepairRequestActive || t1.isRepairRequestCosts == null)
+            if (!t1.isRepairRequestActive) // || t1.isRepairRequestCosts == null)
                 return false;
 
-            if (pawn.skills.GetSkill(SkillDefOf.Construction).Level < AIRobot_Helper.jobRepairRobotSkillMin)
+            if (pawn.skills.GetSkill(SkillDefOf.Crafting).Level < AIRobot_Helper.jobRepairRobotSkillMin)
                 return false;
 
             int missingThingsCount = AIRobot_Helper.GetStationRepairJobMissingThingStrings(t1.isRepairRequestCosts, pawn).Count;
             if (missingThingsCount != 0 || !pawn.CanReserveAndReach(t, PathEndMode.ClosestTouch, Danger.Some))
                 return false;
+
             return true;
         }
 
@@ -88,7 +89,6 @@ namespace AIRobot
                 if (availableResources < resources[ingredientDef])
                 {
                     missingResources.Add("(" + availableResources.ToString() + " / " + resources[ingredientDef].ToString() + " " + ingredientDef.LabelCap + ")");
-                    //return new FloatMenuOption("AIRobot_RepairRobot".Translate().CapitalizeFirst() + ": " + "NotEnoughStoredLower".Translate() + " (" + availableResources.ToString() + " / " + resources[ingredientDef].ToString() + " " + ingredientDef.LabelCap + ")", null);
                 }
             }
 
