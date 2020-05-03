@@ -89,11 +89,9 @@ namespace AIRobot
                                         .FailOnDestroyedOrNull(IngredientIndex);
 
                 //Place ingredient on the appropriate cell
-                Toil findPlaceTarget2 = SetTargetToIngredientPlaceCell(StationIndex, IngredientIndex, IngredientPlaceCellIndex);
+                Toil findPlaceTarget2 = Toils_JobTransforms.SetTargetToIngredientPlaceCell(StationIndex, IngredientIndex, IngredientPlaceCellIndex);
                 yield return findPlaceTarget2;
-                yield return Toils_Haul.PlaceHauledThingInCell(IngredientPlaceCellIndex,
-                                                                nextToilOnPlaceFailOrIncomplete: findPlaceTarget2,
-                                                                storageMode: false);
+                yield return Toils_Haul.PlaceHauledThingInCell(IngredientPlaceCellIndex, findPlaceTarget2, false, false);
 
                 // save the ingredient, so that it can be deleted later on!
                 Toil saveIngredient = new Toil();
@@ -103,6 +101,10 @@ namespace AIRobot
 
                 //Jump back if another ingredient is queued, or you didn't finish carrying your current ingredient target
                 yield return Toils_Jump.JumpIfHaveTargetInQueue(IngredientIndex, extract);
+
+                extract = null;
+                getToHaulTarget2 = null;
+                findPlaceTarget2 = null;
             }
 
             //yield return GetDebugToil("goto station", true);
@@ -116,7 +118,7 @@ namespace AIRobot
                                      .FailOnDespawnedNullOrForbiddenPlacedThings()
                                      .FailOnCannotTouch(StationIndex, PathEndMode.Touch);
 
-            
+            yield break;
         }
 
 
@@ -257,21 +259,21 @@ namespace AIRobot
 
 
 
-        public static Toil SetTargetToIngredientPlaceCell(TargetIndex targetInd, TargetIndex carryItemInd, TargetIndex cellTargetInd)
-        {
-            Toil toil = new Toil();
-            toil.initAction = delegate
-            {
-                Pawn actor = toil.actor;
-                Job curJob = actor.jobs.curJob;
-                Thing carryThing = curJob.GetTarget(carryItemInd).Thing;
-                Thing targetThing = curJob.GetTarget(targetInd).Thing;
-                IntVec3 c = FindPlaceSpotAtOrNear(targetThing.Position, targetThing.Map, carryThing);
+        //public static Toil SetTargetToIngredientPlaceCell(TargetIndex targetInd, TargetIndex carryItemInd, TargetIndex cellTargetInd)
+        //{
+        //    Toil toil = new Toil();
+        //    toil.initAction = delegate
+        //    {
+        //        Pawn actor = toil.actor;
+        //        Job curJob = actor.jobs.curJob;
+        //        Thing carryThing = curJob.GetTarget(carryItemInd).Thing;
+        //        Thing targetThing = curJob.GetTarget(targetInd).Thing;
+        //        IntVec3 c = FindPlaceSpotAtOrNear(targetThing.Position, targetThing.Map, carryThing);
 
-                curJob.SetTarget(cellTargetInd, c);
-            };
-            return toil;
-        }
+        //        curJob.SetTarget(cellTargetInd, c);
+        //    };
+        //    return toil;
+        //}
 
         public static Toil GetDebugToil(string msg, bool isError = true)
         {

@@ -65,6 +65,17 @@ namespace AIRobot
             PawnGenerationRequest request = new PawnGenerationRequest(kind, faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, false, 0, null, 0, null, null, null, null, null, 0f, 0f, Gender.Male, null, null, null, null);
 
             X2_AIRobot robot = (X2_AIRobot)PawnGenerator.GeneratePawn(request);
+
+            if (robot.inventory == null)
+                robot.inventory = new Pawn_InventoryTracker(robot);
+            if (true) // robot.RaceProps.ToolUser
+            {
+                if (robot.equipment == null)
+                    robot.equipment = new Pawn_EquipmentTracker(robot);
+                if (robot.apparel == null)
+                    robot.apparel = new Pawn_ApparelTracker(robot);
+            }
+
             robot.workSettings = new X2_AIRobot_Pawn_WorkSettings(robot);
 
             ////DEBUG
