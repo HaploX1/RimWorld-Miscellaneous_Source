@@ -35,6 +35,9 @@ namespace ColonistSelections
         private const string tanslationGroupSelected = "ColonistGroups_GroupSelected";
         private const string tanslationPawnsUndrafted = "ColonistGroups_PawnsUndrafted";
 
+        private const string tanslationThingGroupSaved = "ColonistGroups_ThingGroupSaved";
+        private const string tanslationThingGroupNotSet = "ColonistGroups_ThingGroupNotSet";
+
         private const string translationGroupSelectionActive = "ColonistGroups_GroupSelectionActive";
         private const string translationGroupPositioningActive = "ColonistGroups_GroupPositioningActive";
 
@@ -43,6 +46,7 @@ namespace ColonistSelections
 
         private const string translationIconToggleGroupIcons = "ColonistSelection_Icon_ToggleGroupIcons";
         private const string translationIconClick2CallGroupX = "ColonistSelection_Icon_Click2CallGroupX";
+        private const string translationIconClick2CallThingGroupX = "ColonistSelection_Icon_Click2CallThingGroupX";
         private const string translationIconClick2ReleaseAll = "ColonistSelection_Icon_Click2ReleaseAll";
 
         private const string translationHelp_prt1 = "ColonistGroups_GameStartHelp_prt1";
@@ -51,10 +55,13 @@ namespace ColonistSelections
         private const string translationHelp_prt4 = "ColonistGroups_GameStartHelp_openHelp";
 
         // Selection Groups (Shift+key => add drafted pawns to pawn and cell lists
-        private bool keyPressed_Shift, keyPressed_Group1, keyPressed_Group2, keyPressed_Group3, keyPressed_Group4, keyPressed_Colony;  
-        private KeyBindingDef kbDef_Group1, kbDef_Group2, kbDef_Group3, kbDef_Group4,kbDef_Colony; 
+        private bool keyPressed_Shift, keyPressed_Group1, keyPressed_Group2, keyPressed_Group3, keyPressed_Group4, keyPressed_Group5, keyPressed_Group6, keyPressed_Colony;  
+        private KeyBindingDef kbDef_Group1, kbDef_Group2, kbDef_Group3, kbDef_Group4, kbDef_Group5, kbDef_Group6, kbDef_Colony; 
         public List<Pawn> PawnsKey_Group1, PawnsKey_Group2, PawnsKey_Group3, PawnsKey_Group4;
         public List<IntVec3> CellsKey_Group1, CellsKey_Group2, CellsKey_Group3, CellsKey_Group4;
+
+        // Groups 5, 6 are for things 
+        public List<Thing> ThingsKey_Group5, ThingsKey_Group6;
 
         // Release all drafted pawns without active job
         private bool keyPressed_Release;
@@ -81,6 +88,8 @@ namespace ColonistSelections
         public static Texture2D texGroup2 = null;
         public static Texture2D texGroup3 = null;
         public static Texture2D texGroup4 = null;
+        public static Texture2D texGroup5 = null;
+        public static Texture2D texGroup6 = null;
         public static Texture2D texRelease = null;
 
         private void InitGraphics()
@@ -94,6 +103,8 @@ namespace ColonistSelections
             texGroup2 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group2");
             texGroup3 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group3");
             texGroup4 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group4");
+            texGroup5 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group5");
+            texGroup6 = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Group6");
             texRelease = ContentFinder<Texture2D>.Get("UI/Commands/ColonistGroups/UI_Release");
         }
 
@@ -107,7 +118,10 @@ namespace ColonistSelections
             kbDef_Group2 = DefDatabase<KeyBindingDef>.GetNamed("ColonistSelectionKeys_Group2");
             kbDef_Group3 = DefDatabase<KeyBindingDef>.GetNamed("ColonistSelectionKeys_Group3");
             kbDef_Group4 = DefDatabase<KeyBindingDef>.GetNamed("ColonistSelectionKeys_Group4");
-            
+
+            kbDef_Group5 = DefDatabase<KeyBindingDef>.GetNamed("ColonistSelectionKeys_Group5");
+            kbDef_Group6 = DefDatabase<KeyBindingDef>.GetNamed("ColonistSelectionKeys_Group6");
+
             kbDef_Colony = DefDatabase<KeyBindingDef>.GetNamed("ColonistSelectionKeys_CenterOnColony");
 
             PawnsKey_Group1 = new List<Pawn>();
@@ -118,6 +132,9 @@ namespace ColonistSelections
             CellsKey_Group3 = new List<IntVec3>();
             PawnsKey_Group4 = new List<Pawn>();
             CellsKey_Group4 = new List<IntVec3>();
+
+            ThingsKey_Group5 = new List<Thing>();
+            ThingsKey_Group6 = new List<Thing>();
 
             //if (kbDef_Eat == null || kbDef_Sleep == null || kbDef_Help == null || kbDef_Release == null || kbDef_Group1 == null || kbDef_Group2 == null || kbDef_Group3 == null || kbDef_Group4 == null)
             //    Log.Error("Somethings null!!!");
@@ -194,6 +211,30 @@ namespace ColonistSelections
                 PawnsKey_Group4 = new List<Pawn>();
             };
 
+
+            try
+            {
+                Scribe_Collections.Look<Thing>(ref ThingsKey_Group5, "ThingsGroup5", LookMode.Reference);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message + Environment.NewLine + ex.StackTrace;
+                Log.Error("Error Group5:" + message);
+                ThingsKey_Group5 = new List<Thing>();
+            };
+
+            try
+            {
+                Scribe_Collections.Look<Thing>(ref ThingsKey_Group6, "ThingsGroup6", LookMode.Reference);
+            }
+            catch (Exception ex)
+            {
+                string message = ex.Message + Environment.NewLine + ex.StackTrace;
+                Log.Error("Error Group6:" + message);
+                ThingsKey_Group6 = new List<Thing>();
+            };
+
+
         }
 
         #endregion
@@ -223,13 +264,15 @@ namespace ColonistSelections
             IntVec2 startPos = new IntVec2(startPosGroupIconsX, startPosGroupIconsY);
             int tmpSize = (int)(widthMax * ModSettings_ColonistSelections.sizeGroupIconsPercent);
             IntVec2 buttonSize = new IntVec2(tmpSize, tmpSize);
-            int buttonSpacing =ModSettings_ColonistSelections.buttonSpacing;
+            int buttonSpacing = ModSettings_ColonistSelections.buttonSpacing;
 
             Rect rectButtonGroup;
             Texture2D texButtonGroup1 = texGroup1;
             Texture2D texButtonGroup2 = texGroup2;
             Texture2D texButtonGroup3 = texGroup3;
             Texture2D texButtonGroup4 = texGroup4;
+            Texture2D texButtonGroup5 = texGroup5;
+            Texture2D texButtonGroup6 = texGroup6;
             Texture2D texButtonReleaseAll = texRelease;
             Texture2D texButtonToggleOff = texCircleMinus;
             Texture2D texButtonToggleOn = texCircleMinus;
@@ -260,6 +303,9 @@ namespace ColonistSelections
             string countPawns2 = PawnsKey_Group2.Count.ToString();
             string countPawns3 = PawnsKey_Group3.Count.ToString();
             string countPawns4 = PawnsKey_Group4.Count.ToString();
+
+            string countThings5 = ThingsKey_Group5.Count.ToString();
+            string countThings6 = ThingsKey_Group6.Count.ToString();
 
             // Icons Group 1
             rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 0, startPos.z, buttonSize.x, buttonSize.z);
@@ -293,6 +339,21 @@ namespace ColonistSelections
             }
             TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallGroupX.Translate("4", countPawns4, kbDef_Group4.MainKeyLabel));
 
+            // Icons Group 5
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 2, startPos.z - (buttonSpacing + buttonSize.z), buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonGroup5, colorMain, colorMouseOver))
+            {
+                DoThingSelection(5, keyShift);
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallThingGroupX.Translate("5", countThings5, kbDef_Group5.MainKeyLabel));
+
+            // Icons Group 6
+            rectButtonGroup = new Rect(startPos.x + (buttonSpacing + buttonSize.x) * 3, startPos.z - (buttonSpacing + buttonSize.z), buttonSize.x, buttonSize.z);
+            if (Widgets.ButtonImage(rectButtonGroup, texButtonGroup6, colorMain, colorMouseOver))
+            {
+                DoThingSelection(6, keyShift);
+            }
+            TooltipHandler.TipRegion(rectButtonGroup, translationIconClick2CallThingGroupX.Translate("6", countThings6, kbDef_Group6.MainKeyLabel));
 
 
             // Icons Release All
@@ -331,7 +392,10 @@ namespace ColonistSelections
                 keyPressed_Group1 = kbDef_Group1.IsDown; 
                 keyPressed_Group2 = kbDef_Group2.IsDown; 
                 keyPressed_Group3 = kbDef_Group3.IsDown; 
-                keyPressed_Group4 = kbDef_Group4.IsDown; 
+                keyPressed_Group4 = kbDef_Group4.IsDown;
+
+                keyPressed_Group5 = kbDef_Group5.IsDown;
+                keyPressed_Group6 = kbDef_Group6.IsDown;
 
                 keyPressed_Release = kbDef_Release.IsDown;
 
@@ -360,6 +424,12 @@ namespace ColonistSelections
                     else if (keyPressed_Group4)
                         DoGroupPositioning(4, keyPressed_Shift, !groupSelectionModeActive);
 
+                    else if (keyPressed_Group5)
+                        DoThingSelection(5, keyPressed_Shift);
+
+                    else if (keyPressed_Group6)
+                        DoThingSelection(6, keyPressed_Shift);
+
                     if (keyPressed_Release && !keyPressed_Shift)
                         DoReleaseAllColonists();
 
@@ -377,6 +447,8 @@ namespace ColonistSelections
                 keyPressed_Group2 = false;
                 keyPressed_Group3 = false;
                 keyPressed_Group4 = false;
+                keyPressed_Group5 = false;
+                keyPressed_Group6 = false;
 
                 keyPressed_Release = false;
 
@@ -652,6 +724,108 @@ namespace ColonistSelections
             }
         }
 
+        /// <summary>
+        /// Work through group thing selection
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="shiftPressed"></param>
+        private void DoThingSelection(int key, bool shiftPressed)
+        {
+            List<Thing> things = new List<Thing>();
+
+            // Save marked pawns
+            if (shiftPressed)
+            {
+
+                Predicate<object> predicate = (obj => obj is Thing && (obj as Thing).Faction != null &&
+                                              (obj as Thing).Faction == Faction.OfPlayer);
+
+                // Are things selected?
+                bool thingsSelected =
+                    Find.Selector.SelectedObjectsListForReading != null &&
+                    Find.Selector.SelectedObjectsListForReading.Count != 0 &&
+                    Find.Selector.SelectedObjectsListForReading.FindIndex(predicate) >= 0;
+
+                if (thingsSelected)
+                {
+                    foreach (object t in Find.Selector.SelectedObjectsListForReading) {
+                        if (!(t is Thing) || (t as Thing).Faction == null || (t as Thing).Faction != Faction.OfPlayer || t is Pawn)
+                            continue;
+
+                        things.Add((Thing)t);
+                    }
+                }
+
+                // No valid things found
+                if (things.Count == 0)
+                {
+                    Messages.Message(translationGroupInvalid_SelectionMode.Translate(key.ToString()), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
+                // Save pawns and cells
+                switch (key)
+                {
+                    case 5:
+                        ThingsKey_Group5 = things;
+                        break;
+                    case 6:
+                        ThingsKey_Group6 = things;
+                        break;
+
+                    default:
+                        Log.Error("Invalid key reached. This shouldn't happen!");
+                        return;
+                }
+
+                Messages.Message(tanslationThingGroupSaved.Translate(key.ToString(), things.Count.ToString()), MessageTypeDefOf.CautionInput);
+
+                return;
+            }
+            else
+            {
+
+                // select saved pawns
+                things = null;
+                KeyBindingDef kbd;
+
+                switch (key)
+                {
+                    case 5:
+                        things = ThingsKey_Group5;
+                        kbd = kbDef_Group5;
+                        break;
+
+                    case 6:
+                        things = ThingsKey_Group6;
+                        kbd = kbDef_Group6;
+                        break;
+
+                    default:
+                        Log.Error("Invalid key reached. This shouldn't happen!");
+                        return;
+                }
+
+                if (things == null || things.Count == 0)
+                {
+                    Messages.Message(tanslationThingGroupNotSet.Translate(key.ToString(), kbd.MainKey.ToString()), MessageTypeDefOf.RejectInput);
+                    return;
+                }
+
+                Find.Selector.ClearSelection();
+                for (int i = 0; i < things.Count; i++)
+                {
+                    Thing t = things[i];
+
+                    if (!IsValidThingForSelecting(t))
+                        continue;
+
+                    Find.Selector.Select(t, false, false);
+                }
+                Messages.Message(tanslationGroupSelected.Translate(key.ToString()), MessageTypeDefOf.CautionInput);
+            }
+        }
+
 
         /// <summary>
         /// Check if the pawn is valid to be drafted
@@ -675,6 +849,23 @@ namespace ColonistSelections
             return true;
         }
 
+        /// <summary>
+        /// Check if the thing is valid to be selected
+        /// </summary>
+        private bool IsValidThingForSelecting(Thing thingToCheck)
+        {
+            // Check if thing is valid
+            if (thingToCheck == null || thingToCheck.Destroyed || !thingToCheck.Spawned)
+                return false;
+
+            // Check if thing is available
+            if (thingToCheck.Faction != Faction.OfPlayer)
+                return false;
+
+            //Log.Error(thingToCheck.Name + " is valid");
+
+            return true;
+        }
 
         /// <summary>
         /// Release all Colonists without an active Job
