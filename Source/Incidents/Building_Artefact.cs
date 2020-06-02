@@ -87,21 +87,26 @@ namespace ArtefactFound
             ThingDef.Named("Jade"),
             ThingDef.Named("Synthread"),
             ThingDef.Named("Hyperweave"),
-            ThingDef.Named("MedicineUltratech")
+            ThingDef.Named("MedicineUltratech"),
+            ThingDef.Named("ComponentSpacer")
         };
 
             pawnKindDefs = new List<PawnKindDef>()
         {
             PawnKindDef.Named("Mercenary_Gunner"),
+            PawnKindDef.Named("Mercenary_Gunner_Acidifier"),
             PawnKindDef.Named("Mercenary_Sniper"),
+            PawnKindDef.Named("Mercenary_Sniper_Acidifier"),
             PawnKindDef.Named("Grenadier_Destructive"),
             PawnKindDef.Named("Mercenary_Slasher"),
+            PawnKindDef.Named("Mercenary_Slasher_Acidifier"),
             PawnKindDef.Named("Mercenary_Heavy"),
+            PawnKindDef.Named("Mercenary_Elite"),
+            PawnKindDef.Named("Mercenary_Elite_Acidifier"),
             PawnKindDef.Named("Drifter"),
             PawnKindDef.Named("Scavenger"),
             PawnKindDef.Named("Pirate"),
-            PawnKindDef.Named("Thrasher"),
-            //PawnKindDef.Named("AncientSoldier")
+            PawnKindDef.Named("Thrasher")
         };
 
         }
@@ -342,8 +347,8 @@ namespace ArtefactFound
                     spawnPos = CellFinder.RandomClosewalkCellNear(startPos, Map, 8);
 
                 //pawnKindDefs = DefDatabase<PawnKindDef>.AllDefs.Where<PawnKindDef>(pk => pk.defaultFactionType.defName == "Spacer" || pk.defaultFactionType.defName == "Pirate").ToList();
-
-                Pawn pawn = PawnGenerator.GeneratePawn(pawnKindDefs.RandomElement(), faction);
+                PawnGenerationRequest pgr = new PawnGenerationRequest(pawnKindDefs.RandomElement(), faction, PawnGenerationContext.NonPlayer, -1, true, false, false, false, false, true, 0, true, true);
+                Pawn pawn = PawnGenerator.GeneratePawn(pgr);
                 if (GenPlace.TryPlaceThing(pawn, spawnPos, Map, ThingPlaceMode.Near))
                 {
                     pawns.Add(pawn);
@@ -357,9 +362,15 @@ namespace ArtefactFound
             // Create Lord
             TaggedString baseLetterLabel = null;
             TaggedString baseLetterText = null;
-            PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref baseLetterLabel, ref baseLetterText, this.GetRelatedPawnsRaidEnemyInfoLetterText(parms), true, true);
-            if (!baseLetterText.NullOrEmpty())
-                Find.LetterStack.ReceiveLetter(baseLetterLabel, baseLetterText, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
+            try
+            {
+                PawnRelationUtility.Notify_PawnsSeenByPlayer_Letter(pawns, ref baseLetterLabel, ref baseLetterText, this.GetRelatedPawnsRaidEnemyInfoLetterText(parms), true, true);
+                if (!baseLetterText.NullOrEmpty())
+                    Find.LetterStack.ReceiveLetter(baseLetterLabel, baseLetterText, LetterDefOf.PositiveEvent, new GlobalTargetInfo(pawns[0].Position, pawns[0].Map), null);
+            } catch (Exception ex)
+            {
+                Log.Warning("Couldn't send relation letter.. " + ex.Message + "\n" + ex.StackTrace);
+            }
 
             LordJob lordJob = new LordJob_AssaultColony(faction, false, false, false);
             Lord lord = LordMaker.MakeNewLord(faction, lordJob, Map, pawns);
@@ -376,7 +387,7 @@ namespace ArtefactFound
 
             // add raid to story watcher
             StatsRecord storyWatcher = Find.StoryWatcher.statsRecord;
-            storyWatcher.numRaidsEnemy = storyWatcher.numRaidsEnemy + 1;
+            storyWatcher.numRaidsEnemy += 1;
 
         }
         private string GetRelatedPawnsRaidEnemyInfoLetterText(IncidentParms parms)

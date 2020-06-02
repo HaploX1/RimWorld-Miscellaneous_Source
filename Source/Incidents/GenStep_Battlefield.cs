@@ -49,9 +49,10 @@ namespace Incidents
                     continue;
 
                 // Check result for valid pawnGroupMakers --> This should normally not be invalid as it is checked in the faction finder, but someone still got invalid factions..
-                if (enemyFaction != null && !enemyFaction.def.pawnGroupMakers.NullOrEmpty() &&
-                    friendlyFaction == null && !friendlyFaction.def.pawnGroupMakers.NullOrEmpty())
-                    return;
+                if (enemyFaction == null || enemyFaction.def.pawnGroupMakers.NullOrEmpty() ||
+                    friendlyFaction == null || friendlyFaction.def.pawnGroupMakers.NullOrEmpty())
+                    continue;
+
                 break;
             }
 
@@ -104,6 +105,9 @@ namespace Incidents
             IntVec3 singleCellToSpawnNear1;
             if (SiteGenStepUtility.TryFindRootToSpawnAroundRectOfInterest(out rectToDefend1, out singleCellToSpawnNear1, map))
             {
+                if (rectToDefend1 == null || !rectToDefend1.InBounds(map) || !map.AllCells.Contains(rectToDefend1.CenterCell) || rectToDefend1.Cells.Count() == 0)
+                    rectToDefend1 = CellRect.CenteredOn(map.Center, 10);
+
                 List<Pawn> list = new List<Pawn>();
                 foreach (Pawn item in this.GeneratePawns(parmsEnemy, map, this.enemyFaction))
                 {
@@ -119,7 +123,8 @@ namespace Incidents
                 if (list.Any())
                 {
                     if (this.enemyFaction == Faction.OfMechanoids)
-                        LordMaker.MakeNewLord(Faction.OfMechanoids, new LordJob_SleepThenAssaultColony(Faction.OfMechanoids), map, list);
+                        //LordMaker.MakeNewLord(Faction.OfMechanoids, new LordJob_SleepThenAssaultColony(Faction.OfMechanoids), map, list);
+                        LordMaker.MakeNewLord(Faction.OfMechanoids, new LordJob_DefendAndExpandHive(), map, list);
                     else
                         LordMaker.MakeNewLord(this.enemyFaction, new LordJob_DefendBase(this.enemyFaction, rectToDefend1.Cells.RandomElement()), map, list);
 
@@ -131,18 +136,19 @@ namespace Incidents
             }
 
             // Spawn side 2 (attacking)
-            CellRect rectToDefend2;
-            IntVec3 singleCellToSpawnNear2;
+            //CellRect rectToDefend2;
+            //IntVec3 singleCellToSpawnNear2;
             IntVec3 spawnCellPawns;
-            if (SiteGenStepUtility.TryFindRootToSpawnAroundRectOfInterest(out rectToDefend2, out singleCellToSpawnNear2, map) && 
-                    RCellFinder.TryFindRandomPawnEntryCell(out spawnCellPawns, map, 0.5f))
+            //if (SiteGenStepUtility.TryFindRootToSpawnAroundRectOfInterest(out rectToDefend2, out singleCellToSpawnNear2, map) && 
+            //        RCellFinder.TryFindRandomPawnEntryCell(out spawnCellPawns, map, 0.5f))
+            if (RCellFinder.TryFindRandomPawnEntryCell(out spawnCellPawns, map, 0.5f))
             {
                 List<Pawn> list2 = new List<Pawn>();
                 foreach (Pawn item in this.GeneratePawns(parmsFriendly, map, this.friendlyFaction))
                 {
                     IntVec3 spawnCell;
                     //if (!SiteGenStepUtility.TryFindSpawnCellAroundOrNear(rectToDefend2, singleCellToSpawnNear2, map, out spawnCell))
-                    if (!SiteGenStepUtility.TryFindSpawnCellAroundOrNear(rectToDefend2, spawnCellPawns, map, out spawnCell))
+                    if (!SiteGenStepUtility.TryFindSpawnCellAroundOrNear(rectToDefend1, spawnCellPawns, map, out spawnCell))
                     {
                         Find.WorldPawns.PassToWorld(item, PawnDiscardDecideMode.Decide);
                         break;
@@ -152,7 +158,7 @@ namespace Incidents
                 }
                 if (list2.Any())
                 {
-                    LordMaker.MakeNewLord(this.friendlyFaction, new LordJob_AssistColony(this.friendlyFaction, rectToDefend2.Cells.RandomElement()), map, list2);
+                    LordMaker.MakeNewLord(this.friendlyFaction, new LordJob_AssistColony(this.friendlyFaction, rectToDefend1.Cells.RandomElement()), map, list2);
                     for (int i = 0; i < list2.Count; i++)
                     {
                         list2[i].jobs.EndCurrentJob(JobCondition.InterruptForced, true);
@@ -170,9 +176,7 @@ namespace Incidents
             pawnGroupMakerParms.faction = faction;
             pawnGroupMakerParms.points = points;
             if (parms.sitePart != null)
-            {
-                pawnGroupMakerParms.seed = SleepingMechanoidsSitePartUtility.GetPawnGroupMakerSeed(parms.sitePart.parms);
-            }
+                pawnGroupMakerParms.seed = SeedPart;
             return PawnGroupMakerUtility.GeneratePawns(pawnGroupMakerParms, true);
         }
 

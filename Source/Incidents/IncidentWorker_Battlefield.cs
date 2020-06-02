@@ -73,7 +73,12 @@ namespace Incidents
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
             int tile = default(int);
-            if (!RimWorld.Planet.TileFinder.TryFindNewSiteTile(out tile, distance.min, distance.max, false))
+            if (!RimWorld.Planet.TileFinder.TryFindNewSiteTile(out tile, distance.min, distance.max, false, true, -1))
+                return false;
+
+            Faction factionEnemies, factionFriends;
+            GenStep_Battlefield.TryFindFightingFactions(out factionEnemies, out factionFriends);
+            if (factionEnemies == null || factionFriends == null)
                 return false;
 
             Site site;
@@ -98,9 +103,11 @@ namespace Incidents
                 parts.Add(core);
 
             // And allways add the Misc_Battlefield part
-            parts.Add(DefDatabase<SitePartDef>.GetNamed("Misc_Battlefield"));
+            SitePartDef sitePartDef_Battlefield = (DefDatabase<SitePartDef>.GetNamed("Misc_Battlefield"));
 
-            site = SiteMaker.TryMakeSite(parts, tile, false);
+            parts.Add(sitePartDef_Battlefield);
+
+            site = SiteMaker.MakeSite(parts, tile, factionEnemies);
             
             if (site != null)
             {

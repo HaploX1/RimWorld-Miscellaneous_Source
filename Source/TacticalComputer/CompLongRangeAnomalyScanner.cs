@@ -46,23 +46,44 @@ namespace TacticalComputer
                 if (possibleSitePartsInt == null)
                 {
                     possibleSitePartsInt = new List<SitePartDef>();
-                    possibleSitePartsInt.Add(SitePartDefOf.Manhunters);
+                    //possibleSitePartsInt.Add(SitePartDefOf.Manhunters);
+                    possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
+                    possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Outpost);
                     possibleSitePartsInt.Add(SitePartDefOf.Turrets);
-                    possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
+                    possibleSitePartsInt.Add(SitePartDefOf.PreciousLump);
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("BanditCamp"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("ItemStash"));
                     possibleSitePartsInt.Add(SitePartDefOf.PossibleUnknownThreatMarker);
+                    possibleSitePartsInt.Add(SitePartDefOf.PossibleUnknownThreatMarker);
+
+                    possibleSitePartsInt.AddRange( DefDatabase<SitePartDef>.AllDefsListForReading );
 
                     SitePartDef spdBattlefield = DefDatabase<SitePartDef>.GetNamedSilentFail("Misc_Battlefield");
                     if (spdBattlefield != null)
                         possibleSitePartsInt.Add(spdBattlefield);
                 }
-                List<SitePartDef> list = new List<SitePartDef>();
-                SitePartDef sitePartDef = possibleSitePartsInt.RandomElement();
-                list.Add(sitePartDef);
 
-                // Outpost may also have turrets
-                if (sitePartDef == SitePartDefOf.Outpost && Rand.Value < 0.4f)
-                    list.Add(SitePartDefOf.Turrets);
+                List<SitePartDef> list = new List<SitePartDef>();
+
+                int maxRounds = Rand.RangeInclusive(0, 2);
+                while (true)
+                {
+                    SitePartDef sitePartDef = possibleSitePartsInt.RandomElement();
+                    list.Add(sitePartDef);
+
+                    // Outpost may also have turrets
+                    if (sitePartDef == SitePartDefOf.Outpost && Rand.Value < 0.4f)
+                    {
+                        list.Add(SitePartDefOf.Turrets);
+                        break;
+                    }
+
+                    if (maxRounds <= 0)
+                        break;
+
+                    maxRounds -= 1;
+                }
 
                 return list;
             }
@@ -196,16 +217,15 @@ namespace TacticalComputer
                 site = SiteMaker.TryMakeSite(siteParts, tile, true, null, false);
             }
 
-            // if spacerUsable -> 35% chance that the faction is spacer
-            if (site != null && spacerUsable && Rand.Chance(0.35f))
-            {
-                Faction spacerFaction = null;
-                if ((from x in Find.FactionManager.AllFactionsListForReading
-                     where x.def == FactionDefOf.Ancients || x.def == FactionDefOf.AncientsHostile
-                     select x).TryRandomElement(out spacerFaction))
-                    site.SetFaction(spacerFaction);
-
-            }
+            //// if spacerUsable -> 35% chance that the faction is spacer
+            //if (site != null && spacerUsable && Rand.Chance(0.35f))
+            //{
+            //    Faction spacerFaction = null;
+            //    if ((from x in Find.FactionManager.AllFactionsListForReading
+            //         where x.def == FactionDefOf.Ancients || x.def == FactionDefOf.AncientsHostile
+            //         select x).TryRandomElement(out spacerFaction))
+            //        site.SetFaction(spacerFaction);
+            //}
 
             if (site != null)
             {

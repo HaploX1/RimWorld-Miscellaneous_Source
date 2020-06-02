@@ -138,7 +138,7 @@ namespace EndGame
             optionsRH.Begin(rectRH);
 
             optionsRH.Gap(24);
-            optionsRH.TextFieldNumeric(ref EndGame_ModSettings.maxDaysActive, ref bufferDaysActive, 10f, 60f);
+            optionsRH.TextFieldNumeric(ref EndGame_ModSettings.maxDaysActive, ref bufferDaysActive, 10f, 240f);
             optionsRH.Gap(12);
             optionsRH.GapLine(12);
             optionsRH.Gap(12);

@@ -38,7 +38,16 @@ namespace Incidents
         public override SitePartParams GenerateDefaultParams(float myThreatPoints, int tile, Faction faction)
         {
             SitePartParams parms = base.GenerateDefaultParams(myThreatPoints, tile, faction);
-            parms.threatPoints = Mathf.Max(parms.threatPoints, FactionDefOf.AncientsHostile.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
+            try
+            {
+                parms.threatPoints = Mathf.Max(parms.threatPoints, faction.def.MinPointsToGeneratePawnGroup(PawnGroupKindDefOf.Combat));
+            } catch (Exception ex)
+            {
+                if ( faction == null)
+                    Log.Warning("Faction is null! " + ex.Message + "\n" + ex.StackTrace);
+                else
+                   Log.Warning("Couldn't find valid threatPoints for faction " + faction.Name + "\n" + ex.Message + "\n" + ex.StackTrace);
+            }
             return parms;
         }
 
@@ -46,14 +55,14 @@ namespace Incidents
         {
             PawnGroupMakerParms pawnGroupMakerParms1 = new PawnGroupMakerParms();
             pawnGroupMakerParms1.tile = site.Tile;
-            pawnGroupMakerParms1.faction = Faction.OfAncients;
+            pawnGroupMakerParms1.faction = site.Faction;
             pawnGroupMakerParms1.groupKind = PawnGroupKindDefOf.Combat;
             pawnGroupMakerParms1.points = parms.threatPoints;
             pawnGroupMakerParms1.seed = SleepingMechanoidsSitePartUtility.GetPawnGroupMakerSeed(parms);
 
             PawnGroupMakerParms pawnGroupMakerParms2 = new PawnGroupMakerParms();
             pawnGroupMakerParms2.tile = site.Tile;
-            pawnGroupMakerParms2.faction = Faction.OfAncientsHostile;
+            pawnGroupMakerParms2.faction = site.Faction;
             pawnGroupMakerParms2.groupKind = PawnGroupKindDefOf.Combat;
             pawnGroupMakerParms2.points = parms.threatPoints;
             pawnGroupMakerParms2.seed = SleepingMechanoidsSitePartUtility.GetPawnGroupMakerSeed(parms);
