@@ -271,6 +271,10 @@ namespace AIRobot
 
                 if (container == null)
                     ClearContainer();
+
+                // Check/update faction
+                if (robot != null && this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
+                    robot.SetFactionDirect(this.Faction);
             }
         }
 
@@ -342,6 +346,10 @@ namespace AIRobot
             {
                 if (notify_spawnRequested)
                 {
+                    // Don't start all robots at the same time
+                    if (!this.IsHashIntervalTick(5))
+                        return;
+
                     notify_spawnRequested = false;
                     Button_SpawnBot();
                     return;
@@ -926,6 +934,10 @@ namespace AIRobot
                     this.robot.pather.StopDead();
                 }
 
+                // Check/update faction
+                if (robot != null && (robot.Faction == null || robot.Faction != this.Faction))
+                    robot.SetFactionDirect(this.Faction);
+
                 return;
             }
 
@@ -952,6 +964,10 @@ namespace AIRobot
             this.robotSpawnedOnce = true;
 
             this.SpawnRobotAfterRecharge = true;
+
+            // Check/update faction
+            if (robot != null && (robot.Faction == null || robot.Faction != this.Faction))
+                robot.SetFactionDirect(this.Faction);
         }
         private void Button_SpawnAllAvailableBots()
         {
@@ -1089,12 +1105,12 @@ namespace AIRobot
                         costs = new List<ThingDefCountClass>();
 
                         ThingDefCountClass tDefCC;
-                        tDefCC = new ThingDefCountClass(ThingDefOf.Steel, 40);
+                        tDefCC = new ThingDefCountClass(ThingDefOf.Steel, 45);
                         costs.Add(tDefCC);
                         tDefCC = new ThingDefCountClass(ThingDefOf.ComponentIndustrial, 3);
                         costs.Add(tDefCC);
-                        tDefCC = new ThingDefCountClass(ThingDefOf.Gold, 5);
-                        costs.Add(tDefCC);
+                        //tDefCC = new ThingDefCountClass(ThingDefOf.Gold, 5);
+                        //costs.Add(tDefCC);
                     }
                     foreach (ThingDefCountClass cost in costs)
                     {

@@ -264,7 +264,8 @@ namespace TurretWeaponBase
             if (gun != null && PositionHeld != null && MapHeld != null)
             {
                 Thing resultingThing;
-                GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
+                //GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
+                GenDrop.TryDropSpawn_NewTmp(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
             }
             forceCreateGunAndTop = false;
             collectingGunAllowed = false;
@@ -433,7 +434,8 @@ namespace TurretWeaponBase
             {
                 if (this.CanSetForcedTarget && GunCompEq != null && GunCompEq.PrimaryVerb != null)
                 {
-                    Command_VerbTarget_TurretWeaponBase attack = new Command_VerbTarget_TurretWeaponBase();
+                    //Command_VerbTarget_TurretWeaponBase attack = new Command_VerbTarget_TurretWeaponBase();
+                    Command_VerbTarget attack = new Command_VerbTarget();
                     attack.defaultLabel = "CommandSetForceAttackTarget".Translate();
                     attack.defaultDesc = "CommandSetForceAttackTargetDesc".Translate();
                     attack.icon = ContentFinder<Texture2D>.Get("UI/Commands/Attack", true);
@@ -499,7 +501,10 @@ namespace TurretWeaponBase
                 if (GunCompEq.PrimaryVerb.verbProps.minRange > 0.1f)
                     stringBuilder.Append(string.Concat("MinimumRange".Translate(), ": ", GunCompEq.PrimaryVerb.verbProps.minRange.ToString("F0"))).AppendLine();
                 if (burstCooldownTicksLeft > 0)
-                    stringBuilder.Append(string.Concat("CanFireIn".Translate(), ": ", burstCooldownTicksLeft.TicksToSeconds().ToString())).AppendLine();
+                    stringBuilder.Append(string.Concat("CanFireIn".Translate(), ": ", burstCooldownTicksLeft.TicksToSeconds().ToString("F0"))).AppendLine();
+
+                // Show info button for gun
+                Widgets.InfoCardButton(360, 0, gun);
             }
             else
                 stringBuilder.Append(string.Concat("GunInstalled".Translate(), ": ---")).AppendLine();
@@ -839,7 +844,7 @@ namespace TurretWeaponBase
             {
                 targetScanFlags |= TargetScanFlags.NeedNonBurning;
             }
-            return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, targetScanFlags, new Predicate<Thing>(this.IsValidTarget), 0f, 9999f);
+            return (Thing)AttackTargetFinder.BestShootTargetFromCurrentPosition(attackTargetSearcher, targetScanFlags, IsValidTarget);
         }
         private IAttackTargetSearcher TargSearcher()
         {
@@ -870,7 +875,7 @@ namespace TurretWeaponBase
                 return;
 
             if (!base.Spawned || (this.holdFire && this.CanToggleHoldFire) || (this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && base.Map.roofGrid.Roofed(base.Position)) || 
-                !this.AttackVerb.Available() )
+                !this.AttackVerb.Available() || (this.TryGetComp<CompRefuelable>() != null && !this.TryGetComp<CompRefuelable>().HasFuel))
             {
                 ResetCurrentTarget();
                 return;
@@ -944,6 +949,13 @@ namespace TurretWeaponBase
                     burstCooldownTicksLeft = (int)Math.Round(burstCooldownTicksLeft + cooldownResearchAddition);
             }
 
+            if (GunCompEq.PrimaryVerb.verbProps.consumeFuelPerShot > 0f)
+                this.TryGetComp<CompRefuelable>()?.ConsumeFuel(GunCompEq.PrimaryVerb.verbProps.consumeFuelPerShot);
+            else
+                if (GunCompEq.PrimaryVerb.verbProps.burstShotCount >= 1)
+                    this.TryGetComp<CompRefuelable>()?.ConsumeFuel(1 * GunCompEq.PrimaryVerb.verbProps.burstShotCount);
+                else
+                    this.TryGetComp<CompRefuelable>()?.ConsumeFuel(1);
         }
 
         #endregion

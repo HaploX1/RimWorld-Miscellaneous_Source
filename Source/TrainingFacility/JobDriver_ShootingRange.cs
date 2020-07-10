@@ -31,7 +31,8 @@ namespace TrainingFacility
             //TargetC is the chair to sit in (can be null)
 
             this.EndOnDespawnedOrNull(TargetIndex.A);
-            this.FailOnForbidden(TargetIndex.A);
+            //this.FailOnForbidden(TargetIndex.A);
+            this.FailOnForbidden(TargetIndex.B);
             this.FailOnDestroyedOrNull(TargetIndex.A);
 
             yield return Toils_Reserve.Reserve(TargetIndex.A, this.job.def.joyMaxParticipants, 0);

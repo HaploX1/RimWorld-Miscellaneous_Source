@@ -428,6 +428,10 @@ namespace AIPawn
             //if (needs != null && needs.rest != null && needs.rest.CurLevel <= 0.95f && !Destroyed && !Downed && Map == null)
             //    needs.rest.CurLevel += 0.01f / 60f;
 
+            // If in bed, slowly increase rest (to circumvent bed problems)
+            if (IsInBed(Map))
+                needs.rest.CurLevel += 0.025f / 60f;
+
             // Self healing ability (Nanobots)
             healDamagedPartsCounter -= 1;
             if (healDamagedPartsCounter <= 0)

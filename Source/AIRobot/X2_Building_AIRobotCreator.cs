@@ -78,6 +78,9 @@ namespace AIRobot
 
             robot.workSettings = new X2_AIRobot_Pawn_WorkSettings(robot);
 
+            if (robot.Faction == null || robot.Faction != faction)
+                robot.SetFactionDirect(faction);
+
             ////DEBUG
             //if (robot.workSettings == null)
             //    Log.Error("Worksettings == null!");
