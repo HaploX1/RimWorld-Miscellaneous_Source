@@ -272,9 +272,14 @@ namespace AIRobot
                 if (container == null)
                     ClearContainer();
 
-                // Check/update faction
-                if (robot != null && this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
-                    robot.SetFactionDirect(this.Faction);
+                //// Check/update faction - Disabled, this is causing problems..
+                //if (robot != null)
+                //{
+                //    if (this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
+                //        robot.SetFactionDirect(this.Faction);
+                //    if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
+                //        robot.SetFactionDirect(Faction.OfPlayerSilentFail);
+                //}
             }
         }
 
@@ -935,8 +940,13 @@ namespace AIRobot
                 }
 
                 // Check/update faction
-                if (robot != null && (robot.Faction == null || robot.Faction != this.Faction))
-                    robot.SetFactionDirect(this.Faction);
+                if (robot != null)
+                {
+                    if (this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
+                        robot.SetFactionDirect(this.Faction);
+                    if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
+                        robot.SetFactionDirect(Faction.OfPlayerSilentFail);
+                }
 
                 return;
             }
@@ -966,8 +976,13 @@ namespace AIRobot
             this.SpawnRobotAfterRecharge = true;
 
             // Check/update faction
-            if (robot != null && (robot.Faction == null || robot.Faction != this.Faction))
-                robot.SetFactionDirect(this.Faction);
+            if (robot != null)
+            {
+                if (this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
+                    robot.SetFactionDirect(this.Faction);
+                if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
+                    robot.SetFactionDirect(Faction.OfPlayerSilentFail);
+            }
         }
         private void Button_SpawnAllAvailableBots()
         {
