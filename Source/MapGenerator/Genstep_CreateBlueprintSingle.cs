@@ -80,7 +80,7 @@ namespace MapGenerator
             }
             catch (Exception err)
             {
-                Log.Error("Could not spawn blueprint '" + blueprint.defName + "'. Error: " + err.Message + "\n" + err.StackTrace);
+                Log.Error("Misc. MapGenerator -- Could not spawn blueprint '" + blueprint.defName + "'. Error: " + err.Message + "\n" + err.StackTrace);
             }
 
             // reset
@@ -96,7 +96,7 @@ namespace MapGenerator
             }
             catch (Exception err)
             {
-                Log.Warning("Caught error while checking CanScatterAt() -> " + err.Message + "\n" + err.StackTrace);
+                Log.Warning("Misc. MapGenerator -- Caught error while checking CanScatterAt() -> " + err.Message + "\n" + err.StackTrace);
             }
             return false;
         }
@@ -106,6 +106,7 @@ namespace MapGenerator
         {
 
             CellRect mapRect = new CellRect(loc.x, loc.z, blueprint.size.x, blueprint.size.z);
+            CellRect mapRectCheck4Neighbor = mapRect.ExpandedBy(1);
 
             mapRect.ClipInsideMap(map);
 
@@ -115,7 +116,7 @@ namespace MapGenerator
 
             // Check if we will build on a usedCell
             bool usedCellFound = false;
-            foreach (IntVec3 cell in mapRect.Cells)
+            foreach (IntVec3 cell in mapRectCheck4Neighbor.Cells) //mapRect.Cells)
             {
                 if (listOfUsedCells != null && listOfUsedCells.Contains(cell))
                 {
@@ -155,12 +156,12 @@ namespace MapGenerator
             // If a building material is defined, use this
             if (blueprint.buildingMaterial != null && blueprint.buildingMaterial != "")
                 wallStuff = DefDatabase<ThingDef>.GetNamedSilentFail( blueprint.buildingMaterial );
-            
+         
             int w = 0;
             while (true)
             {
                 w++;
-                if (w > 100) break;
+                if (w > 1000) break;
 
                 // Make all buildings from the same random stuff -- In BaseGen use faction, in MapGen use null!
                 if (wallStuff == null)
@@ -209,7 +210,7 @@ namespace MapGenerator
 
             if (blueprint.buildingData == null && blueprint.floorData == null)
             {
-                Log.ErrorOnce(string.Format("After cleaning the BlueprintData and FloorData of blueprint {0} -> both are null, nothing will be done!", blueprint.defName), 313001);
+                Log.ErrorOnce(string.Format("Misc. MapGenerator -- After cleaning the BlueprintData and FloorData of blueprint {0} -> both are null, nothing will be done!", blueprint.defName), 313001);
                 return;
             }
             
@@ -304,23 +305,32 @@ namespace MapGenerator
             LordJob lordJob;
             if (allSpawnedPawns != null && allSpawnedPawns.Count > 0)
             {
-                if (blueprint.factionSelection == FactionSelection.friendly)
+                try
                 {
-                    lordJob = new LordJob_AssistColony(allSpawnedPawns[0].Faction, allSpawnedPawns[0].Position);
-                }
-                else
-                {
-                    if (Rand.Value < 0.5f)
+                    if (blueprint.factionSelection == FactionSelection.friendly)
                     {
-                        lordJob = new LordJob_DefendPoint(allSpawnedPawns[0].Position);
+                        lordJob = new LordJob_AssistColony(allSpawnedPawns[0].Faction, allSpawnedPawns[0].Position);
                     }
                     else
                     {
-                        lordJob = new LordJob_AssaultColony(allSpawnedPawns[0].Faction, false, false, false, false, false);
+                        if (Rand.Value < 0.5f)
+                        {
+                            lordJob = new LordJob_DefendPoint(allSpawnedPawns[0].Position);
+                        }
+                        else
+                        {
+                            lordJob = new LordJob_AssaultColony(allSpawnedPawns[0].Faction, false, false, false, false, false);
+                        }
                     }
+                    LordMaker.MakeNewLord(allSpawnedPawns[0].Faction, lordJob, map, allSpawnedPawns);
+
                 }
-                LordMaker.MakeNewLord(allSpawnedPawns[0].Faction, lordJob, map, allSpawnedPawns);
-                
+                catch (Exception ex)
+                {
+                    Log.Warning("Misc. MapGenerator -- Error with LordMaker for blueprint '" + blueprint.defName + "'." + 
+                        "\n" + ex.Message + "\n" + ex.StackTrace);
+                }
+
                 allSpawnedPawns = null;
             }
         }

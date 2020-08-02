@@ -78,14 +78,14 @@ namespace AIRobot
 
             robot.workSettings = new X2_AIRobot_Pawn_WorkSettings(robot);
 
-            // Check/update faction
-            if (robot != null)
-            {
-                if (faction != null && (robot.Faction == null || robot.Faction != faction))
-                    robot.SetFactionDirect(faction);
-                if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
-                    robot.SetFactionDirect(Faction.OfPlayerSilentFail);
-            }
+            //// Check/update faction
+            //if (robot != null)
+            //{
+            //    if (faction != null && (robot.Faction == null || robot.Faction != faction))
+            //        robot.SetFactionDirect(faction);
+            //    if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
+            //        robot.SetFactionDirect(Faction.OfPlayerSilentFail);
+            //}
 
             ////DEBUG
             //if (robot.workSettings == null)

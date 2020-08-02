@@ -543,7 +543,8 @@ namespace AIRobot
                                                  orderby x.Severity descending
                                                  select x)
                 {
-                    injury.Tended(quality, batchPosition);
+                    //injury.Tended(quality, batchPosition);
+                    injury.Tended_NewTemp(quality, 1f, batchPosition);
                     batchPosition++;
                     if (batchPosition >= 1)
                         break;
@@ -939,14 +940,14 @@ namespace AIRobot
                     this.robot.pather.StopDead();
                 }
 
-                // Check/update faction
-                if (robot != null)
-                {
-                    if (this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
-                        robot.SetFactionDirect(this.Faction);
-                    if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
-                        robot.SetFactionDirect(Faction.OfPlayerSilentFail);
-                }
+                //// Check/update faction
+                //if (robot != null)
+                //{
+                //    if (this.Faction != null && (robot.Faction == null || robot.Faction != this.Faction))
+                //        robot.SetFactionDirect(this.Faction);
+                //    if (robot.Faction == null && Faction.OfPlayerSilentFail != null)
+                //        robot.SetFactionDirect(Faction.OfPlayerSilentFail);
+                //}
 
                 return;
             }
@@ -957,7 +958,7 @@ namespace AIRobot
                 return;
             }
 
-            X2_AIRobot spawnedRobot = null;
+            X2_AIRobot spawnedRobot;
             if (!IsRobotInContainer())
             {
                 spawnedRobot = X2_Building_AIRobotCreator.CreateRobot(spawnThingDef, this.Position, this.Map, Faction.OfPlayer);

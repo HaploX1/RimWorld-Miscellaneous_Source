@@ -12,10 +12,9 @@ namespace AIRobot
 {
     public class X2_JobDriver_GoToCellAndWait : JobDriver
     {
-        public bool despawn = true;
-        public int waitTicks = GenDate.TicksPerHour * 1;
+        public int waitTicks = (int)(GenDate.TicksPerHour * 0.55f);
 
-        public X2_JobDriver_GoToCellAndWait() { }
+        public X2_JobDriver_GoToCellAndWait() {}
 
         protected override IEnumerable<Toil> MakeNewToils()
         {
@@ -35,9 +34,10 @@ namespace AIRobot
 
         public Toil Toil_Wait(int ticks)
         {
-            Toil toil = new Toil();
-            toil.defaultDuration = 50;
-            toil.defaultCompleteMode = ToilCompleteMode.Delay;
+            Toil toil = new Toil {
+                defaultDuration = 32,
+                defaultCompleteMode = ToilCompleteMode.Delay
+            };
 
             toil.AddFinishAction(delegate
             {

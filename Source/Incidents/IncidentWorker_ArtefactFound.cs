@@ -76,9 +76,9 @@ namespace ArtefactFound
             // create artefact
             Building_Artefact buildingArtefact = (Building_Artefact)GenSpawn.Spawn(ThingDef.Named(thingDefName_BuildingArtefact), artefactPos, map);
             buildingArtefact.pointsToSpend = parms.points;
-            
+
             // add game event
-            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.ThreatSmall, new GlobalTargetInfo(artefactPos, map));
+            Find.LetterStack.ReceiveLetter(label, str, LetterDefOf.ThreatSmall, new GlobalTargetInfo(buildingArtefact.Position, map));
 
             //Log.Error("Points to Spent: " + parms.threatPoints.ToString() + "// Max Squad Cost: " + parms.raidMaxSquadCost.ToString());
 
