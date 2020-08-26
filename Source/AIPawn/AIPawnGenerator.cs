@@ -67,8 +67,16 @@ namespace AIPawn
             //Log.Error("2");
 
             // Needs to be set because of not flesh user
+            if (pawnAI.ownership == null)
+                pawnAI.ownership = new Pawn_Ownership(pawnAI);
+
             pawnAI.relations = new Pawn_RelationsTracker(pawnAI);
             pawnAI.guest = new Pawn_GuestTracker(pawnAI);
+
+            pawnAI.guilt = new Pawn_GuiltTracker();
+            pawnAI.royalty = new Pawn_RoyaltyTracker(pawnAI);
+            pawnAI.abilities = new Pawn_AbilityTracker(pawnAI);
+            pawnAI.relations = new Pawn_RelationsTracker(pawnAI);
 
             if (request.FixedGender.HasValue)
             {
