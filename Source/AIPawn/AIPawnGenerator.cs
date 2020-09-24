@@ -73,7 +73,7 @@ namespace AIPawn
             pawnAI.relations = new Pawn_RelationsTracker(pawnAI);
             pawnAI.guest = new Pawn_GuestTracker(pawnAI);
 
-            pawnAI.guilt = new Pawn_GuiltTracker();
+            pawnAI.guilt = new Pawn_GuiltTracker(pawnAI);
             pawnAI.royalty = new Pawn_RoyaltyTracker(pawnAI);
             pawnAI.abilities = new Pawn_AbilityTracker(pawnAI);
             pawnAI.relations = new Pawn_RelationsTracker(pawnAI);
