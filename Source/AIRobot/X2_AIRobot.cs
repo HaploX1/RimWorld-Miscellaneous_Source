@@ -197,7 +197,8 @@ namespace AIRobot
                 //Log.Error("I'm destroyed but ticking..");
                 return;
             }
-            if (Spawned && (Dead || Downed || needs.rest.CurLevel <= 0.02f))
+            // Downed only destroyes, if health is < 5%
+            if (Spawned && (Dead || (Downed && health.summaryHealth.SummaryHealthPercent < 0.05f) || needs.rest.CurLevel <= 0.01f))
             {
                 this.Destroy(DestroyMode.KillFinalize);
                 return;
