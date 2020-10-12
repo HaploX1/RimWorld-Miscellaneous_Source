@@ -15,8 +15,14 @@ using CombatExtended.Compatibility;
 //using RimWorld.Planet;
 //using RimWorld.SquadAI;
 
+using HarmonyLib;
+
 namespace Patches_Misc_CE
 {
+    [HarmonyPatch(typeof(TurretWeaponBase.Building_TurretWeaponBase))]
+    [HarmonyPatch("TryStartShootSomething")]
+    [HarmonyPatch(new Type[] {typeof(bool)})]
+
     [StaticConstructorOnStartup]
     public class WeaponBase_CE_Building_TurretWeaponBase : TurretWeaponBase.Building_TurretWeaponBase
     {
@@ -30,15 +36,17 @@ namespace Patches_Misc_CE
 						    ((Building_Turret t) => {return (t as WeaponBase_CE_Building_TurretWeaponBase).GetReload();}),
 						    ((Building_Turret t) => {return (t as WeaponBase_CE_Building_TurretWeaponBase).GetGun();}),
 						    ((Building_Turret t) => {return (t as WeaponBase_CE_Building_TurretWeaponBase).GetAmmo();}));
+	    new Harmony("org.ce.weaponbase").PatchAll();
 	}
       
 	private CompAmmoUser GetAmmo() {
 	    if (_ammo == null) {
 		_ammo = GetGun()?.TryGetComp<CompAmmoUser>();
-		if (_ammo!=null) {
-		    _ammo.turret = this;
-		}
 	    }
+	    if (_ammo!=null) {
+		_ammo.turret = this;
+	    }
+
 	    return _ammo;
 	}
 
@@ -75,6 +83,17 @@ namespace Patches_Misc_CE
 
 	}
 
+
+	public static void Postfix(TurretWeaponBase.Building_TurretWeaponBase __instance, ref int ___burstWarmupTicksLeft) {
+	    Verb attackVerb = __instance.AttackVerb;
+	    if (___burstWarmupTicksLeft == __instance.def.building.turretBurstWarmupTime.SecondsToTicks()) {
+		if (attackVerb != null) {
+		    ___burstWarmupTicksLeft = attackVerb.verbProps.warmupTime.SecondsToTicks();
+		}
+	    }
+
+	}
+	
 	public override IEnumerable<Gizmo> GetGizmos() {
 	    foreach (var c in base.GetGizmos())
 		yield return c;
