@@ -83,7 +83,13 @@ namespace Patches_Misc_CE
 
 	}
 
-
+	public override void Tick() {
+	    if (_reloading) {
+		return;
+	    }
+	    base.Tick();
+	}
+	
 	public static void Postfix(TurretWeaponBase.Building_TurretWeaponBase __instance, ref int ___burstWarmupTicksLeft) {
 	    Verb attackVerb = __instance.AttackVerb;
 	    if (___burstWarmupTicksLeft == __instance.def.building.turretBurstWarmupTime.SecondsToTicks()) {
