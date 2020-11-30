@@ -28,6 +28,9 @@ namespace AIRobot
         public static string lbActivateAllRobots = "AIRobot_Label_ActivateAllRobots";
         public static string txtActivateAllRobots = "AIRobot_ActivateAllRobots";
 
+        public static string lbToggleAllowTempMapUsage = "AIRobot_Label_ToggleAllowTempMapUsage";
+        public static string txtToggleAllowTempMapUsage = "AIRobot_ToggleAllowTempMapUsage";
+
         public static string txtRobotNotDeactivated = "AIRobot_CannotRepairRobotIsActive";
 
         public static string txtRapairRequested = "AIRobot_RepairRobotInProgress";
@@ -50,6 +53,7 @@ namespace AIRobot
         public static Texture2D UI_ButtonSearch = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Search");
         public static Texture2D UI_ButtonRepair_Active = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_Active");
         public static Texture2D UI_ButtonRepair_NotActive = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_NotActive");
+        public static Texture2D UI_ButtonStartAllowIncidentMap = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Start_Allow_IncidentMap");
 
         public static Texture2D UI_ButtonGoUp = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoUp");
         public static Texture2D UI_ButtonGoDown = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoDown");
@@ -607,6 +611,11 @@ namespace AIRobot
         }
 
         //private static Designator_Deconstruct designatorDeconstruct = new Designator_Deconstruct();
+        private Boolean allowTempMapUsage = false;
+        private void Button_ToggleAllowIncidentMapUsage()
+        {
+            allowTempMapUsage = !allowTempMapUsage;
+        }
 
         /// <summary>
         /// This creates new selection buttons with a new graphic
@@ -619,6 +628,22 @@ namespace AIRobot
             foreach (Gizmo gizmo in base.GetGizmos())
                 yield return gizmo;
 
+            if (robot == null && !robotIsDestroyed && (!Map.IsPlayerHome || Map.IsTempIncidentMap))
+            {
+                // Key-Binding K - Toggle TempMapUsage
+                Command_Action act0;
+                act0 = new Command_Action();
+                act0.defaultLabel = lbToggleAllowTempMapUsage.Translate();
+                act0.defaultDesc = txtToggleAllowTempMapUsage.Translate();
+                act0.icon = UI_ButtonStartAllowIncidentMap;
+                //act0.hotKey = KeyBindingDefOf.Misc8;
+                act0.activateSound = SoundDef.Named("Click");
+                act0.action = Button_ToggleAllowIncidentMapUsage;
+                act0.disabled = false;
+                act0.disabledReason = "";
+                act0.groupKey = groupBaseKey + 0;
+                yield return act0;
+            }
 
             if (robot == null && !robotIsDestroyed)
             {
@@ -631,7 +656,7 @@ namespace AIRobot
                 act2.hotKey = KeyBindingDefOf.Misc4;
                 act2.activateSound = SoundDef.Named("Click");
                 act2.action = Button_SpawnBot;
-                if (!Map.IsPlayerHome || Map.IsTempIncidentMap)
+                if ((!Map.IsPlayerHome || Map.IsTempIncidentMap) && !allowTempMapUsage)
                 {
                     act2.disabled = true;
                     act2.disabledReason = txtDisabledBecauseNotHomeMap.Translate();
