@@ -271,7 +271,8 @@ namespace BeeAndHoney
 
             foreach (Thing item in foundThingsInt)
             {
-                MoteMaker.MakeStaticMote(item.Position, map, ThingDefOf.Mote_FeedbackGoto);
+                //MoteMaker.MakeStaticMote(item.Position, map, ThingDefOf.Mote_FeedbackGoto);
+                FleckMaker.Static(item.Position, map, FleckDefOf.FeedbackGoto);
             }
         }
         

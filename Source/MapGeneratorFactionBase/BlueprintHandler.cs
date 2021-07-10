@@ -122,7 +122,7 @@ namespace MapGenerator
                 foreach (IntVec3 current in mapRect.Cells)
                 {
                     // Find all created rooms
-                    Room room = current.GetRoom(map, RegionType.Set_All);
+                    Room room = current.GetRoom(map);
                     if (room != null && !room.TouchesMapEdge)
                         rooms.Add(room);
                 }

@@ -305,6 +305,7 @@ namespace MapGenerator
             LordJob lordJob;
             if (allSpawnedPawns != null && allSpawnedPawns.Count > 0)
             {
+                //Log.Error("Spawned faction: "+ allSpawnedPawns[0].Faction.ToString());
                 try
                 {
                     if (blueprint.factionSelection == FactionSelection.friendly)

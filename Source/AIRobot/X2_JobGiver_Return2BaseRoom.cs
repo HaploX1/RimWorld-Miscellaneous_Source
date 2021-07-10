@@ -36,7 +36,7 @@ namespace AIRobot
             IntVec3 cell = roomRecharge.Cells.Where(c => 
                                 c.Standable(mapRecharge) && !c.IsForbidden(pawn) &&
                                 AIRobot_Helper.IsInDistance(c, posRecharge, 5) &&
-                                pawn.CanReach(c, PathEndMode.OnCell, Danger.Some, false, TraverseMode.ByPawn)
+                                pawn.CanReach(c, PathEndMode.OnCell, Danger.Some, false, false, TraverseMode.ByPawn)
                                 )
                             .FirstOrDefault();
 

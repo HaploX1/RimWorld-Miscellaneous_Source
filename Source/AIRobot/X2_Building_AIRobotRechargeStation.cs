@@ -547,8 +547,7 @@ namespace AIRobot
                                                  orderby x.Severity descending
                                                  select x)
                 {
-                    //injury.Tended(quality, batchPosition);
-                    injury.Tended_NewTemp(quality, 1f, batchPosition);
+                    injury.Tended(quality, 1f, batchPosition);
                     batchPosition++;
                     if (batchPosition >= 1)
                         break;
@@ -578,7 +577,8 @@ namespace AIRobot
                 //Log.Error("POST:" + hediff_Injury2.Severity.ToString());
 
                 // Throw Healing Mote
-                MoteMaker.ThrowMetaIcon(this.Position, this.Map, ThingDefOf.Mote_HealingCross);
+                //MoteMaker.ThrowMetaIcon(this.Position, this.Map, ThingDefOf.mo.Mote_HealingCross);
+                FleckMaker.ThrowMetaIcon(this.Position, this.Map, FleckDefOf.HealingCross);
             } else
             {
                 if (robot != null && isRechargeActive && !robotIsDestroyed)
@@ -848,7 +848,8 @@ namespace AIRobot
                 if (target != IntVec3.Invalid)
                 {
                     Find.CameraDriver.JumpToCurrentMapLoc(target);
-                    MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                    //MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                    FleckMaker.Static(target, Map, FleckDefOf.FeedbackGoto);
                 }
                 return;
             }
@@ -859,7 +860,8 @@ namespace AIRobot
                 if (target != IntVec3.Invalid)
                 {
                     Find.CameraDriver.JumpToCurrentMapLoc(target);
-                    MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                    //MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                    FleckMaker.Static(target, Map, FleckDefOf.FeedbackGoto);
                 }
                 return;
             }
@@ -867,7 +869,8 @@ namespace AIRobot
             if (target != IntVec3.Invalid)
             {
                 Find.CameraDriver.JumpToCurrentMapLoc(target);
-                MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                //MoteMaker.MakeStaticMote(target, Map, ThingDefOf.Mote_FeedbackGoto);
+                FleckMaker.Static(target, Map, FleckDefOf.FeedbackGoto);
             }
             return;
         }

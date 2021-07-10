@@ -238,7 +238,7 @@ namespace AIRobot
                                     {
                                         if (!item.IsForbidden(pawn) && scanner.HasJobOnCell(pawn, item, false))
                                         {
-                                            if (!allowUnreachable && !pawn.CanReach(item, scanner.PathEndMode, maxDanger, false, TraverseMode.ByPawn))
+                                            if (!allowUnreachable && !pawn.CanReach(item, scanner.PathEndMode, maxDanger, false, false, TraverseMode.ByPawn))
                                             {
                                                 continue;
                                             }
@@ -251,7 +251,7 @@ namespace AIRobot
                                     }
                                     else if (num4 < num2 && !item.IsForbidden(pawn) && scanner.HasJobOnCell(pawn, item, false))
                                     {
-                                        if (!allowUnreachable && !pawn.CanReach(item, scanner.PathEndMode, maxDanger, false, TraverseMode.ByPawn))
+                                        if (!allowUnreachable && !pawn.CanReach(item, scanner.PathEndMode, maxDanger, false, false, TraverseMode.ByPawn))
                                         {
                                             continue;
                                         }
@@ -270,7 +270,7 @@ namespace AIRobot
                     }
                     catch (Exception ex)
                     {
-                        Log.Error(pawn + " threw exception in WorkGiver " + workGiver.def.defName + ": " + ex.ToString(), false);
+                        Log.Error(pawn + " threw exception in WorkGiver " + workGiver.def.defName + ": " + ex.ToString());
                     }
                     finally
                     {
@@ -303,7 +303,9 @@ namespace AIRobot
                         {
                             return new ThinkResult(job3, this, list[j].def.tagToGive, false);
                         }
-                        Log.ErrorOnce(workGiver_Scanner + " provided target " + targetInfo + " but yielded no actual job for pawn " + pawn + ". The CanGiveJob and JobOnX methods may not be synchronized.", 6112651, false);
+                        Log.ErrorOnce(workGiver_Scanner + " provided target " + targetInfo + " but yielded no actual job for pawn " + pawn + ". The CanGiveJob and JobOnX methods may not be synchronized.", 6112651);
+
+                        
                     }
                     num = workGiver.def.priorityInType;
                 }

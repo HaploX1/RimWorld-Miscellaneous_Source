@@ -44,7 +44,7 @@ namespace AIRobot
             }
             throw new NotImplementedException();
         }
-
+        
         public override ThinkResult TryIssueJobPackage(Pawn pawn, JobIssueParams jobParams)
         {
 
