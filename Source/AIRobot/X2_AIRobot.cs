@@ -223,7 +223,7 @@ namespace AIRobot
                     rechargeStation = TryFindRechargeStation(this, Map);
 
                 // Remove unwanted HeDiffs
-                if (!Gen.IsHashIntervalTick(this, 500))
+                if (Gen.IsHashIntervalTick(this, 500))
                     RemoveUnwantedHediffs(this);
             }
         }
@@ -491,6 +491,8 @@ namespace AIRobot
               typeof(Hediff_Addiction),
               typeof(Hediff_HeartAttack),
               typeof(Hediff_Pregnant),
+              typeof(Hediff_PsychicLove),
+              typeof(Hediff_Psylink),
 });
         public static List<Type> nonremoveablehediffs = new List<Type>(new Type[]
 {
