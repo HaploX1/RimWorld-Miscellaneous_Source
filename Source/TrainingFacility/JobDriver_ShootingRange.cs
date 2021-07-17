@@ -100,7 +100,7 @@ namespace TrainingFacility
                 else
                 {
                     // dangerous weapons --> Throw some stones instead
-                    MoteMaker.ThrowStone(pawn, TargetA.Cell);
+                    FleckMaker.ThrowStone(pawn, TargetA.Cell);
                     pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(6);
 
                     // Alternate: Shoot some arrows?

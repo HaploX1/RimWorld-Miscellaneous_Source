@@ -12,7 +12,7 @@ using Verse.AI;
 namespace AIRobot
 {
 
-    public class X2_JobGiver_Work_old : ThinkNode
+    public class X2_JobGiver_Work_v1 : ThinkNode
     {
 
         public override float GetPriority(Pawn pawn)

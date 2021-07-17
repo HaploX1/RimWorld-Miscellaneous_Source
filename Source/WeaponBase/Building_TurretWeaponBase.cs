@@ -265,7 +265,7 @@ namespace TurretWeaponBase
             {
                 Thing resultingThing;
                 //GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
-                GenDrop.TryDropSpawn_NewTmp(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
+                GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
             }
             forceCreateGunAndTop = false;
             collectingGunAllowed = false;
@@ -640,10 +640,10 @@ namespace TurretWeaponBase
                     this.collectingGunAllowed = true;
                 };
 
-                Action hoverAction = delegate
+                Action<Rect> hoverAction = delegate
                 {
                     if (haulThing != null)
-                        MoteMaker.MakeStaticMote(haulThing.Position, Map, ThingDefOf.Mote_FeedbackGoto);
+                        FleckMaker.Static(haulThing.Position, Map, FleckDefOf.FeedbackGoto);
                 };
 
                 list.Add(new FloatMenuOption(txtFloatMenuInstallWeapon.Translate() + " " + haulThing.Label, action, MenuOptionPriority.Default, hoverAction));

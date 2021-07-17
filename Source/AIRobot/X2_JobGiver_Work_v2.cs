@@ -12,7 +12,7 @@ using Verse.AI;
 namespace AIRobot
 {
 
-    public class X2_JobGiver_Work : ThinkNode
+    public class X2_JobGiver_Work_v2 : ThinkNode
     {
 
         public override float GetPriority(Pawn pawn)
@@ -21,7 +21,7 @@ namespace AIRobot
             //{
             //    return 0f;
             //}
-            TimeAssignmentDef timeAssignmentDef = (pawn.timetable == null) ? TimeAssignmentDefOf.Anything : pawn.timetable.CurrentAssignment;
+            TimeAssignmentDef timeAssignmentDef = (pawn.timetable != null) ? pawn.timetable.CurrentAssignment : TimeAssignmentDefOf.Anything;
             if (timeAssignmentDef == TimeAssignmentDefOf.Anything)
             {
                 return 5.5f;
