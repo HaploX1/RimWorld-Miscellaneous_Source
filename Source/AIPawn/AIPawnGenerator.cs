@@ -41,7 +41,7 @@ namespace AIPawn
         public static AIPawn GenerateAIPawn(string kindDefName, Faction faction, Map map, Gender gender = Gender.Female)
         {
             //return GeneratePawn(PawnKindDef.Named(kindDefName), faction, map, gender);
-            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, false, 0, null, 0,null,null,null,null,null,0f, 0f, gender, 0.1f, null, null, null);
+            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, false, 0f, 0f, null, 0f, null, null, null, null, null, 0f, 0f, gender, 0.1f, null, null, null); ;
             return GenerateAIPawn(ref request, map);
 
         }
@@ -116,7 +116,7 @@ namespace AIPawn
                 pawnAI.story.childhood = GetBackstory();
                 //pawnAI.story.adulthood = GetBackstory();
 
-                string headGraphicPath = GraphicDatabaseHeadRecords.GetHeadRandom(pawnAI.gender, pawnAI.story.SkinColor, pawnAI.story.crownType).GraphicPath;
+                string headGraphicPath = GraphicDatabaseHeadRecords.GetHeadRandom(pawnAI.gender, pawnAI.story.SkinColor, pawnAI.story.crownType, false).GraphicPath;
                 // With this Reflection you can access a private variable! Here: The private string "headGraphicPath" is set 
                 System.Reflection.FieldInfo fi = typeof(Pawn_StoryTracker).GetField("headGraphicPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
                 fi.SetValue(pawnAI.story, headGraphicPath);

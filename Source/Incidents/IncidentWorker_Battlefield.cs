@@ -73,7 +73,7 @@ namespace Incidents
         protected override bool TryExecuteWorker(IncidentParms parms)
         {
             int tile = default(int);
-            if (!RimWorld.Planet.TileFinder.TryFindNewSiteTile(out tile, distance.min, distance.max, false, true, -1))
+            if (!RimWorld.Planet.TileFinder.TryFindNewSiteTile(out tile, distance.min, distance.max, false, TileFinderMode.Near, -1))
                 return false;
 
             Faction factionEnemies, factionFriends;

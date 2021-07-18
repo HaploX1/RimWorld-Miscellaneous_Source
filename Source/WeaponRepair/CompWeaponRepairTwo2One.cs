@@ -143,10 +143,11 @@ namespace WeaponRepair
                 yield break;
             }
 
-            Action hoverAction = delegate
+            Action<Rect> hoverAction = delegate
             {
                 Thing twin = GetAvailableTwinThing(selPawn);
-                MoteMaker.MakeStaticMote(twin.Position, parent.Map, ThingDefOf.Mote_FeedbackGoto);
+                //MoteMaker.MakeStaticMote(twin.Position, parent.Map, ThingDefOf.Mote_FeedbackGoto);
+                FleckMaker.Static(twin.Position, parent.Map, FleckDefOf.FeedbackGoto);
             };
             Action giveRepairJob = delegate { TryGiveWeaponRepairJobToPawn(selPawn); };
             yield return FloatMenuUtility.DecoratePrioritizedTask(new FloatMenuOption("WeaponRepair_RepairWeapon".Translate(), giveRepairJob, MenuOptionPriority.Default, hoverAction), selPawn, parent);

@@ -305,7 +305,9 @@ namespace TacticalComputer
                 int minDist2 = minDist;
                 int maxDist2 = maxDist;
                 Predicate<int> validator = (int x) => !Find.WorldObjects.AnyWorldObjectAt(x) && TileFinder.IsValidTileForNewSettlement(x, null);
-                bool preferCloserTiles2 = preferCloserTiles;
+                TileFinderMode preferCloserTiles2 = TileFinderMode.Random;
+                if (preferCloserTiles)
+                    preferCloserTiles2 = TileFinderMode.Near;
                 int result = default(int);
                 if (TileFinder.TryFindPassableTileWithTraversalDistance(root, minDist2, maxDist2, out result, validator, false, preferCloserTiles2))
                 {

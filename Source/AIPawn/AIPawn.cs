@@ -660,7 +660,7 @@ namespace AIPawn
                                                  orderby x.Severity descending
                                                  select x)
                 {
-                    injury.Tended_NewTemp(quality, 1f, batchPosition);
+                    injury.Tended(quality, 1f, batchPosition);
                     batchPosition++;
                     if (batchPosition >= (IsInBed(Map) ? 3 : 1))
                         break;

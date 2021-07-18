@@ -84,7 +84,7 @@ namespace AIPawn
                 {
                     if (Takee.HostFaction != Faction.OfPlayer)
                     {
-                        Takee.guest.SetGuestStatus(Faction.OfPlayer, true);
+                        Takee.guest.SetGuestStatus(Faction.OfPlayer, GuestStatus.Prisoner);
                     }
                 }
             };
