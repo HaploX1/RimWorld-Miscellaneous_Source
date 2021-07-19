@@ -72,15 +72,15 @@ namespace MapGenerator
                 else if (blueprint1stSelection.Count() <= 5)
                     createVanillaLimit = 0.80f;
                 else if (blueprint1stSelection.Count() <= 7)
-                    createVanillaLimit = 0.70f;
+                    createVanillaLimit = 0.75f;
                 else if (blueprint1stSelection.Count() <= 10)
-                    createVanillaLimit = 0.65f;
+                    createVanillaLimit = 0.70f;
                 else if (blueprint1stSelection.Count() <= 15)
-                    createVanillaLimit = 0.50f;
+                    createVanillaLimit = 0.60f;
                 else if (blueprint1stSelection.Count() <= 20)
-                    createVanillaLimit = 0.45f;
+                    createVanillaLimit = 0.50f;
                 else
-                    createVanillaLimit = 0.35f;
+                    createVanillaLimit = 0.40f;
             }
 
             // If there are faction specific blueprints found, reduce the vanilla chance
@@ -145,12 +145,6 @@ namespace MapGenerator
         }
 
 
-
-
-
-
-
-
         // This is core code, that will be used if there isn't a blueprint available for the required tech level of the faction
         // Original from RimWorld.GenStep_FactionBase 
 
@@ -166,23 +160,6 @@ namespace MapGenerator
             //gs.ReflectCall("ScatterAt", c, map, genStepParms, stackCount);
             
             return;
-
-
-
-            //int randomInRange = GenStep_Settlement.SettlementSizeRange.RandomInRange;
-            //int randomInRange2 = GenStep_Settlement.SettlementSizeRange.RandomInRange;
-            //CellRect rect = new CellRect(c.x - randomInRange / 2, c.z - randomInRange2 / 2, randomInRange, randomInRange2);
-            //Faction faction = (map.ParentFaction != null && map.ParentFaction != Faction.OfPlayer) ? map.ParentFaction : Find.FactionManager.RandomEnemyFaction(false, false, true, TechLevel.Undefined);
-            //rect.ClipInsideMap(map);
-            //ResolveParams resolveParams = default(ResolveParams);
-            //resolveParams.rect = rect;
-            //resolveParams.faction = faction;
-            //BaseGen.globalSettings.map = map;
-            //BaseGen.globalSettings.minBuildings = 1;
-            //BaseGen.globalSettings.minBarracks = 1;
-            //BaseGen.symbolStack.Push("settlement", resolveParams);
-            //BaseGen.Generate();
-
         }
 
 
