@@ -200,7 +200,7 @@ namespace TacticalComputer
                 return;
 
             Site site;
-            bool spacerUsable = false;
+            //bool spacerUsable = false;
 
             List<SitePartDef> siteParts = new List<SitePartDef>();
             if (Rand.Chance(Props.chanceForNoSitePart))
@@ -208,7 +208,7 @@ namespace TacticalComputer
                 siteParts.Add(GetRandomSiteCoreDef());
 
                 site = SiteMaker.TryMakeSite(siteParts, tile, false, null, true);
-                spacerUsable = true;
+                //spacerUsable = true;
             }
             else
             {
