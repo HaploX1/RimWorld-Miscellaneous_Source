@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>AIRobot</RootNamespace>
     <AssemblyName>AIRobot</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -91,8 +91,6 @@
     <Compile Include="X2_JobGiver_RepairDamagedRobot.cs" />
     <Compile Include="X2_JobGiver_LeaveLord.cs" />
     <Compile Include="X2_JobGiver_Return2BaseRoom.cs" />
-    <Compile Include="X2_JobGiver_Work_v1.cs" />
-    <Compile Include="X2_JobGiver_Work_v2.cs" />
     <Compile Include="X2_MainTabWindow_Robots.cs" />
     <Compile Include="X2_PawnColumnWorker_IsInRecharge.cs" />
     <Compile Include="X2_PawnColumnWorker_ShutDownAll.cs" />
