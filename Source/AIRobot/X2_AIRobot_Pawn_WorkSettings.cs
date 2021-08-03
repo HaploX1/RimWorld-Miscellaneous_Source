@@ -67,22 +67,23 @@ namespace AIRobot
                                             //orderby this.pawn2.skills.AverageOfRelevantSkillsFor(w) descending
                                             select w)
             {
-                //bool found = false;
-                //foreach (X2_ThingDef_AIRobot.RobotWorkTypes rwtdef in (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes)
-                //{
-                //    if (rwtdef.workTypeDef == current) 
-                //    {
-                //        found = true;
-                //        break;
-                //    }
-                //}
-                //if (found)
-                //    this.SetPriority(current, 3);
-                //else
-                //    this.SetPriority(current, 0);
+                bool found = false;
+                foreach (X2_ThingDef_AIRobot.RobotWorkTypes rwtdef in (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes)
+                {
+                    if (rwtdef.workTypeDef == current)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    base.SetPriority(current, 3);
+                else
+                    base.SetPriority(current, 0);
 
 
-                this.SetPriority(current, 3);
+                //this.SetPriority(current, 3);
+                //base.SetPriority(current, 3);
 
                 //num++;
                 //if (num >= 6)
@@ -117,6 +118,7 @@ namespace AIRobot
 
             //Log.Message("PRE - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
 
+            base.SetPriority(w, priority);
             this.prioritiesReflected[w] = priority;
 
             //Log.Message("POST - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");

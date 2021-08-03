@@ -329,6 +329,22 @@ namespace AIRobot
                 opt4.groupKey = 1234567 + 4;
                 yield return opt4;
             }
+            //if (DebugSettings.godMode)
+            {
+                // Key-Binding 5
+                Command_Action opt5;
+                opt5 = new Command_Action();
+                //opt5.icon = X2_Building_AIRobotRechargeStation.UI_ButtonGoRight;
+                opt5.defaultLabel = "Info";// "RIGHT";
+                opt5.defaultDesc = "DEBUG: Info";
+                //opt5.hotKey = ;
+                opt5.activateSound = SoundDef.Named("Click");
+                opt5.action = delegate { Debug_Info(); };
+                opt5.disabled = false;
+                opt5.disabledReason = "";
+                opt5.groupKey = 1234567 + 5;
+                yield return opt5;
+            }
         }
         private void Debug_ForceGotoDistance(int distX, int distZ)
         {
@@ -362,6 +378,50 @@ namespace AIRobot
             foundBase = allBases.Where(t => t.robot == bot).FirstOrDefault();
 
             return foundBase;
+        }
+
+        private void Debug_Info()
+        {
+            StringBuilder s1 = new StringBuilder(); // Skills
+            foreach (X2_ThingDef_AIRobot.RobotSkills skill in def2.robotSkills)
+            {
+                s1.AppendWithComma(skill.skillDef.skillLabel.ToString() + " (" + skill.level.ToString() + ")");
+            }
+            if (s1.ToString() == "")
+                s1.Append("---");
+
+            StringBuilder s2 = new StringBuilder(); // WorkTypes
+            foreach (WorkTypeDef w in DefDatabase<WorkTypeDef>.AllDefs) //  this.workSettings...WorkGiversInOrderNormal)
+            {
+                if (this.workSettings.GetPriority(w) == 0)
+                    continue;
+
+                s2.AppendWithComma(w.labelShort + " (" + this.workSettings.GetPriority(w) + ")");
+            }
+            if (s2.ToString() == "")
+                s2.Append("---");
+
+            StringBuilder s3 = new StringBuilder(); // WorkGivers
+            foreach (WorkGiver w in this.GetWorkGivers(false)) //  this.workSettings...WorkGiversInOrderNormal)
+            {
+                s3.AppendWithComma(w.def.label);
+            }
+            if (s3.ToString() == "")
+                s3.Append("---");
+
+
+            //Messages.Message("Roboterskills: " + s1.ToString() + " -- WorkTypes: " + s2.ToString(), MessageTypeDefOf.NeutralEvent, false);
+            //Messages.Message("Roboterskills: " + s.ToString() + " -- WorkGivers: " + s2.ToString(), MessageTypeDefOf.NeutralEvent, false);
+
+            Letter letter = LetterMaker.MakeLetter("Robot-Info", 
+                                        "Robot: "+ this.NameShortColored + Environment.NewLine + Environment.NewLine + 
+                                        "Roboterskills: " + s1.ToString() + Environment.NewLine + Environment.NewLine +
+                                        "WorkTypes: " + s2.ToString() + Environment.NewLine + Environment.NewLine +
+                                        "WorkGivers: " + s3.ToString(),
+                                        LetterDefOf.NeutralEvent,
+                                        this);
+            Find.LetterStack.ReceiveLetter(letter);
+
         }
 
 
