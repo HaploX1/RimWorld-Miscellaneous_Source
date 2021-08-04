@@ -15,6 +15,7 @@ namespace AIRobot
     public class X2_AIRobot_Pawn_WorkSettings : Pawn_WorkSettings
     {
         Pawn pawn2;
+        private int countLogPriority = 0;
 
         // For Reflection needed.
         private static readonly System.Reflection.BindingFlags BindFlags = System.Reflection.BindingFlags.Instance
@@ -77,10 +78,33 @@ namespace AIRobot
                     }
                 }
                 if (found)
-                    base.SetPriority(current, 3);
-                else
-                    base.SetPriority(current, 0);
+                {
+                    this.SetPriority(current, 3);
 
+                    try { base.SetPriority(current, 3); }
+                    catch (Exception ex)
+                    {
+                        if (countLogPriority < 1)
+                        {
+                            Log.Warning("Thrown error while setting priority. This can be an issue with another mod!" + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                            countLogPriority++;
+                        }
+                    }
+                }
+                else
+                {
+                    this.SetPriority(current, 0);
+
+                    try { base.SetPriority(current, 0); }
+                    catch (Exception ex)
+                    {
+                        if (countLogPriority < 1)
+                        {
+                            Log.Warning("Thrown error while setting priority. This can be an issue with another mod!" + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                            countLogPriority++;
+                        }
+                    }
+                }
 
                 //this.SetPriority(current, 3);
                 //base.SetPriority(current, 3);
@@ -96,6 +120,7 @@ namespace AIRobot
             //    this.Disable(current3);
             //}
         }
+
 
         public new void SetPriority(WorkTypeDef w, int priority)
         {
@@ -118,8 +143,15 @@ namespace AIRobot
 
             //Log.Message("PRE - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
 
-            base.SetPriority(w, priority);
             this.prioritiesReflected[w] = priority;
+            try { base.SetPriority(w, priority); }
+            catch (Exception ex) {
+                if (countLogPriority < 1)
+                {
+                    Log.Warning("Thrown error while setting priority. This can be an issue with another mod!" + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
+                    countLogPriority++;
+                }
+            }
 
             //Log.Message("POST - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
 
