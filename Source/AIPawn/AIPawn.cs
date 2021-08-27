@@ -19,7 +19,7 @@ namespace AIPawn
     /// </summary>
     /// <author>Haplo</author>
     /// <permission>For usage of this code, please look at the license information.</permission>
-    [StaticConstructorOnStartup]
+    [StaticConstructorOnStartup] 
     public class AIPawn : Pawn
     {
         private int refreshBaseInfosCount = 999999;
@@ -42,14 +42,14 @@ namespace AIPawn
         //public Pawn_Ownership ai_ownership;
 
         // holder for the grafics of the head and body
-        public string normalHeadGraphicPathMulti = "Things/Pawns/Female_Average_MiaHead";
-        public string draftedHeadGraphicPathMulti = "Things/Pawns/Female_Average_MiaHead";
-        public string normalBodyGraphicPathMulti = "Things/Pawns/Naked_Mia";
-        public string draftedBodyGraphicPathMulti = "Things/Pawns/Drafted_Mia";
+        public string normalHeadGraphicPathMulti = "Things/Pawns/Naked/Female_Average_MiaHead";
+        public string normalBodyGraphicPathMulti = "Things/Pawns/Naked/Naked_Mia";
+        public string draftedHeadGraphicPathMulti = "Things/Pawns/Drafted/Female_Average_MiaHead";
+        public string draftedBodyGraphicPathMulti = "Things/Pawns/Drafted/Drafted_Mia";
 
         public static Graphic nakedHeadGraphic;
-        public static Graphic nakedBodyGraphic;
         public static Graphic nakedHeadGraphicHue;
+        public static Graphic nakedBodyGraphic;
         public static Graphic nakedBodyGraphicHue;
 
         public static Graphic draftedHeadGraphic;
@@ -61,6 +61,8 @@ namespace AIPawn
 
         public bool graphicHueActive = false;
         private bool draftedActiveOld = false;
+        private string graphicStateOld = "";
+        private string graphicState = "";
 
         // Init needed to remove the new backstories after they are applied
         private bool init = false;
@@ -90,7 +92,7 @@ namespace AIPawn
         {
             ThingDef_AIPawn def2 = (ThingDef_AIPawn)def;
 
-            if (!def2.normalHeadGraphicPathMulti.NullOrEmpty())
+            //if (!def2.normalHeadGraphicPathMulti.NullOrEmpty())
             {
                 normalHeadGraphicPathMulti = def2.normalHeadGraphicPathMulti;
                 draftedHeadGraphicPathMulti = def2.draftedHeadGraphicPathMulti;
@@ -152,24 +154,40 @@ namespace AIPawn
         {
             // Get the data from the extended def
             ReadXmlData();
-            
+
             // Load base graphics
             Color colorNormal = Color.white;
-            nakedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>( normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            draftedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            //nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(kindDef.lifeStages[0].bodyGraphicData.texPath, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            draftedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+            //nakedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+            //nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+
+            //draftedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+            //draftedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
+
+            nakedHeadGraphic = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
+            nakedBodyGraphic = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
+            draftedHeadGraphic = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
+            draftedBodyGraphic = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
+
+
+            // !!! DISABLED drafted !!! -- TODO: DELETE THIS when working correctly
+            //draftedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.CutoutSkin, Vector2.one, colorNormal);
 
             // Load hue graphics
             Color colorHue = Color.Lerp(Color.white, Color.red, 0.30f);
-            nakedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            draftedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            //nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(kindDef.lifeStages[0].bodyGraphicData.texPath, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
+            //nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
+            //nakedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
 
-            
+            //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
+            //draftedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
+
+            nakedHeadGraphicHue = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
+            nakedBodyGraphicHue = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
+            draftedHeadGraphicHue = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
+            draftedBodyGraphicHue = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
+
+            // !!! DISABLED drafted !!! -- TODO: DELETE THIS when working correctly
+            //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
+
             // Load hair graphic (shaved)
             hairGraphic = GraphicDatabase.Get<Graphic_Multi>(this.story.hairDef.texPath, ShaderDatabase.Cutout, Vector2.one, this.story.hairColor);
             
@@ -304,11 +322,13 @@ namespace AIPawn
                 {
                     Drawer.renderer.graphics.headGraphic = draftedHeadGraphic;
                     Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphic;
+                    graphicState = "draft-nohue";
                 }
                 else
                 {
                     Drawer.renderer.graphics.headGraphic = draftedHeadGraphicHue;
                     Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphicHue;
+                    graphicState = "draft-hue";
                 }
             }
             else // Not Drafted
@@ -317,13 +337,23 @@ namespace AIPawn
                 {
                     Drawer.renderer.graphics.headGraphic = nakedHeadGraphic;
                     Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphic;
+                    graphicState = "nodraft-nohue";
                 }
                 else
                 {
                     Drawer.renderer.graphics.headGraphic = nakedHeadGraphicHue;
                     Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphicHue;
+                    graphicState = "nodraft-hue";
                 }
             }
+
+            // Clear Cache if changed
+            if (graphicStateOld != graphicState)
+            {
+                Drawer.renderer.graphics.ClearCache();
+            }
+
+            graphicStateOld = graphicState;
         }
 
 
@@ -832,6 +862,19 @@ namespace AIPawn
             return (rechargeStation != null);
         }
 
+        private static T GetGraphic<T>(String path, Color color) where T : Graphic, new()
+        {
+            GraphicRequest req = new GraphicRequest();
 
+            req.color = (Color32)color;
+            req.colorTwo = (Color32)Color.white;
+            req.renderQueue = 0;
+            req.drawSize = Vector2.one;
+            req.path = path;
+            req.shader = ShaderDatabase.Cutout;
+            var value = new T();
+            value.Init(req);
+            return (T)value;
+        }
     }
 }

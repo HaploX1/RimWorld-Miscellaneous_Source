@@ -23,7 +23,7 @@ namespace AIRobot
                                | System.Reflection.BindingFlags.NonPublic
                                | System.Reflection.BindingFlags.Static;
 
-        private DefMap<WorkTypeDef, int> prioritiesReflected
+        private DefMap<WorkTypeDef, int> prioritiesReflect
         {
             set
             {
@@ -54,12 +54,11 @@ namespace AIRobot
 
         public new void EnableAndInitialize()
         {
-            if (this.prioritiesReflected == null)
+            if (this.prioritiesReflect == null)
             {
-                this.prioritiesReflected = new DefMap<WorkTypeDef, int>();
+                this.prioritiesReflect = new DefMap<WorkTypeDef, int>();
             }
-            this.prioritiesReflected.SetAll(0);
-
+            this.prioritiesReflect.SetAll(0);
             
 
             //int num = 0;
@@ -71,7 +70,7 @@ namespace AIRobot
                 bool found = false;
                 foreach (X2_ThingDef_AIRobot.RobotWorkTypes rwtdef in (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes)
                 {
-                    if (rwtdef.workTypeDef == current)
+                    if (rwtdef.workTypeDef.defName == current.defName)
                     {
                         found = true;
                         break;
@@ -105,20 +104,7 @@ namespace AIRobot
                         }
                     }
                 }
-
-                //this.SetPriority(current, 3);
-                //base.SetPriority(current, 3);
-
-                //num++;
-                //if (num >= 6)
-                //{
-                //    break;
-                //}
             }
-            //foreach (WorkTypeDef current3 in this.pawn.story.DisabledWorkTypes)
-            //{
-            //    this.Disable(current3);
-            //}
         }
 
 
@@ -143,7 +129,7 @@ namespace AIRobot
 
             //Log.Message("PRE - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
 
-            this.prioritiesReflected[w] = priority;
+            this.prioritiesReflect[w] = priority;
             try { base.SetPriority(w, priority); }
             catch (Exception ex) {
                 if (countLogPriority < 1)

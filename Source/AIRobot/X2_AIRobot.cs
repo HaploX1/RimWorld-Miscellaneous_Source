@@ -143,6 +143,17 @@ namespace AIRobot
         {
             float returnMulti;
 
+            if (oldMap == null)
+            {
+                Log.Warning("Tried to spawn robot resources without an active map. Nothing spawned!");
+                return;
+            }
+            if ( oldPos == null || oldPos == IntVec3.Invalid)
+            {
+                Log.Warning("Tried to spawn robot resources without a valid position. Nothing spawned!");
+                return;
+            }
+
             if (this.rechargeStation != null && rechargeStation.def2 != null && rechargeStation.def2.robotRepairCosts != null)
             {
                 returnMulti = 0.4f;
@@ -188,8 +199,27 @@ namespace AIRobot
 
 
         #region Tick
+        bool isSleepModeActive = false;
+        float oldRestLevel = 1f;
         public override void Tick()
         {
+            // If idle at station, don't loose charge
+            if (this.needs != null && this.needs.rest != null)
+            {
+                if (this.CurJob != null && this.CurJob.def != null &&
+                   (this.CurJob.def.defName == "AIRobot_GoAndWait" || this.CurJob.def == JobDefOf.Wait) &&
+                   IsInDistanceToStation(1.1f))
+                {
+                    if (this.needs.rest.CurLevel <= oldRestLevel - 0.01f)
+                        this.needs.rest.CurLevel = oldRestLevel;
+                    isSleepModeActive = true;
+                }
+                else
+                {
+                    oldRestLevel = this.needs.rest.CurLevel;
+                    isSleepModeActive = false;
+                }
+            }
 
             // Prevent ticks, if you aren't living anymore!
             if (this.DestroyedOrNull())
@@ -213,7 +243,7 @@ namespace AIRobot
             // Learning disabled --> reset skills every x ticks
             if (def2 == null || !def2.allowLearning)
             {
-                if (this.IsHashIntervalTick(4800))
+                if (this.IsHashIntervalTick(4800)) 
                     SetSkills(true);
             }
 
@@ -226,6 +256,16 @@ namespace AIRobot
                 if (Gen.IsHashIntervalTick(this, 500))
                     RemoveUnwantedHediffs(this);
             }
+        }
+        private bool IsInDistanceToStation(float distance)
+        {
+            if (Position != null && Position != IntVec3.Invalid &&
+                rechargeStation != null && rechargeStation.Position != null && rechargeStation.Position != IntVec3.Invalid)
+            {
+                return AIRobot_Helper.IsInDistance(Position, rechargeStation.Position, distance);
+            }
+            else
+                return false;
         }
         #endregion
 
@@ -243,8 +283,21 @@ namespace AIRobot
                         workString += "\n";
                     workString += "Distance to base: " + AIRobot_Helper.GetDistance(Position, rechargeStation.Position).ToString("0") + " cells";
                     workString += " -- ";
-                    workString += "Remaining charge: " + needs.rest.CurLevel.ToStringPercent();
+                    workString += "AIRobot_Battery".Translate() + " " + needs.rest.CurLevel.ToStringPercent();
                 }
+            }
+            else
+            {
+                if (!workString.NullOrEmpty())
+                    workString += "\n";
+                workString += "AIRobot_Battery".Translate() + " " + needs.rest.CurLevel.ToStringPercent();
+            }
+
+            if (isSleepModeActive)
+            {
+                if (!workString.NullOrEmpty())
+                    workString += "\n";
+                workString += "AIRobot_SleepMode".Translate();
             }
             return workString.TrimEndNewlines();
         }
@@ -271,7 +324,6 @@ namespace AIRobot
                 yield return opt0;
             }
 
-            //if (DebugSettings.godMode)
             {
                 // Key-Binding 1
                 Command_Action opt1;
@@ -400,7 +452,7 @@ namespace AIRobot
             }
             if (s2.ToString() == "")
                 s2.Append("---");
-
+            
             StringBuilder s3 = new StringBuilder(); // WorkGivers
             foreach (WorkGiver w in this.GetWorkGivers(false)) //  this.workSettings...WorkGiversInOrderNormal)
             {
@@ -409,11 +461,7 @@ namespace AIRobot
             if (s3.ToString() == "")
                 s3.Append("---");
 
-
-            //Messages.Message("Roboterskills: " + s1.ToString() + " -- WorkTypes: " + s2.ToString(), MessageTypeDefOf.NeutralEvent, false);
-            //Messages.Message("Roboterskills: " + s.ToString() + " -- WorkGivers: " + s2.ToString(), MessageTypeDefOf.NeutralEvent, false);
-
-            Letter letter = LetterMaker.MakeLetter("Robot-Info", 
+            Letter letter = LetterMaker.MakeLetter("Robot-Info " + this.NameShortColored, 
                                         "Robot: "+ this.NameShortColored + Environment.NewLine + Environment.NewLine + 
                                         "Roboterskills: " + s1.ToString() + Environment.NewLine + Environment.NewLine +
                                         "WorkTypes: " + s2.ToString() + Environment.NewLine + Environment.NewLine +
@@ -438,35 +486,58 @@ namespace AIRobot
             List<WorkTypeDef> wtsByPrio = new List<WorkTypeDef>();
             List<WorkTypeDef> allDefsListForReading = DefDatabase<WorkTypeDef>.AllDefsListForReading;
             int num = 999;
-            for (int i = 0; i < allDefsListForReading.Count; i++)
+            try
             {
-                WorkTypeDef workTypeDef = allDefsListForReading[i];
-                int priority = GetPriority(workTypeDef);
-                if (priority > 0)
+                for (int i = 0; i < allDefsListForReading.Count; i++)
                 {
-                    if (priority < num)
+                    WorkTypeDef workTypeDef = allDefsListForReading[i];
+                    int priority = GetPriority(workTypeDef);
+                    if (priority > 0)
                     {
-                        if (workTypeDef.workGiversByPriority.Any((WorkGiverDef wg) => wg.emergency == emergency))
+                        if (priority < num)
                         {
-                            num = priority;
+                            if (workTypeDef.workGiversByPriority.Any((WorkGiverDef wg) => wg.emergency == emergency))
+                            {
+                                num = priority;
+                            }
                         }
+                        wtsByPrio.Add(workTypeDef);
                     }
-                    wtsByPrio.Add(workTypeDef);
                 }
-            }
-            wtsByPrio.InsertionSort(delegate (WorkTypeDef a, WorkTypeDef b)
+            } catch (Exception ex)
             {
-                float value = (float)(a.naturalPriority + (4 - this.GetPriority(a)) * 100000);
-                return ((float)(b.naturalPriority + (4 - this.GetPriority(b)) * 100000)).CompareTo(value);
-            });
+                Log.Error("The for-loop threw an error working through the allDefsListForReading<WorkTypeDef>: " + ex.Message + Environment.NewLine + ex.StackTrace);
+            }
+
+            try
+            {
+                wtsByPrio.InsertionSort(delegate (WorkTypeDef a, WorkTypeDef b)
+                {
+                    float value = (float)(a.naturalPriority + (4 - this.GetPriority(a)) * 100000);
+                    return ((float)(b.naturalPriority + (4 - this.GetPriority(b)) * 100000)).CompareTo(value);
+                });
+            } catch (Exception ex)
+            {
+                Log.Error("The wtsByPrio.InsertionSort threw an error when comparing WorkTypeDef a with b: " + ex.Message + Environment.NewLine + ex.StackTrace);
+            }
             List<WorkGiver> workGivers = new List<WorkGiver>();
             for (int j = 0; j < wtsByPrio.Count; j++)
             {
                 WorkTypeDef workTypeDef2 = wtsByPrio[j];
                 for (int k = 0; k < workTypeDef2.workGiversByPriority.Count; k++)
                 {
-                    WorkGiver worker = workTypeDef2.workGiversByPriority[k].Worker;
-                    workGivers.Add(worker);
+                    try
+                    {
+                        WorkGiver worker = workTypeDef2.workGiversByPriority[k].Worker;
+                        workGivers.Add(worker);
+                    }
+                    catch (Exception ex)
+                    {
+                        if (workTypeDef2.workGiversByPriority[k].defName != null)
+                            Log.Error("The WorkTypeDef '" + workTypeDef2.workGiversByPriority[k].defName.ToString() + "' threw an error when requesting the Worker: " + ex.Message + Environment.NewLine + ex.StackTrace);
+                        else
+                            Log.Error("The WorkTypeDef 'null' threw an error when requesting the Worker: " + ex.Message + Environment.NewLine + ex.StackTrace);
+                    }
                 }
             }
 
