@@ -48,14 +48,14 @@ namespace AIPawn
         public string draftedBodyGraphicPathMulti = "Things/Pawns/Drafted/Drafted_Mia";
 
         public static Graphic nakedHeadGraphic;
-        public static Graphic nakedHeadGraphicHue;
+        //public static Graphic nakedHeadGraphicHue;
         public static Graphic nakedBodyGraphic;
-        public static Graphic nakedBodyGraphicHue;
+        //public static Graphic nakedBodyGraphicHue;
 
-        public static Graphic draftedHeadGraphic;
-        public static Graphic draftedBodyGraphic;
-        public static Graphic draftedHeadGraphicHue;
-        public static Graphic draftedBodyGraphicHue;
+        //public static Graphic draftedHeadGraphic;
+        //public static Graphic draftedBodyGraphic;
+        //public static Graphic draftedHeadGraphicHue;
+        //public static Graphic draftedBodyGraphicHue;
 
         public static Graphic hairGraphic;
 
@@ -165,8 +165,8 @@ namespace AIPawn
 
             nakedHeadGraphic = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
             nakedBodyGraphic = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
-            draftedHeadGraphic = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
-            draftedBodyGraphic = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
+            //////draftedHeadGraphic = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
+            //////draftedBodyGraphic = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
 
 
             // !!! DISABLED drafted !!! -- TODO: DELETE THIS when working correctly
@@ -180,10 +180,10 @@ namespace AIPawn
             //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
             //draftedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
 
-            nakedHeadGraphicHue = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
-            nakedBodyGraphicHue = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
-            draftedHeadGraphicHue = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
-            draftedBodyGraphicHue = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
+            //////nakedHeadGraphicHue = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
+            //////nakedBodyGraphicHue = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
+            //////draftedHeadGraphicHue = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
+            //////draftedBodyGraphicHue = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
 
             // !!! DISABLED drafted !!! -- TODO: DELETE THIS when working correctly
             //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
@@ -315,37 +315,37 @@ namespace AIPawn
             if (Drawer.renderer.graphics.hairGraphic == null)
                 Drawer.renderer.graphics.hairGraphic = hairGraphic;
 
-            // Drafted
-            if (this.Drafted)
-            {
-                if (!graphicHueActive)
-                {
-                    Drawer.renderer.graphics.headGraphic = draftedHeadGraphic;
-                    Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphic;
-                    graphicState = "draft-nohue";
-                }
-                else
-                {
-                    Drawer.renderer.graphics.headGraphic = draftedHeadGraphicHue;
-                    Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphicHue;
-                    graphicState = "draft-hue";
-                }
-            }
-            else // Not Drafted
-            {
-                if (!graphicHueActive)
-                {
+            //////// Drafted
+            //////if (this.Drafted)
+            //////{
+            //////    if (!graphicHueActive)
+            //////    {
+            //////        Drawer.renderer.graphics.headGraphic = draftedHeadGraphic;
+            //////        Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphic;
+            //////        graphicState = "draft-nohue";
+            //////    }
+            //////    else
+            //////    {
+            //////        Drawer.renderer.graphics.headGraphic = draftedHeadGraphicHue;
+            //////        Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphicHue;
+            //////        graphicState = "draft-hue";
+            //////    }
+            //////}
+            //////else // Not Drafted
+            //////{
+            //////    if (!graphicHueActive)
+            //////    {
                     Drawer.renderer.graphics.headGraphic = nakedHeadGraphic;
                     Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphic;
                     graphicState = "nodraft-nohue";
-                }
-                else
-                {
-                    Drawer.renderer.graphics.headGraphic = nakedHeadGraphicHue;
-                    Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphicHue;
-                    graphicState = "nodraft-hue";
-                }
-            }
+            //////    }
+            //////    else
+            //////    {
+            //////        Drawer.renderer.graphics.headGraphic = nakedHeadGraphicHue;
+            //////        Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphicHue;
+            //////        graphicState = "nodraft-hue";
+            //////    }
+            //////}
 
             // Clear Cache if changed
             if (graphicStateOld != graphicState)

@@ -450,8 +450,10 @@ namespace AIRobot
                 calcDistanceRestCheck = AIRobot_Helper.GetSlopePoint(robot.GetStatValue(StatDefOf.MoveSpeed, true), 1f, 6f, 15f, 40f); // movementspeed slope: speed 1 -> 30 cells, speed 6 -> 50 cells
 
             // If battery of robot is < 40% and distance > 25 cells => try to recall him
+            // If battery of robot is < 30% and distance < 3 cells => try to recall him
             // Also recall if battery is < 10% (emergency if ThinkTree isn't working)
             if ((robot.needs.rest.CurLevel < 0.40f && !AIRobot_Helper.IsInDistance(this.Position, robot.Position, calcDistanceRestCheck)) ||
+                (robot.needs.rest.CurLevel < 0.30f && AIRobot_Helper.IsInDistance(this.Position, robot.Position, 3f)) ||
                  robot.needs.rest.CurLevel < 0.10f)
             {
                 Notify_CallBotForRecharge();
