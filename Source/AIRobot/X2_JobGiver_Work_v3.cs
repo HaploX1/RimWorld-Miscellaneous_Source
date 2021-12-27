@@ -110,46 +110,46 @@ namespace AIRobot
                         if (scanner.def.scanThings)
                         {
                             Predicate<Thing> validator = (Thing t) => !t.IsForbidden(pawn) && scanner.HasJobOnThing(pawn, t);
-                            IEnumerable<Thing> potentialWorkThings = scanner.PotentialWorkThingsGlobal(pawn);
+                            IEnumerable<Thing> enumerable = scanner.PotentialWorkThingsGlobal(pawn);
                             Thing thing;
                             try
                             {
                                 if (scanner.Prioritized)
                                 {
-                                    IEnumerable<Thing> potentialWorkThings2 = potentialWorkThings;
-                                    if (potentialWorkThings2 == null)
+                                    IEnumerable<Thing> enumerable2 = enumerable;
+                                    if (enumerable2 == null)
                                     {
-                                        potentialWorkThings2 = pawn.Map.listerThings.ThingsMatching(scanner.PotentialWorkThingRequest);
+                                        enumerable2 = pawn.Map.listerThings.ThingsMatching(scanner.PotentialWorkThingRequest);
                                     }
-                                    thing = ((!scanner.AllowUnreachable) ? GenClosest.ClosestThing_Global_Reachable(pawn.Position, pawn.Map, potentialWorkThings2, scanner.PathEndMode, TraverseParms.For(pawn, scanner.MaxPathDanger(pawn)), 9999f, validator, (Thing x) => scanner.GetPriority(pawn, x)) : GenClosest.ClosestThing_Global(pawn.Position, potentialWorkThings2, 99999f, validator, (Thing x) => scanner.GetPriority(pawn, x)));
+                                    thing = ((!scanner.AllowUnreachable) ? GenClosest.ClosestThing_Global_Reachable(pawn.Position, pawn.Map, enumerable2, scanner.PathEndMode, TraverseParms.For(pawn, scanner.MaxPathDanger(pawn)), 9999f, validator, (Thing x) => scanner.GetPriority(pawn, x)) : GenClosest.ClosestThing_Global(pawn.Position, enumerable2, 99999f, validator, (Thing x) => scanner.GetPriority(pawn, x)));
                                 }
                                 else if (scanner.AllowUnreachable)
                                 {
-                                    IEnumerable<Thing> potentialWorkThings3 = potentialWorkThings;
-                                    if (potentialWorkThings3 == null)
+                                    IEnumerable<Thing> enumerable3 = enumerable;
+                                    if (enumerable3 == null)
                                     {
-                                        potentialWorkThings3 = pawn.Map.listerThings.ThingsMatching(scanner.PotentialWorkThingRequest);
+                                        enumerable3 = pawn.Map.listerThings.ThingsMatching(scanner.PotentialWorkThingRequest);
                                     }
-                                    thing = GenClosest.ClosestThing_Global(pawn.Position, potentialWorkThings3, 99999f, validator);
+                                    thing = GenClosest.ClosestThing_Global(pawn.Position, enumerable3, 99999f, validator);
                                 }
                                 else
                                 {
-                                    thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, scanner.PotentialWorkThingRequest, scanner.PathEndMode, TraverseParms.For(pawn, scanner.MaxPathDanger(pawn)), 9999f, validator, potentialWorkThings, 0, scanner.MaxRegionsToScanBeforeGlobalSearch, potentialWorkThings != null);
+                                    thing = GenClosest.ClosestThingReachable(pawn.Position, pawn.Map, scanner.PotentialWorkThingRequest, scanner.PathEndMode, TraverseParms.For(pawn, scanner.MaxPathDanger(pawn)), 9999f, validator, enumerable, 0, scanner.MaxRegionsToScanBeforeGlobalSearch, enumerable != null);
                                 }
                             }
                             catch (Exception ex)
                             {
                                 Log.Error("Error in WorkGiver: " + ex.Message);
+
                                 thing = null;
-                            }
+      
+                    }
                             if (thing != null)
                             {
                                 bestTargetOfLastPriority = thing;
                                 scannerWhoProvidedTarget = scanner;
                             }
                         }
-
-                        int maxCheck = 75; // check max work types for possible work
 
                         if (scanner.def.scanCells)
                         {
@@ -162,6 +162,7 @@ namespace AIRobot
                             IEnumerable<IntVec3> allWork4Pawn = scanner.PotentialWorkCellsGlobal(pawn);
                             IList<IntVec3> currWork4Pawn;
 
+                            int maxCheck = 100; // check max work types for possible work
                             if ((currWork4Pawn = (allWork4Pawn as IList<IntVec3>)) != null)
                             {
                                 for (int k = 0; k < currWork4Pawn.Count; k++)

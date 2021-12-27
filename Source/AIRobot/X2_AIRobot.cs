@@ -52,14 +52,17 @@ namespace AIRobot
             if (Scribe.mode != LoadSaveMode.Inactive)
                 return;
 
-            this.equipment = new Pawn_EquipmentTracker(this);
-            this.apparel = new Pawn_ApparelTracker(this);
+            if (this.equipment == null)
+                this.equipment = new Pawn_EquipmentTracker(this);
+            if (this.apparel == null)
+                this.apparel = new Pawn_ApparelTracker(this);
 
             // Add base shielding
             //X2_Building_AIRobotRechargeStation.GenerateBaseApparel(this);
 
             // Skills are needed for some skills (like Cleaning)
-            this.skills = new Pawn_SkillTracker(this);
+            if (skills == null)
+                this.skills = new Pawn_SkillTracker(this);
             SetSkills();
 
             // Story is needed for some skills (like Growing)
@@ -84,9 +87,9 @@ namespace AIRobot
             ignoreSpawnRename = false;
 
             // Robots are not allowed to have JOY like partying!
-            timetable = new Pawn_TimetableTracker(this);
+            this.timetable = new Pawn_TimetableTracker(this);
             for (int i = 0; i < 24; i++)
-                timetable.SetAssignment(i, TimeAssignmentDefOf.Work);
+                this.timetable.SetAssignment(i, TimeAssignmentDefOf.Work);
         }
 
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
@@ -208,7 +211,7 @@ namespace AIRobot
             {
                 if (this.CurJob != null && this.CurJob.def != null &&
                    (this.CurJob.def.defName == "AIRobot_GoAndWait" || this.CurJob.def == JobDefOf.Wait) &&
-                   IsInDistanceToStation(1.1f))
+                   IsInDistanceToStation(1.5f))
                 {
                     if (this.needs.rest.CurLevel <= oldRestLevel - 0.01f)
                         this.needs.rest.CurLevel = oldRestLevel;
@@ -623,14 +626,14 @@ namespace AIRobot
               typeof(Hediff_HeartAttack),
               typeof(Hediff_Pregnant),
               typeof(Hediff_PsychicLove),
-              typeof(Hediff_Psylink),
+              typeof(Hediff_Psylink)
 });
         public static List<Type> nonremoveablehediffs = new List<Type>(new Type[]
 {
               typeof(Hediff_AddedPart),
               typeof(Hediff_Implant),
               typeof(Hediff_Injury),
-              typeof(Hediff_MissingPart),
+              typeof(Hediff_MissingPart)
 });
 
         // removing hediffs, like alcohol etc.

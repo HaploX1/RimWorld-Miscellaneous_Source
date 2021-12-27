@@ -66,6 +66,8 @@ namespace AIRobot
 
             X2_AIRobot robot = (X2_AIRobot)PawnGenerator.GeneratePawn(request);
 
+            robot.workSettings = new X2_AIRobot_Pawn_WorkSettings(robot);
+
             if (robot.inventory == null)
                 robot.inventory = new Pawn_InventoryTracker(robot);
             if (true) // robot.RaceProps.ToolUser
@@ -76,8 +78,8 @@ namespace AIRobot
                     robot.apparel = new Pawn_ApparelTracker(robot);
             }
 
-            robot.workSettings = new X2_AIRobot_Pawn_WorkSettings(robot);
-
+            robot.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
+            
             //// Check/update faction
             //if (robot != null)
             //{
