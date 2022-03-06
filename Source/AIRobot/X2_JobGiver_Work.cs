@@ -169,8 +169,11 @@ namespace AIRobot
                                     ProcessCell(currWork4Pawn[k], pawn, scanner, pawnPosition, prioritized, allowUnreachable, maxPathDanger, 
                                         ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
 
-                                    maxCheck = maxCheck - 1;
-                                    if ( maxCheck <= 0 && bestTargetOfLastPriority != TargetInfo.Invalid)
+                                    if (bestTargetOfLastPriority != TargetInfo.Invalid)
+                                        break;
+                                    else if (scanner.ToString() != "RimWorld.WorkGiver_GrowerSow")
+                                        maxCheck--;
+                                    if (maxCheck <= 0)
                                         break;
                                 }
                             }
@@ -181,8 +184,11 @@ namespace AIRobot
                                     ProcessCell(item, pawn, scanner, pawnPosition, prioritized, allowUnreachable, maxPathDanger,
                                         ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
 
-                                    maxCheck = maxCheck - 1;
-                                    if (maxCheck <= 0 && bestTargetOfLastPriority != TargetInfo.Invalid)
+                                    if (bestTargetOfLastPriority != TargetInfo.Invalid)
+                                        break;
+                                    else if (scanner.ToString() != "RimWorld.WorkGiver_GrowerSow")
+                                        maxCheck--;
+                                    if (maxCheck <= 0)
                                         break;
                                 }
                             }
