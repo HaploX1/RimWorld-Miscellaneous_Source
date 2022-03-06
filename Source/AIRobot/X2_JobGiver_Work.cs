@@ -149,7 +149,7 @@ namespace AIRobot
                             }
                         }
 
-                        int maxCheck = 75; // check max work types for possible work
+                        int maxCheck = 150; //75; // check max work types for possible work
 
                         if (scanner.def.scanCells)
                         {
