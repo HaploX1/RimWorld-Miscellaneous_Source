@@ -14,11 +14,11 @@ namespace TrainingFacility
     public class Building_MartialArtsTarget : Building
     {
         
-        private JoyGiverDef GetJoyGiverDef()
+        public JoyGiverDef GetJoyGiverDef()
         {
             return DefDatabase<JoyGiverDef>.GetNamed("PracticeMartialArts");
         }
-        private JobDef GetJobDef()
+        public JobDef GetJobDef()
         {
             return DefDatabase<JobDef>.GetNamed("UseMartialArtsTarget_NonJoy");
         }

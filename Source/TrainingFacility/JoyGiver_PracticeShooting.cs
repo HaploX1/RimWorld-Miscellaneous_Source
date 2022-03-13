@@ -15,7 +15,7 @@ namespace TrainingFacility
     // This is the automatic selection via joy
     public class JoyGiver_PracticeShooting : JoyGiver_WatchBuilding
     {
-        private string invalidThingCategoryDef1 = "Grenades";
+        private static string invalidThingCategoryDef1 = "Grenades";
 
 
         public override Job TryGiveJob(Pawn pawn)
@@ -24,6 +24,11 @@ namespace TrainingFacility
         }
 
         public Job TryGiveJob(Pawn pawn, Thing targetThing, bool NoJoyCheck = false)
+        {
+            return TryGiveJob(pawn, targetThing, NoJoyCheck, this.def);
+        }
+
+        public Job TryGiveJob(Pawn pawn, Thing targetThing, bool NoJoyCheck, JoyGiverDef def)
         {
             Verb attackVerb = null;
 
@@ -55,10 +60,10 @@ namespace TrainingFacility
 
             // From base.TryGiveJob(pawn)
             // ==========================
-            List<Thing> searchSet = pawn.Map.listerThings.ThingsOfDef(this.def.thingDefs[0]);
+            List<Thing> searchSet = pawn.Map.listerThings.ThingsOfDef(def.thingDefs[0]);
             Predicate<Thing> predicate = delegate (Thing t)
             {
-                if (!pawn.CanReserve(t, this.def.jobDef.joyMaxParticipants))
+                if (!pawn.CanReserve(t, def.jobDef.joyMaxParticipants))
                 {
                     return false;
                 }
@@ -90,7 +95,7 @@ namespace TrainingFacility
 
             if (thing != null)
             {
-                Job job = this.TryGivePlayJob(pawn, thing);
+                Job job = DoTryGiveJob(pawn, thing, def);
                 if (job != null)
                 {
                     return job;
@@ -98,6 +103,15 @@ namespace TrainingFacility
             }
             return null;
             // ==========================
+        }
+
+        public Job DoTryGiveJob(Pawn pawn, Thing t, JoyGiverDef def)
+        {
+            if (!WatchBuildingUtility.TryFindBestWatchCell(t, pawn, def.desireSit, out var result, out var chair))
+            {
+                return null;
+            }
+            return JobMaker.MakeJob(def.jobDef, t, result, chair);
         }
 
     }

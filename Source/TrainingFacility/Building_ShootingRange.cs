@@ -14,11 +14,11 @@ namespace TrainingFacility
     public class Building_ShootingRange : Building
     {
 
-        private JoyGiverDef GetJoyGiverDef()
+        public JoyGiverDef GetJoyGiverDef()
         {
             return DefDatabase<JoyGiverDef>.GetNamed("PracticeShooting");
         }
-        private JobDef GetJobDef()
+        public JobDef GetJobDef()
         {
             return DefDatabase<JobDef>.GetNamed("UseShootingRange_NonJoy");
         }
