@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Building_MartialArtsTarget.cs" />
+    <Compile Include="Building_Archery.cs" />
     <Compile Include="Building_ShootingRange.cs" />
     <Compile Include="Graphic_RandomMote.cs" />
     <Compile Include="JobDriver_Archery.cs" />
