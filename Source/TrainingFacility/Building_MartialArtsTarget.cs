@@ -24,6 +24,44 @@ namespace TrainingFacility
         }
 
 
+        public override void SpawnSetup(Map map, bool respawningAfterLoad)
+        {
+            base.SpawnSetup(map, respawningAfterLoad);
+
+            if (!respawningAfterLoad)
+                LongEventHandler.ExecuteWhenFinished(Setup_Part2);
+
+        }
+
+        private void Setup_Part2()
+        {
+            // Check if we are the first of the training kind
+            foreach (Building b in Map.listerBuildings.allBuildingsColonist)
+            {
+                if (b == this)
+                    continue;
+
+                if (b is Building_MartialArtsTarget || b is Building_ShootingRange)
+                    return;
+            }
+
+            // First: Disable Worktype 'Training' for all pawns
+            WorkTypeDef workTypeDef = DefDatabase<WorkTypeDef>.GetNamedSilentFail("MiscTraining_CombatTraining");
+            if (workTypeDef == null)
+                return;
+
+            List<Pawn> pawns = this.Map.mapPawns.AllPawns;
+            foreach (Pawn pawn in pawns)
+            {
+                if (pawn.DestroyedOrNull() || !pawn.Spawned || pawn.workSettings == null)
+                    continue;
+                
+                pawn.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
+                pawn.workSettings.SetPriority(workTypeDef, 0);
+            }
+        }
+
+
         public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn selPawn)
         {
             // do nothing if not of colony
