@@ -121,7 +121,7 @@ namespace TrainingFacility
             // Done because the mod CE likes to throw errors in .GainJoy! Why?
             try
             {
-                if (pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
+                if (pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
                 {
                     pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f * 1.5f, curJob.def.joyKind);
                 }
@@ -132,7 +132,7 @@ namespace TrainingFacility
             }
             try
             {
-                if (curJob.def.joySkill != null)
+                if (curJob.def.joySkill != null && pawn.skills != null && pawn.skills.GetSkill(curJob.def.joySkill) != null)
                 {
                     pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
                 }
@@ -145,12 +145,11 @@ namespace TrainingFacility
 
             if (joyCanEndJob)
             {
-                if (!pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment
+                if (pawn.GetTimeAssignment() != null && !pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment
                     pawn.jobs.curDriver.EndJobWith(JobCondition.InterruptForced);
 
-                if (pawn.needs.joy.CurLevel > 0.999f) // changed => disable Max Joy
+                if (pawn.needs != null && pawn.needs.joy == null || pawn.needs.joy.CurLevel > 0.999f) // changed => disable Max Joy
                     pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
-
             }
         }
 

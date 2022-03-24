@@ -29,27 +29,29 @@ namespace TrainingFacility
 
             //base.StandTickAction(); // disabled and fully extracted. Changes are needed because of the second usage by FloatMenu -> NonJoy
 
-            this.pawn.rotationTracker.FaceCell(base.TargetA.Cell);
+            if (pawn.rotationTracker != null)
+                this.pawn.rotationTracker.FaceCell(base.TargetA.Cell);
+
             this.pawn.GainComfortFromCellIfPossible();
             
             //JoyUtility.JoyTickCheckEnd(this.pawn, false, 1f); // changed; => needs to be disabled when not joy activity or it will end the job!
 
             Job curJob = pawn.CurJob;
-            if (pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error if joy is full: joyKind NullRef ???
+            if (pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error if joy is full: joyKind NullRef ???
             {
                 pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f, curJob.def.joyKind);
             }
-            if (curJob.def.joySkill != null)
+            if (curJob.def != null && curJob.def.joySkill != null && curJob.def.joyXpPerTick != 0 && pawn.skills != null && pawn.skills.GetSkill(curJob.def.joySkill) != null)
             {
                 pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
             }
             if (joyCanEndJob)
             {
-                if (!pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment
+                if (pawn.GetTimeAssignment() != null && !pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment
                 {
                     pawn.jobs.curDriver.EndJobWith(JobCondition.InterruptForced);
                 }
-                if (pawn.needs.joy.CurLevel > 0.9999f) // changed => disable Max Joy
+                if (pawn.needs != null && pawn.needs.joy == null || pawn.needs.joy.CurLevel > 0.9999f) // changed => disable Max Joy
                 {
                     pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
                 }
