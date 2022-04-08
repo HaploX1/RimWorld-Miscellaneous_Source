@@ -62,7 +62,7 @@ namespace AIRobot
         {
             PawnKindDef kind = DefDatabase<PawnKindDef>.GetNamed(pawnDefName);
 
-            PawnGenerationRequest request = new PawnGenerationRequest(kind, faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, false, false, false, false, false, false, 0, 0, null, 0, null, null, null, null, null, 0f, 0f, Gender.Male);
+            PawnGenerationRequest request = new PawnGenerationRequest(kind, faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, false, false, false, false, false, false, 0, 0, null, 0, null, null, null, null, null, 0f, 0f, Gender.None);
 
             X2_AIRobot robot = (X2_AIRobot)PawnGenerator.GeneratePawn(request);
 
