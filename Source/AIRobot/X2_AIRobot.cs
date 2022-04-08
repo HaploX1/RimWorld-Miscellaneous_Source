@@ -389,8 +389,8 @@ namespace AIRobot
                 // Key-Binding 5
                 Command_Action opt5;
                 opt5 = new Command_Action();
-                //opt5.icon = X2_Building_AIRobotRechargeStation.UI_ButtonGoRight;
-                opt5.defaultLabel = "Info";// "RIGHT";
+                opt5.icon = X2_Building_AIRobotRechargeStation.UI_ButtonInfo;
+                opt5.defaultLabel = "Info";
                 opt5.defaultDesc = "DEBUG: Info";
                 //opt5.hotKey = ;
                 opt5.activateSound = SoundDef.Named("Click");

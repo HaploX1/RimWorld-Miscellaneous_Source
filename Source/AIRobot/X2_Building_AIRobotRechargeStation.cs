@@ -59,6 +59,7 @@ namespace AIRobot
         public static Texture2D UI_ButtonGoDown = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoDown");
         public static Texture2D UI_ButtonGoLeft = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoLeft");
         public static Texture2D UI_ButtonGoRight = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoRight");
+        public static Texture2D UI_ButtonInfo = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Info");
 
         private string spawnThingDef = "";
 
