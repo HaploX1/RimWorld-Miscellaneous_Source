@@ -101,7 +101,6 @@ namespace AIPawn
             SetBirthday(pawnAI);
             pawnAI.needs.SetInitialLevels();
 
-
             //Log.Error("3");
 
             AIPawnGenerator.GenerateInitialHediffs(pawnAI);
@@ -137,7 +136,7 @@ namespace AIPawn
 
             pawnAI.Name = GetName(pawnAI.def, map);
 
-            pawnAI.royalty = null;
+            // pawnAI.royalty = null;
 
             //Log.Error("4");
             //PawnGenerationRequest request = new PawnGenerationRequest(pawnAI.kindDef , Faction.OfPlayer, PawnGenerationContext.All, true, true, false,false, false, false, 0, false, false, false,null, 0,0, pawnAI.gender, null, null);

@@ -77,6 +77,8 @@ namespace AIRobot
                 if (robot.apparel == null)
                     robot.apparel = new Pawn_ApparelTracker(robot);
             }
+            if (robot.royalty == null)
+                robot.royalty = new Pawn_RoyaltyTracker(robot);
 
             robot.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
             
