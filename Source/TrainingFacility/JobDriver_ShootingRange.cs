@@ -79,9 +79,9 @@ namespace TrainingFacility
                     {
                         weaponCheckResult = -1;
 
-                        if (pawn.Faction != null && pawn.Faction == Faction.OfPlayer)
-                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.NeutralEvent);
-                        else
+                        //if (pawn.Faction != null && pawn.Faction == Faction.OfPlayer)
+                        //    Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.NeutralEvent);
+                        //else
                             Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.SilentInput);
                         //Log.Error("WeaponCheck ==> Illegal weapon found. No shooting allowed!");
                     }
