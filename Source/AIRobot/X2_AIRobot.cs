@@ -157,37 +157,52 @@ namespace AIRobot
                 return;
             }
 
-            if (this.rechargeStation != null && rechargeStation.def2 != null && rechargeStation.def2.robotRepairCosts != null)
+            if (this.rechargeStation != null && this.rechargeStation.def2 != null && this.rechargeStation.def2.robotRepairCosts != null)
             {
                 returnMulti = 0.4f;
                 foreach (ThingDefCountClass tDefCC in rechargeStation.def2.robotRepairCosts)
                 {
+                    if (tDefCC == null || tDefCC.thingDef == null)
+                        continue;
+
                     int count = (int)Math.Floor(tDefCC.count * returnMulti);
                     if (count < 1)
                         continue;
 
                     Thing t = GenSpawn.Spawn(tDefCC.thingDef, oldPos, oldMap);
-                    t.stackCount = count;
+                    if (t != null)
+                        t.stackCount = count;
                 }
             }
-            else if (this.rechargeStation != null && rechargeStation.def2 != null && rechargeStation.def2.costList != null)
+            else if (this.rechargeStation != null && this.rechargeStation.def2 != null && this.rechargeStation.def2.costList != null)
             {
                 returnMulti = 0.2f;
                 foreach (ThingDefCountClass tDefCC in rechargeStation.def2.costList)
                 {
+                    if (tDefCC == null || tDefCC.thingDef == null)
+                        continue;
+
                     int count = (int)Math.Floor(tDefCC.count * returnMulti);
                     if (count < 1)
                         continue;
 
                     Thing t = GenSpawn.Spawn(tDefCC.thingDef, oldPos, oldMap);
-                    t.stackCount = count;
+                    if (t != null)
+                        t.stackCount = count;
                 }
             }
             else
             {
                 returnMulti = 0.3f;
+
+                if (def.costList == null || def.costList.Count == 0)
+                    return;
+
                 foreach (ThingDefCountClass tDefCC in def.costList)
                 {
+                    if (tDefCC == null || tDefCC.thingDef == null)
+                        continue;
+
                     int count = (int)Math.Floor(tDefCC.count * returnMulti);
                     if (count < 1)
                         continue;

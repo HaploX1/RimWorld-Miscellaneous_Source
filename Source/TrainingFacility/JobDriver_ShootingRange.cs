@@ -17,6 +17,8 @@ namespace TrainingFacility
         private const int UpdateInterval = 350;
         protected bool joyCanEndJob = true;
 
+        private static bool messageUsedStonesWasShown = false;
+
         public JobDriver_ShootingRange() {}
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -79,11 +81,18 @@ namespace TrainingFacility
                     {
                         weaponCheckResult = -1;
 
-                        //if (pawn.Faction != null && pawn.Faction == Faction.OfPlayer)
-                        //    Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.NeutralEvent);
-                        //else
-                            Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.SilentInput);
-                        //Log.Error("WeaponCheck ==> Illegal weapon found. No shooting allowed!");
+                        if (pawn.Faction != null && pawn.Faction == Faction.OfPlayer)
+                        {
+                            if ( !messageUsedStonesWasShown )
+                                Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.NeutralEvent);
+                        }
+                        else
+                        {
+                            if ( !messageUsedStonesWasShown )
+                                Messages.Message("TrainingFacility_DangerousWeaponFound_ThrowingStones".Translate(pawn.Name.ToStringShort), pawn, MessageTypeDefOf.SilentInput);
+                            //Log.Error("WeaponCheck ==> Illegal weapon found. No shooting allowed!");
+                        }
+                        messageUsedStonesWasShown = true;
                     }
                     else
                         weaponCheckResult = 1;
