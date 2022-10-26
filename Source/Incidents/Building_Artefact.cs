@@ -347,7 +347,7 @@ namespace ArtefactFound
                     spawnPos = CellFinder.RandomClosewalkCellNear(startPos, Map, 8);
 
                 //pawnKindDefs = DefDatabase<PawnKindDef>.AllDefs.Where<PawnKindDef>(pk => pk.defaultFactionType.defName == "Spacer" || pk.defaultFactionType.defName == "Pirate").ToList();
-                PawnGenerationRequest pgr = new PawnGenerationRequest(pawnKindDefs.RandomElement(), faction, PawnGenerationContext.NonPlayer, -1, true, false, false, false, false, true, 0, true, true);
+                PawnGenerationRequest pgr = new PawnGenerationRequest(pawnKindDefs.RandomElement(), faction, PawnGenerationContext.NonPlayer, -1, true, false, false, true, true, 0, true, true, false);
                 Pawn pawn = PawnGenerator.GeneratePawn(pgr);
                 if (GenPlace.TryPlaceThing(pawn, spawnPos, Map, ThingPlaceMode.Near))
                 {

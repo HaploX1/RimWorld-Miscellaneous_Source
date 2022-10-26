@@ -327,8 +327,8 @@ namespace EmergencyPowerCore
         {
             base.SetUpPowerVars();
             CompProperties_Power props = base.Props;
-            this.PowerOutput = -1f * props.basePowerConsumption;
-            this.powerLastOutputted = (props.basePowerConsumption <= 0f);
+            this.PowerOutput = -1f * props.PowerConsumption;
+            this.powerLastOutputted = (props.PowerConsumption <= 0f);
 
             // === NEW ADDITION ===
             CompProperties_Power_EmergencyPowerCore props2 = base.Props as CompProperties_Power_EmergencyPowerCore;

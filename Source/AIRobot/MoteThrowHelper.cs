@@ -36,7 +36,7 @@ namespace AIRobot
         public static Mote ThrowBatteryXYZ(ThingDef moteDef, Vector3 loc, Map map, float scale)
         {
             // Note: For code comparism look at RimWorld.MoteMaker.ThrowMetaIcon(..)
-            if (!loc.ShouldSpawnMotesAt(map) || map.moteCounter.Saturated)
+            if (!Verse.GenView.ShouldSpawnMotesAt(loc, map) || map.moteCounter.Saturated)
             {
                 return null;
             }
@@ -55,7 +55,7 @@ namespace AIRobot
         public static Mote ThrowNoRobotSign(Vector3 loc, Map map, float scale)
         {
             // Note: For code comparism look at RimWorld.MoteMaker.ThrowMetaIcon(..)
-            if (!loc.ShouldSpawnMotesAt(map) || map.moteCounter.Saturated)
+            if (!Verse.GenView.ShouldSpawnMotesAt(loc, map) || map.moteCounter.Saturated)
             {
                 return null;
             }

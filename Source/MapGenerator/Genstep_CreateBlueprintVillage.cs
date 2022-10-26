@@ -107,7 +107,8 @@ namespace MapGenerator
                 if (!allowCenter)
                 {
                     // Check if the loc is near the spawn location -> move loc by +20, 0, -20
-                    IntVec2 nogoCenter = new IntVec2(map.Size.x / 2, map.Size.z / 2);
+                    //IntVec2 nogoCenter = new IntVec2(map.Size.x / 2, map.Size.z / 2);
+                    IntVec2 nogoCenter = new IntVec2(map.Size.x / 10, map.Size.z / 10);
                     CellRect nogoCenterRect = new CellRect(nogoCenter.x, nogoCenter.z, 1, 1);
                     nogoCenterRect = nogoCenterRect.ExpandedBy(10);
                     if (nogoCenterRect.Contains(loc))

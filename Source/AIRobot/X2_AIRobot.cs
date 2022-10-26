@@ -27,10 +27,10 @@ namespace AIRobot
 
         private static void SetBasename(Pawn pawn)
         {
-            if ((NameTriple)pawn.Name == null)
+            if (pawn.Name == null)
             {
                 activePawns++;
-                pawn.Name = new NameTriple("AIRobot_Basename_first".Translate(), pawn.def.label + " " + activePawns.ToString(), "AIRobot_Basename_last".Translate());
+                pawn.Name = new NameTriple("AIRobot_Basename_first".Translate(), pawn.def.LabelCap + " " + activePawns.ToString(), "AIRobot_Basename_last".Translate());
             }
         }
 
@@ -71,7 +71,7 @@ namespace AIRobot
                 this.story.bodyType = BodyTypeDefOf.Male;
             else
                 this.story.bodyType = BodyTypeDefOf.Female;
-            this.story.crownType = CrownType.Average;
+            //this.story.headType = ;
 
             this.Drawer.renderer.graphics.ResolveApparelGraphics();
 
@@ -221,6 +221,7 @@ namespace AIRobot
         float oldRestLevel = 1f;
         public override void Tick()
         {
+
             // If idle at station, don't loose charge
             if (this.needs != null && this.needs.rest != null)
             {
@@ -239,6 +240,7 @@ namespace AIRobot
                 }
             }
 
+
             // Prevent ticks, if you aren't living anymore!
             if (this.DestroyedOrNull())
             {
@@ -253,7 +255,7 @@ namespace AIRobot
             }
 
             base.Tick();
-            
+
             // needed?
             if (needs.food != null && needs.food.CurLevel < 1.0f)
                 needs.food.CurLevel = 1f;
@@ -501,6 +503,8 @@ namespace AIRobot
             if (!emergency && workGiversNonEmergencyCache != null)
                 return workGiversNonEmergencyCache;
 
+            //Log.Warning("GetWorkGivers 0");
+
             List<WorkTypeDef> wtsByPrio = new List<WorkTypeDef>();
             List<WorkTypeDef> allDefsListForReading = DefDatabase<WorkTypeDef>.AllDefsListForReading;
             int num = 999;
@@ -527,6 +531,7 @@ namespace AIRobot
                 Log.Error("The for-loop threw an error working through the allDefsListForReading<WorkTypeDef>: " + ex.Message + Environment.NewLine + ex.StackTrace);
             }
 
+            //Log.Warning("1");
             try
             {
                 wtsByPrio.InsertionSort(delegate (WorkTypeDef a, WorkTypeDef b)
@@ -538,6 +543,9 @@ namespace AIRobot
             {
                 Log.Error("The wtsByPrio.InsertionSort threw an error when comparing WorkTypeDef a with b: " + ex.Message + Environment.NewLine + ex.StackTrace);
             }
+
+            //Log.Warning("2");
+
             List<WorkGiver> workGivers = new List<WorkGiver>();
             for (int j = 0; j < wtsByPrio.Count; j++)
             {
@@ -559,17 +567,25 @@ namespace AIRobot
                 }
             }
 
+
+            //Log.Warning("3 - Count:" + workGivers.Count.ToString());
+
             // Fill cache
-            if (emergency)
-                workGiversEmergencyCache = workGivers;
-            else
-                workGiversNonEmergencyCache = workGivers;
+            if (workGivers != null && workGivers.Count > 0)
+            {
+                if (emergency)
+                    workGiversEmergencyCache = workGivers;
+                else
+                    workGiversNonEmergencyCache = workGivers;
+            }
 
             return workGivers;
         }
 
         public bool CanDoWorkType(WorkTypeDef workTypeDef)
         {
+            //Log.Warning("CanDoTypes: 1");
+
             if (def2 == null)
                 return false;
 
@@ -581,6 +597,7 @@ namespace AIRobot
 
             foreach (SkillDef skillDef in workTypeDef.relevantSkills)
             {
+                //Log.Warning("2 - Count:" + def2.robotSkills.Count().ToString());
                 foreach (X2_ThingDef_AIRobot.RobotSkills robotSkills in def2.robotSkills)
                     if (robotSkills.skillDef == skillDef)
                         neededSkillsCount--;
@@ -598,9 +615,11 @@ namespace AIRobot
 
         private int GetPriority(WorkTypeDef workTypeDef)
         {
+            //Log.Warning("Types: 1");
             if (def2 == null)
                 return 0;
-            
+
+            //Log.Warning("2 - Count:" + def2.robotWorkTypes.Count().ToString());
             foreach (X2_ThingDef_AIRobot.RobotWorkTypes robotWorkTypes in def2.robotWorkTypes)
             {
                 if (robotWorkTypes.workTypeDef == workTypeDef)
@@ -611,13 +630,17 @@ namespace AIRobot
         }
         private void SetSkills(bool isTickUpdate = false)
         {
+            //Log.Warning("Skills: 1");
             if (def2 == null)
                 return;
-            
+
+            //Log.Warning("2");
             foreach (SkillRecord skill in this.skills.skills)
             {
+                //Log.Warning("3 - Count:" + def2.robotSkills.Count().ToString());
                 foreach (X2_ThingDef_AIRobot.RobotSkills robotSkills in def2.robotSkills)
                 {
+                    //Log.Warning("4 - " + robotSkills.skillDef);
                     if (skill.def == robotSkills.skillDef)
                     {
                         skill.xpSinceLastLevel = skill.XpRequiredForLevelUp / 3;
@@ -625,6 +648,7 @@ namespace AIRobot
 
                         skill.levelInt = robotSkills.level;
 
+                        //Log.Warning("4a - " + skill.levelInt);
                         if (!isTickUpdate)
                             skill.passion = robotSkills.passion;
                     }
@@ -675,5 +699,4 @@ namespace AIRobot
         #endregion
 
     }
-
 }

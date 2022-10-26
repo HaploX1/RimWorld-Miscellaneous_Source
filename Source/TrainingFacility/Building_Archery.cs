@@ -116,8 +116,7 @@ namespace TrainingFacility
         {
             if (this.autoRearm && this.CanSetAutoRearm && map != null && GenConstruct.CanPlaceBlueprintAt(this.def, base.Position, base.Rotation, map, false, null, null, base.Stuff).Accepted)
             {
-                //GenConstruct.PlaceBlueprintForBuild(this.def, base.Position, map, base.Rotation, Faction.OfPlayer, base.Stuff);
-                GenConstruct.PlaceBlueprintForBuild_NewTemp(this.def, base.Position, map, base.Rotation, Faction.OfPlayer, base.Stuff);
+                GenConstruct.PlaceBlueprintForBuild(this.def, base.Position, map, base.Rotation, Faction.OfPlayer, base.Stuff);
             }
         }
 

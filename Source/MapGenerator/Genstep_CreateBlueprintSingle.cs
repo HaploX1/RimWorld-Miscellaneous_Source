@@ -51,9 +51,11 @@ namespace MapGenerator
             if (!blueprint.mapCenterBlueprint && blueprint.pawnLegend != null && blueprint.pawnLegend.Count > 0)
             {
                 // Check if the loc is near the spawn location
-                IntVec2 nogoCenter = new IntVec2((int)(Find.World.info.initialMapSize.x / 2.5f), (int)(Find.World.info.initialMapSize.z / 2.5f));
+                //IntVec2 nogoCenter = new IntVec2((int)(Find.World.info.initialMapSize.x / 2.5f), (int)(Find.World.info.initialMapSize.z / 2.5f));
+                IntVec2 nogoCenter = new IntVec2((int)(Find.World.info.initialMapSize.x / 10f), (int)(Find.World.info.initialMapSize.z / 10f));
                 CellRect nogoCenterRect = new CellRect(nogoCenter.x, nogoCenter.z, 1, 1);
-                nogoCenterRect = nogoCenterRect.ExpandedBy(20);
+                //nogoCenterRect = nogoCenterRect.ExpandedBy(20);
+                nogoCenterRect = nogoCenterRect.ExpandedBy(5);
                 if (nogoCenterRect.Contains(loc))
                 {
                     // If loc is near the center, find new blueprint that doesn't contain any pawns

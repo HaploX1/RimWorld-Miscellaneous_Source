@@ -29,6 +29,7 @@ namespace TurretWeaponBase
         protected TurretTop_TurretWeaponBase top;
 
         protected CompPowerTrader powerComp;
+        //protected Effecter progressBarEffecter;
         protected CompMannable mannableComp;
         public bool loaded;
 
@@ -245,6 +246,8 @@ namespace TurretWeaponBase
             DeconstructGunAndReset();
 
             base.DeSpawn(mode);
+            ResetCurrentTarget();
+            //progressBarEffecter?.Cleanup();
         }
 
         public override void Destroy(DestroyMode mode = DestroyMode.Vanish)
@@ -840,7 +843,7 @@ namespace TurretWeaponBase
                 targetScanFlags |= TargetScanFlags.NeedLOSToAll;
                 targetScanFlags |= TargetScanFlags.LOSBlockableByGas;
             }
-            if (this.AttackVerb.IsIncendiary())
+            if (this.AttackVerb.IsIncendiary_Melee() || this.AttackVerb.IsIncendiary_Ranged())
             {
                 targetScanFlags |= TargetScanFlags.NeedNonBurning;
             }
@@ -874,6 +877,12 @@ namespace TurretWeaponBase
             if (gun == null)
                 return;
 
+            //if (progressBarEffecter != null)
+            //{
+            //    progressBarEffecter.Cleanup();
+            //    progressBarEffecter = null;
+            //}
+
             if (!base.Spawned || (this.holdFire && this.CanToggleHoldFire) || (this.GunCompEq.PrimaryVerb.ProjectileFliesOverhead() && base.Map.roofGrid.Roofed(base.Position)) || 
                 !this.AttackVerb.Available() || (this.TryGetComp<CompRefuelable>() != null && !this.TryGetComp<CompRefuelable>().HasFuel))
             {
@@ -898,9 +907,10 @@ namespace TurretWeaponBase
                 this.ResetCurrentTarget();
                 return;
             }
-            if (this.def.building.turretBurstWarmupTime > 0f)
+            float randomInRange = this.def.building.turretBurstWarmupTime.RandomInRange;
+            if (randomInRange > 0f)
             {
-                this.burstWarmupTicksLeft = this.def.building.turretBurstWarmupTime.SecondsToTicks();
+                this.burstWarmupTicksLeft = randomInRange.SecondsToTicks();
                 return;
             }
             if (canBeginBurstImmediately)

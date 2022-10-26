@@ -16,7 +16,7 @@ namespace ColonistSelections
 
         public static float sizeGroupIconsPercent = 0.016f;
 
-        public static float startPosGroupIconsPercentX = 0.8246f;
+        public static float startPosGroupIconsPercentX = 0.8100f;
         public static float startPosGroupIconsPercentY = 0.9300f;
 
         public static int buttonSpacing = 5;

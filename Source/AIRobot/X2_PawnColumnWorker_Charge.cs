@@ -92,6 +92,10 @@ namespace AIRobot
             TipSignal tooltip = pawn.Label;
             tooltip.text = "AIRobot_MainTab_SendRobotToRecharge".Translate() + "\n" + tooltip.text;
             TooltipHandler.TipRegion(rect2, tooltip);
+
+            // Reset
+            Text.Anchor = TextAnchor.UpperLeft;
+            Text.WordWrap = true;
         }
 
         public override int GetMinWidth(PawnTable table)

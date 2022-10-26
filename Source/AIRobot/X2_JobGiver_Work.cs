@@ -91,7 +91,7 @@ namespace AIRobot
                 {
                     break;
                 }
-                if (!PawnCanUseWorkGiver(pawn, workGiver))
+                if (!PawnCanUseWorkGiver(ref pawn, workGiver))
                 {
                     continue;
                 }
@@ -149,7 +149,7 @@ namespace AIRobot
                             }
                         }
 
-                        int maxCheck = 150; //75; // check max work types for possible work
+                        int maxCheck = 200; //75; // check max work types for possible work
 
                         if (scanner.def.scanCells)
                         {
@@ -166,7 +166,7 @@ namespace AIRobot
                             {
                                 for (int k = 0; k < currWork4Pawn.Count; k++)
                                 {
-                                    ProcessCell(currWork4Pawn[k], pawn, scanner, pawnPosition, prioritized, allowUnreachable, maxPathDanger, 
+                                    ProcessCell(currWork4Pawn[k], ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
                                         ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
 
                                     if (bestTargetOfLastPriority != TargetInfo.Invalid)
@@ -181,7 +181,7 @@ namespace AIRobot
                             {
                                 foreach (IntVec3 item in allWork4Pawn)
                                 {
-                                    ProcessCell(item, pawn, scanner, pawnPosition, prioritized, allowUnreachable, maxPathDanger,
+                                    ProcessCell(item, ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
                                         ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
 
                                     if (bestTargetOfLastPriority != TargetInfo.Invalid)
@@ -192,6 +192,7 @@ namespace AIRobot
                                         break;
                                 }
                             }
+
                         }
                     }
 
@@ -218,7 +219,8 @@ namespace AIRobot
             return ThinkResult.NoJob;
         }
 
-        private void ProcessCell(IntVec3 c, Pawn pawn, WorkGiver_Scanner scanner, IntVec3 pawnPosition, bool prioritized, bool allowUnreachable, Danger maxPathDanger,
+        // 1.4: used ref for 'pawn' and 'scanner' to prevent unneeded copying
+        private void ProcessCell(IntVec3 c, ref Pawn pawn, ref WorkGiver_Scanner scanner, ref IntVec3 pawnPosition, bool prioritized, bool allowUnreachable, Danger maxPathDanger,
                                     ref TargetInfo bestTargetOfLastPriority, ref WorkGiver_Scanner scannerWhoProvidedTarget, 
                                     ref float closestDistSquared, ref float bestPriority)
         {
@@ -257,7 +259,7 @@ namespace AIRobot
             }
         }
 
-        private bool PawnCanUseWorkGiver(Pawn pawn, WorkGiver giver)
+        private bool PawnCanUseWorkGiver(ref Pawn pawn, WorkGiver giver)
         {
             try
             {

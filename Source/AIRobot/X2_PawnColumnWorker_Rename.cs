@@ -37,7 +37,8 @@ namespace AIRobot
                 //Log.Error(pawn.Name == null ? "pawn.Name==null" : pawn.Name as NameTriple == null ? "pawn.Name as NameTriple==null" : (pawn.Name as NameTriple).Nick);
 
                 //Find.WindowStack.Add( new Dialog_ChangeNameTriple(pawn) );
-                Find.WindowStack.Add(new X2_Dialog_ChangeNameTriple_Robots(pawn));
+                //Find.WindowStack.Add(new X2_Dialog_ChangeNameTriple_Robots(pawn));
+                Find.WindowStack.Add(pawn.NamePawnDialog());
             }
             if (Mouse.IsOver(rect))
             {

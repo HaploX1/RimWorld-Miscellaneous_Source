@@ -6,6 +6,7 @@ using System.Text;
 using UnityEngine;
 using RimWorld;
 using Verse;
+using static AIRobot.X2_ThingDef_AIRobot;
 
 namespace AIRobot
 {
@@ -68,6 +69,7 @@ namespace AIRobot
                                             select w)
             {
                 bool found = false;
+                Log.Warning("Init robotWorkTypes - Count:" + (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes.Count().ToString());
                 foreach (X2_ThingDef_AIRobot.RobotWorkTypes rwtdef in (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes)
                 {
                     if (rwtdef.workTypeDef.defName == current.defName)
@@ -128,6 +130,12 @@ namespace AIRobot
             //}
 
             //Log.Message("PRE - priority:" + priority.ToString() + ", reflected:" + this.prioritiesReflected[w] + ", ");
+
+            if (priority != 0 && this.pawn2.WorkTypeIsDisabled(w))
+            {
+                Log.Warning("Tried to change priority on disabled worktype " + w + " -> " + priority.ToString());
+                priority = 0;
+            }
 
             this.prioritiesReflect[w] = priority;
             try { base.SetPriority(w, priority); }

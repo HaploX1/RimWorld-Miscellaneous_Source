@@ -23,7 +23,7 @@ namespace EmergencyPowerCore
         {
             get
             {
-                return -this.powerComp.Props.basePowerConsumption;
+                return -this.powerComp.Props.PowerConsumption;
             }
         }
 

@@ -19,9 +19,9 @@ namespace WeaponBase
             }
         }
 
-        protected override void Impact(Thing hitThing)
+        protected override void Impact(Thing hitThing, bool blockedByShield = false)
         {
-            base.Impact(hitThing);
+            base.Impact(hitThing, blockedByShield);
             
             Map map = this.launcher.Map;
             IntVec3 cell;
@@ -31,14 +31,6 @@ namespace WeaponBase
 
             Thing thing = GenSpawn.Spawn(this.Def.spawnDef, cell, map);
             thing.SetFactionDirect( launcher.Faction );
-
-            //CellRect cellRect = CellRect.CenteredOn(base.Position, 2);
-            //cellRect.ClipInsideMap(base.Map);
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    IntVec3 randomCell = cellRect.RandomCell;
-                
-            //}
         }
 
 

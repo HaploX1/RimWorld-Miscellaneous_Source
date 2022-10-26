@@ -23,7 +23,7 @@ namespace AIRobot
         {
             get
             {
-                NameTriple nameTriple = this.pawn.Name as NameTriple;
+                NameTriple nameTriple = NameTriple.FromString(this.pawn.Name.ToString());
                 if (nameTriple != null)
                 {
                     return new NameTriple(nameTriple.First, this.curName, nameTriple.Last);
@@ -43,14 +43,16 @@ namespace AIRobot
         public X2_Dialog_ChangeNameTriple_Robots(Pawn pawn)
         {
             this.pawn = pawn;
-            this.curName = ((NameTriple)pawn.Name).Nick;
+            this.curName = pawn.Name.ToString();
             base.forcePause = true;
             base.absorbInputAroundWindow = true;
             base.closeOnClickedOutside = true;
+  
         }
 
         public override void DoWindowContents(Rect inRect)
         {
+
             bool flag = false;
             if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Return)
             {
@@ -71,7 +73,7 @@ namespace AIRobot
             }
             if (string.IsNullOrEmpty(this.curName))
             {
-                this.curName = ((NameTriple)this.pawn.Name).First;
+                this.curName = ((NameTriple)this.pawn.Name).Nick;
             }
             this.pawn.Name = this.CurPawnName;
             Find.WindowStack.TryRemove(this, true);

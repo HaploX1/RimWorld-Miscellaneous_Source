@@ -180,10 +180,11 @@ namespace WeaponRepair
             if (!CanBeRepaired || pawn == null || !pawn.Spawned || pawn.Downed || pawn.Map == null)
                 return null;
 
-
-            bool checkQuality = true;
             QualityCategory qcParent;
-            checkQuality = parent.TryGetQuality(out qcParent);
+            bool checkQuality = parent.TryGetQuality(out qcParent);
+
+            // force disable quality check -> Allow all similiar weapons to be used
+            //checkQuality = false;
 
             List<Thing> possibleThings = new List<Thing>();
             foreach (Thing currentThing in parent.Map.listerThings.ThingsOfDef(parent.def))
@@ -195,7 +196,7 @@ namespace WeaponRepair
                 {
                     QualityCategory qc;
                     currentThing.TryGetQuality(out qc);
-                    if (checkQuality && (!currentThing.TryGetQuality(out qc) || ((int)qcParent < (int)qc)))
+                    if (checkQuality && (!currentThing.TryGetQuality(out qc) || ((int)qcParent < (int)qc - 1)))
                         continue;
                 }
 
@@ -210,10 +211,6 @@ namespace WeaponRepair
 
                 possibleThings.Add(currentThing);
             }
-
-            //string log1 = "";
-            //string log2 = "";
-            //string log3 = "";
 
             Thing bestThing = null;
             foreach (Thing currentThing in possibleThings)

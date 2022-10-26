@@ -357,7 +357,7 @@ namespace AIRobot
                 if (notify_spawnRequested)
                 {
                     // Don't start all robots at the same time
-                    if (!this.IsHashIntervalTick(5))
+                    if (!this.IsHashIntervalTick(15))
                         return;
 
                     notify_spawnRequested = false;
@@ -416,7 +416,7 @@ namespace AIRobot
                 return;
             }
 
-            if (isRechargeActive && robot != null && Gen.IsHashIntervalTick(robot, 30) && !AIRobot_Helper.IsInDistance(robot.Position, this.Position, 3))
+            if (isRechargeActive && robot != null && Gen.IsHashIntervalTick(robot, 27) && !AIRobot_Helper.IsInDistance(robot.Position, this.Position, 3))
             {
                 robot.jobs.ClearQueuedJobs();
                 isRechargeActive = false;
@@ -424,6 +424,9 @@ namespace AIRobot
 
             if (isRechargeActive)
             {
+                if (!this.powerComp.PowerOn)
+                    return;
+
                 if (robot.needs.rest.CurLevel < 1f)
                 {
                     robot.needs.rest.CurLevel += (0.1f / GenDate.TicksPerHour) * rechargeEfficiency * 2;
@@ -535,11 +538,14 @@ namespace AIRobot
             if (robot == null || !Verse.Gen.IsHashIntervalTick(robot, 300))
                 return;
 
+            if (robot == null || robot.health == null || robot.health.hediffSet == null)
+                return;
 
-            IEnumerable<Hediff_Injury> hediff_injuries = (from x in robot.health.hediffSet.GetHediffs<Hediff_Injury>()
+            List<Hediff_Injury> possibleInjuries = new List<Hediff_Injury>();
+            robot.health.hediffSet.GetHediffs<Hediff_Injury>(ref possibleInjuries);
+            IEnumerable<Hediff_Injury> hediff_injuries = (from x in possibleInjuries
                                                           where x.CanHealFromTending() || x.CanHealNaturally()
                                                           select x);
-
 
             // Apply Treated, but not healing!
             if (robot.health.HasHediffsNeedingTend(false))
@@ -569,18 +575,10 @@ namespace AIRobot
                 float tendQuality = hediff_Injury2.TryGetComp<HediffComp_TendDuration>().tendQuality;
                 float num2 = GenMath.LerpDouble(0f, 1f, 0.5f, 1.5f, Mathf.Clamp01(tendQuality));
 
-                ////hediff_Injury2.Heal(22f * num2 * robot.HealthScale * 0.01f); -> At quality 0.5 --> 0.066 healed.
-                //Log.Error("Calculation: " + (GenMath.LerpDouble(0f, 1f, 0.5f, 1.5f, Mathf.Clamp01(tendQuality)).ToString()));
-                //Log.Error("Healing: " + (22f * num2 * robot.HealthScale * 0.1f).ToString());
-                //Log.Error("PRE:" + hediff_Injury2.Severity.ToString());
-
                 //hediff_Injury2.Heal(1f);
                 hediff_Injury2.Heal(22f * num2 * robot.HealthScale * 0.1f * 0.25f);
 
-                //Log.Error("POST:" + hediff_Injury2.Severity.ToString());
-
                 // Throw Healing Mote
-                //MoteMaker.ThrowMetaIcon(this.Position, this.Map, ThingDefOf.mo.Mote_HealingCross);
                 FleckMaker.ThrowMetaIcon(this.Position, this.Map, FleckDefOf.HealingCross);
             } else
             {

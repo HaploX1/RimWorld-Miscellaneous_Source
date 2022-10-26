@@ -28,7 +28,9 @@ namespace AIRobot
             yield return DespawnIntoContainer(despawn);
 
             if (!despawn)
+            {
                 yield return Toil_Wait(waitTicks);
+            }
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -78,11 +80,15 @@ namespace AIRobot
                 if (robot != null && robot.rechargeStation != null)
                 {
                     if (doDespawn)
+                    {
                         // Despawn active --> robot into the container
                         robot.rechargeStation.AddRobotToContainer(robot);
+                    }
                     else
+                    {
                         // Only recharge --> robot waits and let recharge
                         robot.rechargeStation.isRechargeActive = true;
+                    }
                 }
             };
 
