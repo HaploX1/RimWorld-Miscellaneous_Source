@@ -20,7 +20,22 @@ namespace TrainingFacility
             list = pawn.Map.listerBuildings.allBuildingsColonist.Where(b => (b is Building_MartialArtsTarget || b is Building_ShootingRange) && !b.DestroyedOrNull() && b.Spawned );
             foreach (Building b in list)
             {
-                if (!CanPawnWorkThisJob(pawn, b))
+                bool doContinue = false;
+
+                if (b == null)
+                    continue;
+
+                try
+                {
+                    if (!CanPawnWorkThisJob(pawn, b))
+                        doContinue = true;
+                } catch (Exception ex)
+                {
+                    Log.Warning("Error in PotentialWorkThingsGlobal: " + ex.Message + "\n" + ex.StackTrace);
+                    doContinue = true;
+                }
+
+                if (doContinue)
                     continue;
 
                 if (!pawn.CanReserveAndReach(b, PathEndMode, Danger.Some))
@@ -49,18 +64,21 @@ namespace TrainingFacility
             JoyGiverDef def = null;
             int typeOfTarget = 0;
 
+            if (t == null || pawn == null)
+                return false;
+
             if (!pawn.CanReserve(t, 1))
                 return false;
 
             if (!pawn.CanReach(t, PathEndMode, Danger.Deadly))
                 return false;
 
-            if (t as Building_ShootingRange != null)
+            if (t is Building_ShootingRange)
             {
                 def = (t as Building_ShootingRange).GetJoyGiverDef();
                 typeOfTarget = 1; // Shooting Range
             }
-            if (t as Building_MartialArtsTarget != null)
+            if (t is Building_MartialArtsTarget)
             {
                 def = (t as Building_MartialArtsTarget).GetJoyGiverDef();
                 typeOfTarget = 2; // Martial Arts
