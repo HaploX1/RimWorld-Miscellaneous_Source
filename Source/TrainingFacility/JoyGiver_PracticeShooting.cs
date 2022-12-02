@@ -15,7 +15,8 @@ namespace TrainingFacility
     // This is the automatic selection via joy
     public class JoyGiver_PracticeShooting : JoyGiver_WatchBuilding
     {
-        private static string invalidThingCategoryDef1 = "Grenades";
+        private static readonly string invalidThingCategoryDef1 = "Grenades";
+        //private static readonly string invalidThingCategoryDef2 = "Grenades";
 
 
         public override Job TryGiveJob(Pawn pawn)

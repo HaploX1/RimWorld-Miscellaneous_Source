@@ -565,6 +565,15 @@ namespace ColonistSelections
             {
                 //Find drafted pawns for position saving
                 List<Pawn> FreeColonists = map.mapPawns.FreeColonistsSpawned.ToList<Pawn>();
+                foreach (Pawn ipawn in map.mapPawns.SlavesAndPrisonersOfColonySpawned)
+                {
+                    FreeColonists.AddDistinct(ipawn);
+                }
+                foreach (Pawn ipawn in map.mapPawns.SpawnedColonyAnimals)
+                {
+                    FreeColonists.AddDistinct(ipawn);
+                }
+
                 List<Pawn> selection = new List<Pawn>();
 
                 // Are pawns selected?
