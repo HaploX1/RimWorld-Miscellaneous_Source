@@ -82,6 +82,20 @@ namespace MapGenerator
             return baseValue + 0.1f;
         }
     }
+    public class BiomeWorker_Tundra_UrbanRuins : BiomeWorker_Tundra
+    {
+
+        public override float GetScore(Tile tile, int tileID)
+        {
+            float chance = 0.0012f * MapGenerator_ModSettings.chance4UrbanCitiesMultiplier;
+            float baseValue = base.GetScore(tile, tileID);
+
+            if (baseValue <= 0 || Rand.Value > chance)
+                return baseValue - 1f;
+
+            return baseValue + 0.1f;
+        }
+    }
 
     public class BiomeWorker_IceSheet_UrbanRuins : BiomeWorker_IceSheet
     {

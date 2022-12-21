@@ -573,6 +573,13 @@ namespace ColonistSelections
                 {
                     FreeColonists.AddDistinct(ipawn);
                 }
+                foreach (Pawn ipawn in map.mapPawns.AllPawnsSpawned)
+                {
+                    if (ipawn.Faction != Faction.OfPlayerSilentFail || FreeColonists.Contains(ipawn)) 
+                            continue;
+
+                    FreeColonists.AddDistinct(ipawn);
+                }
 
                 List<Pawn> selection = new List<Pawn>();
 
