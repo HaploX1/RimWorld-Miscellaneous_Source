@@ -27,7 +27,7 @@ namespace TrainingFacility
         public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn selPawn)
         {
             // do nothing if not of colony
-            if (selPawn.Faction != Faction.OfPlayer)
+            if (selPawn.Faction != Faction.OfPlayer && !selPawn.IsSlaveOfColony)
                 yield break;
 
             // base float menus
