@@ -69,7 +69,7 @@ namespace AIRobot
                                             select w)
             {
                 bool found = false;
-                Log.Warning("Init robotWorkTypes - Count:" + (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes.Count().ToString());
+                //Log.Warning("Init robotWorkTypes - Count:" + (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes.Count().ToString());
                 foreach (X2_ThingDef_AIRobot.RobotWorkTypes rwtdef in (this.pawn2.def as X2_ThingDef_AIRobot).robotWorkTypes)
                 {
                     if (rwtdef.workTypeDef.defName == current.defName)
