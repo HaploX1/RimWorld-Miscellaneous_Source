@@ -73,6 +73,10 @@ namespace TrainingFacility
             if (!pawn.CanReach(t, PathEndMode, Danger.Deadly))
                 return false;
 
+            if (JobDriver_Archery.isTooTired(pawn))
+                return false;
+
+
             if (t is Building_ShootingRange)
             {
                 def = (t as Building_ShootingRange).GetJoyGiverDef();

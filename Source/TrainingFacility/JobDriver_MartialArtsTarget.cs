@@ -67,6 +67,7 @@ namespace TrainingFacility
             this.EndOnDespawnedOrNull(TargetIndex.A);
             this.FailOnForbidden(TargetIndex.A);
             this.FailOnDestroyedOrNull(TargetIndex.A);
+            JobDriver_Archery.EndOnTired(this);
 
             yield return Toils_Reserve.Reserve(TargetIndex.A, 1);
 
@@ -84,6 +85,7 @@ namespace TrainingFacility
             toil.defaultCompleteMode = ToilCompleteMode.Delay;
             toil.defaultDuration = this.job.def.joyDuration;
             toil.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn));
+            toil.AddFailCondition(() => JobDriver_Archery.isTooTired(this.GetActor()));
             toil.socialMode = RandomSocialMode.SuperActive;
             return toil;
 

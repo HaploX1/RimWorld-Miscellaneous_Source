@@ -17,6 +17,9 @@ namespace TrainingFacility
         private const int UpdateInterval = 350;
         protected bool joyCanEndJob = true;
 
+        public float joyGainRateBase = 0.000144f * 1.5f;
+        public float skillGainRateHeavyWeapon = 6f;
+
         private static bool messageUsedStonesWasShown = false;
 
         public JobDriver_ShootingRange() {}
@@ -36,6 +39,7 @@ namespace TrainingFacility
             //this.FailOnForbidden(TargetIndex.A);
             this.FailOnForbidden(TargetIndex.B);
             this.FailOnDestroyedOrNull(TargetIndex.A);
+            JobDriver_Archery.EndOnTired(this);
 
             yield return Toils_Reserve.Reserve(TargetIndex.A, this.job.def.joyMaxParticipants, 0);
             yield return Toils_Reserve.Reserve(TargetIndex.B);
@@ -58,6 +62,7 @@ namespace TrainingFacility
             toil.defaultCompleteMode = ToilCompleteMode.Delay;
             toil.defaultDuration = this.job.def.joyDuration;
             toil.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(shooter));
+            toil.AddFailCondition(() => JobDriver_Archery.isTooTired(this.GetActor()));
             toil.socialMode = RandomSocialMode.SuperActive;
             return toil;
 
@@ -111,7 +116,7 @@ namespace TrainingFacility
                 {
                     // dangerous weapons --> Throw some stones instead
                     FleckMaker.ThrowStone(pawn, TargetA.Cell);
-                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(6);
+                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(skillGainRateHeavyWeapon);
 
                     // Alternate: Shoot some arrows?
                     //JobDriver_Archery.ShootArrow(pawn, TargetA.Cell);
@@ -133,7 +138,7 @@ namespace TrainingFacility
             {
                 if (pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
                 {
-                    pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f * 1.5f, curJob.def.joyKind);
+                    pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * joyGainRateBase, curJob.def.joyKind);
                 }
             } catch (Exception ex)
             {

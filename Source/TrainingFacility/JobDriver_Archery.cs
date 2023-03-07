@@ -34,6 +34,7 @@ namespace TrainingFacility
             //TargetC is the chair to sit in (can be null)
 
             this.EndOnDespawnedOrNull(TargetIndex.A);
+            JobDriver_Archery.EndOnTired(this);
 
             yield return Toils_Reserve.Reserve(TargetIndex.A, this.job.def.joyMaxParticipants, 0);
             yield return Toils_Reserve.Reserve(TargetIndex.B);
@@ -50,7 +51,8 @@ namespace TrainingFacility
             play.tickAction = () => WatchTickAction();
             play.defaultCompleteMode = ToilCompleteMode.Delay;
             play.defaultDuration = this.job.def.joyDuration;
-            play.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn)); 
+            play.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn));
+            play.AddFailCondition(() => JobDriver_Archery.isTooTired(this.GetActor()));
             yield return play;
 
             Toil returnWeapon = Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);
@@ -83,5 +85,21 @@ namespace TrainingFacility
             GenSpawn.Spawn(moteThrown, thrower.Position, thrower.Map);
         }
 
+        public static IJobEndable EndOnTired(IJobEndable f, JobCondition endCondition = JobCondition.InterruptForced)
+        {
+            Pawn actor = f.GetActor();
+            bool isTired = isTooTired(actor);
+
+            f.AddEndCondition(() => !isTired ? JobCondition.Ongoing : endCondition);
+            return f;
+        }
+        public static bool isTooTired(Pawn actor)
+        {
+            if (actor != null & actor.needs != null && actor.needs.rest != null && actor.needs.rest.CurLevel < Need_Rest.ThreshVeryTired + 0.03)
+            {
+                return true;
+            }
+            return false;
+        }
     }
 }

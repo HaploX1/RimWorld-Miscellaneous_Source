@@ -86,6 +86,11 @@ namespace TrainingFacility
                 yield return new FloatMenuOption("CannotUseNoPath".Translate(), null);
                 yield break;
             }
+            if (JobDriver_Archery.isTooTired(selPawn))
+            {
+                yield return new FloatMenuOption("TrainingFacility_CannotUseTooTired".Translate(), null);
+                yield break;
+            }
 
             // Check weapon status
             Verb attackVerb = null;

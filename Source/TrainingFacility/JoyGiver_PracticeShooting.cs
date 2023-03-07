@@ -76,6 +76,10 @@ namespace TrainingFacility
                 {
                     return false;
                 }
+                if (JobDriver_Archery.isTooTired(pawn))
+                {
+                    return false;
+                }
                 CompPowerTrader compPowerTrader = t.TryGetComp<CompPowerTrader>();
                 return (compPowerTrader == null || compPowerTrader.PowerOn); // && (!this.def.unroofedOnly || !t.Position.Roofed(pawn.Map));
             };
