@@ -60,7 +60,7 @@ namespace TrainingFacility
                 return;
             }
             Matrix4x4 matrix = default(Matrix4x4);
-            matrix.SetTRS(mote.DrawPos, Quaternion.AngleAxis(mote.exactRotation, Vector3.up), mote.exactScale);
+            matrix.SetTRS(mote.DrawPos, Quaternion.AngleAxis(mote.exactRotation, Vector3.up), mote.ExactScale);
             Graphics.DrawMesh(MeshPool.plane10, matrix, material, 0);
         }
 

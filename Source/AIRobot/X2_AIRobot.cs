@@ -73,7 +73,7 @@ namespace AIRobot
                 this.story.bodyType = BodyTypeDefOf.Female;
             //this.story.headType = ;
 
-            this.Drawer.renderer.graphics.ResolveApparelGraphics();
+            this.Drawer.renderer.SetAllGraphicsDirty();
 
             // To allow the robot to be drafted -> Still not possible to draft, because 1. not humanlike and 2. the GetGizmos in Pawn_Drafter is internal! 
             //this.drafter = new Pawn_DraftController(this); // Not needed because not usable
@@ -338,7 +338,7 @@ namespace AIRobot
                 opt0.hotKey = KeyBindingDefOf.Misc4;
                 opt0.activateSound = SoundDef.Named("Click");
                 opt0.action = delegate { rechargeStation.Notify_CallBotForShutdown(); };
-                opt0.disabled = rechargeStation == null;
+                opt0.Disabled = rechargeStation == null;
                 opt0.disabledReason = "Error: No recharge station assigned.";
                 opt0.groupKey = 1234567 + 0;
                 yield return opt0;
@@ -354,7 +354,7 @@ namespace AIRobot
                 opt1.hotKey = KeyBindingDefOf.Misc5;
                 opt1.activateSound = SoundDef.Named("Click");
                 opt1.action = delegate { Debug_ForceGotoDistance(-4,0); };
-                opt1.disabled = false;
+                opt1.Disabled = false;
                 opt1.disabledReason = "";
                 opt1.groupKey = 1234567 + 1;
                 yield return opt1;
@@ -368,7 +368,7 @@ namespace AIRobot
                 opt3.hotKey = KeyBindingDefOf.Misc9;
                 opt3.activateSound = SoundDef.Named("Click");
                 opt3.action = delegate { Debug_ForceGotoDistance(0, 4); };
-                opt3.disabled = false;
+                opt3.Disabled = false;
                 opt3.disabledReason = "";
                 opt3.groupKey = 1234567 + 3;
                 yield return opt3;
@@ -382,7 +382,7 @@ namespace AIRobot
                 opt2.hotKey = KeyBindingDefOf.Misc8;
                 opt2.activateSound = SoundDef.Named("Click");
                 opt2.action = delegate { Debug_ForceGotoDistance(0, -4); };
-                opt2.disabled = false;
+                opt2.Disabled = false;
                 opt2.disabledReason = "";
                 opt2.groupKey = 1234567 + 2;
                 yield return opt2;
@@ -396,7 +396,7 @@ namespace AIRobot
                 opt4.hotKey = KeyBindingDefOf.Misc10;
                 opt4.activateSound = SoundDef.Named("Click");
                 opt4.action = delegate { Debug_ForceGotoDistance(4, 0); };
-                opt4.disabled = false;
+                opt4.Disabled = false;
                 opt4.disabledReason = "";
                 opt4.groupKey = 1234567 + 4;
                 yield return opt4;
@@ -412,7 +412,7 @@ namespace AIRobot
                 //opt5.hotKey = ;
                 opt5.activateSound = SoundDef.Named("Click");
                 opt5.action = delegate { Debug_Info(); };
-                opt5.disabled = false;
+                opt5.Disabled = false;
                 opt5.disabledReason = "";
                 opt5.groupKey = 1234567 + 5;
                 yield return opt5;

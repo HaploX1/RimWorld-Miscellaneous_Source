@@ -85,7 +85,9 @@ namespace AIRobot
                 robot.royalty = new Pawn_RoyaltyTracker(robot);
 
             robot.workSettings.EnableAndInitializeIfNotAlreadyInitialized();
-            
+
+            robot.Drawer.renderer.EnsureGraphicsInitialized();
+
             //// Check/update faction
             //if (robot != null)
             //{

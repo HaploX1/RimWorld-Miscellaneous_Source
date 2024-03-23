@@ -336,7 +336,7 @@ namespace AIRobot
                 //Log.Error("Update Graphic");
                 graphicOld = Graphic;
                 Notify_ColorChanged();
-                Map.mapDrawer.MapMeshDirty(this.Position, MapMeshFlag.Things, true, false);
+                Map.mapDrawer.MapMeshDirty(this.Position, (ulong)MapMeshFlagDefOf.Things, true, false);
             }
         }
 
@@ -521,7 +521,7 @@ namespace AIRobot
             Messages.Message("AIRobot_MessageRechargeStationOutsideAreaRestriction".Translate(), robot, MessageTypeDefOf.RejectInput);
 
             //Remove area from robot
-            robot.playerSettings.Notify_AreaRemoved(robot.playerSettings.AreaRestriction);
+            robot.playerSettings.Notify_AreaRemoved(robot.playerSettings.AreaRestrictionInPawnCurrentMap);
         }
 
 
@@ -552,7 +552,7 @@ namespace AIRobot
             {
                 float quality = (Rand.Value);
                 int batchPosition = 0;
-                foreach (Hediff_Injury injury in from x in robot.health.hediffSet.GetInjuriesTendable()
+                foreach (Hediff_Injury injury in from x in robot.health.hediffSet.GetHediffsTendable()
                                                  orderby x.Severity descending
                                                  select x)
                 {
@@ -640,7 +640,7 @@ namespace AIRobot
                 //act0.hotKey = KeyBindingDefOf.Misc8;
                 act0.activateSound = SoundDef.Named("Click");
                 act0.action = Button_ToggleAllowIncidentMapUsage;
-                act0.disabled = false;
+                act0.Disabled = false;
                 act0.disabledReason = "";
                 act0.groupKey = groupBaseKey + 0;
                 yield return act0;
@@ -659,12 +659,12 @@ namespace AIRobot
                 act2.action = Button_SpawnBot;
                 if ((!Map.IsPlayerHome || Map.IsTempIncidentMap) && !allowTempMapUsage)
                 {
-                    act2.disabled = true;
+                    act2.Disabled = true;
                     act2.disabledReason = txtDisabledBecauseNotHomeMap.Translate();
                 }
                 else
                 {
-                    act2.disabled = (powerComp != null && !powerComp.PowerOn) || isRepairRequestActive;
+                    act2.Disabled = (powerComp != null && !powerComp.PowerOn) || isRepairRequestActive;
                     if (!isRepairRequestActive)
                         act2.disabledReason = txtNoPower.Translate();
                     else
@@ -687,7 +687,7 @@ namespace AIRobot
                 act1.hotKey = KeyBindingDefOf.Misc7;
                 act1.activateSound = SoundDef.Named("Click");
                 act1.action = Notify_CallBotForShutdown;
-                act1.disabled = (powerComp != null && !powerComp.PowerOn) || isRepairRequestActive;
+                act1.Disabled = (powerComp != null && !powerComp.PowerOn) || isRepairRequestActive;
                 if (!isRepairRequestActive)
                     act1.disabledReason = txtNoPower.Translate();
                 else
@@ -706,7 +706,7 @@ namespace AIRobot
                 act3.hotKey = KeyBindingDefOf.Misc8;
                 act3.activateSound = SoundDef.Named("Click");
                 act3.action = Button_CallAllBotsForShutdown;
-                act3.disabled = powerComp != null && !powerComp.PowerOn;
+                act3.Disabled = powerComp != null && !powerComp.PowerOn;
                 act3.disabledReason = txtNoPower.Translate();
                 act3.groupKey = groupBaseKey + 3;
                 yield return act3;
@@ -722,7 +722,7 @@ namespace AIRobot
                 act4.hotKey = KeyBindingDefOf.Misc10;
                 act4.activateSound = SoundDef.Named("Click");
                 act4.action = Button_SpawnAllAvailableBots;
-                act4.disabled = powerComp != null && !powerComp.PowerOn;
+                act4.Disabled = powerComp != null && !powerComp.PowerOn;
                 act4.disabledReason = txtNoPower.Translate();
                 act4.groupKey = groupBaseKey + 4;
                 yield return act4;
@@ -761,7 +761,7 @@ namespace AIRobot
                 act6.hotKey = KeyBindingDefOf.Misc9;
                 act6.activateSound = SoundDef.Named("Click");
                 act6.action = Button_RequestRepair4Robot;
-                act6.disabled = this.robot != null && !this.robotIsDestroyed; // Disable when the robot is up and running
+                act6.Disabled = this.robot != null && !this.robotIsDestroyed; // Disable when the robot is up and running
                 act6.disabledReason = txtRobotNotDeactivated.Translate();
                 act6.groupKey = groupBaseKey + 6;
                 yield return act6;
@@ -777,7 +777,7 @@ namespace AIRobot
                 act5.hotKey = KeyBindingDefOf.Misc11;
                 act5.activateSound = SoundDef.Named("Click");
                 act5.action = Button_FindRobot;
-                act5.disabled = powerComp != null && !powerComp.PowerOn;
+                act5.Disabled = powerComp != null && !powerComp.PowerOn;
                 act5.disabledReason = txtNoPower.Translate();
                 act5.groupKey = groupBaseKey + 5;
                 yield return act5;
@@ -795,7 +795,7 @@ namespace AIRobot
                 act9.hotKey = null;
                 act9.activateSound = SoundDef.Named("Click");
                 act9.action = Button_ResetDestroyedRobot;
-                act9.disabled = false;
+                act9.Disabled = false;
                 act9.disabledReason = "";
                 act9.groupKey = groupBaseKey + 9;
                 yield return act9;
@@ -810,7 +810,7 @@ namespace AIRobot
                 act10.hotKey = null;
                 act10.activateSound = SoundDef.Named("Click");
                 act10.action = Button_RepairDamagedRobot;
-                act10.disabled = false;
+                act10.Disabled = false;
                 act10.disabledReason = "";
                 act10.groupKey = groupBaseKey + 10;
                 yield return act10;
@@ -916,7 +916,7 @@ namespace AIRobot
             if (bot != null)
                 name = AIRobot_Helper.GetRobotName(bot);
             if (bot != null && bot.playerSettings != null)
-                area = bot.playerSettings.AreaRestriction;
+                area = bot.playerSettings.AreaRestrictionInPawnCurrentMap;
             
             if (name != null)
             {
@@ -947,7 +947,7 @@ namespace AIRobot
                 if (name != null)
                     AIRobot_Helper.SetRobotName(this.robot, name);
                 if (area != null)
-                    this.robot.playerSettings.AreaRestriction = area;
+                    this.robot.playerSettings.AreaRestrictionInPawnCurrentMap = area;
             }
         }
         public void Notify_SpawnBot()
@@ -967,6 +967,7 @@ namespace AIRobot
                     this.robot.stances.CancelBusyStanceHard();
                     this.robot.jobs.StopAll(false);
                     this.robot.pather.StopDead();
+                    this.robot.Drawer.renderer.SetAnimation(null);
                 }
 
                 //// Check/update faction

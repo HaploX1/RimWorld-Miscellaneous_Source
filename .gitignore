@@ -2,6 +2,9 @@ Debug
 Release
 .org
 .hg
+.git
+.vs
+bin/
 obj/
 _RimWorldDLLs
 Source/.vs/Miscellaneous/v16/Server/sqlite3/storage.ide
