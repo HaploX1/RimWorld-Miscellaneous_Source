@@ -169,7 +169,7 @@ namespace EndGame
                     StringBuilder stringBuilder = new StringBuilder();
                     string victoryText = "EndGame_Victory".Translate(GameVictoryUtility.PawnsLeftBehind());
 
-                    GameVictoryUtility.ShowCredits(victoryText);
+                    GameVictoryUtility.ShowCredits(victoryText,);
 
                     //GenGameEnd.EndGameDialogMessage(victoryText, true);
 
@@ -258,7 +258,7 @@ namespace EndGame
                 defaultDesc = "CommandStartEndGameDesc".Translate(),
                 hotKey = KeyBindingDefOf.Misc1,
                 icon = ContentFinder<Texture2D>.Get("UI/Commands/EndGame_Transmit_MenuIcon", true),
-                disabled = !IsActivatingPossible,
+                Disabled = !IsActivatingPossible,
                 disabledReason = "CommandStartEndGame_DisabledReason".Translate(),
             };
 
@@ -280,7 +280,7 @@ namespace EndGame
                 defaultLabel = "Debug: Reduce time",
                 defaultDesc = "Reduce the remaining time by 1/2 day.",
                 action = delegate { deactivateAtGameTick -= (int)(GenDate.TicksPerDay / 2); },
-                disabled = !IsActive,
+                Disabled = !IsActive,
                 disabledReason = "Not Active..."
             };
         }

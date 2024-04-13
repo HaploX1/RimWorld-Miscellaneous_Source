@@ -231,7 +231,7 @@ namespace BeeAndHoney
                 cmd1.hotKey = KeyBindingDefOf.Misc2; //H
                 cmd1.activateSound = SoundDef.Named("Click");
                 cmd1.action = delegate { fullness = 0.99f; };
-                cmd1.disabled = false;
+                cmd1.Disabled = false;
                 cmd1.disabledReason = "";
                 cmd1.groupKey = baseGroupKey + 1;
                 yield return cmd1;
@@ -243,7 +243,7 @@ namespace BeeAndHoney
                 cmd2.hotKey = KeyBindingDefOf.Misc3; //H
                 cmd2.activateSound = SoundDef.Named("Click");
                 cmd2.action = delegate { SearchForFlowers(parent.Map, true); };
-                cmd2.disabled = false;
+                cmd2.Disabled = false;
                 cmd2.disabledReason = "";
                 cmd2.groupKey = baseGroupKey + 2;
                 yield return cmd2;
@@ -255,7 +255,7 @@ namespace BeeAndHoney
                 cmd3.hotKey = KeyBindingDefOf.Misc4; //H
                 cmd3.activateSound = SoundDef.Named("Click");
                 cmd3.action = delegate { ShowAllValidFlowers(parent.Map); };
-                cmd3.disabled = false;
+                cmd3.Disabled = false;
                 cmd3.disabledReason = "";
                 cmd3.groupKey = baseGroupKey + 3;
                 yield return cmd3;

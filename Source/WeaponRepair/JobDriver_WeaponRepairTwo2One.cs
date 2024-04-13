@@ -171,9 +171,9 @@ namespace WeaponRepair
         {
             float expPerSecond = 25f;
             
-            FloatRange gainHitpointRange = new FloatRange(0.6f , 0.95f); // Note: result = gainHitpointRange * skillRecord.Level / 12
+            FloatRange gainHitpointRange = new FloatRange(0.6f , 0.95f); // Note: result = gainHitpointRange * skillRecord.Level / 10
             SkillDef skillDef = SkillDefOf.Crafting;
-            int maxSkillLevel = 12;
+            int maxSkillLevel = 10;
 
             Toil toil = new Toil();
             //toil.initAction = delegate
@@ -198,6 +198,8 @@ namespace WeaponRepair
                 // Calculate possible hitpoint gain multiplicator
                 SkillRecord skillRecord = actor.skills.GetSkill(skillDef);
                 float gainHitpointMulti = gainHitpointRange.RandomInRange * Mathf.Clamp( skillRecord.Level, 1, maxSkillLevel) / maxSkillLevel; //20;
+                if (gainHitpointMulti < 0.23f)
+                    gainHitpointMulti = 0.23f;
 
                 // Get the target hitpoint to use
                 Thing master = curJob.GetTarget(WeaponMasterIndex).Thing;

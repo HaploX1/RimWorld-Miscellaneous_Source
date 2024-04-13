@@ -531,7 +531,7 @@ namespace ColonistSelections
 
             string msg = translationMessageInfoOpenHelp.Translate() + "\n\n\n...  ...  ...\n\n" + translationHelp_prt2.Translate() + "\n\n...  ...  ...";
 
-            Find.LetterStack.ReceiveLetter(translationLetterInfoOpenHelp.Translate(), msg, LetterDefOf.PositiveEvent, null );
+            Find.LetterStack.ReceiveLetter(translationLetterInfoOpenHelp.Translate(), msg, LetterDefOf.PositiveEvent);
         }
 
         /// <summary>

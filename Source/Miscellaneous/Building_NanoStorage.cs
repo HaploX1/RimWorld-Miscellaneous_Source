@@ -301,7 +301,7 @@ namespace NanoStorage
             optF.hotKey = KeyBindingDefOf.Misc1; //B
             optF.activateSound = SoundDef.Named("Click");
             optF.action = SwitchTopItem;
-            optF.disabled = false;
+            optF.Disabled = false;
             optF.groupKey = 31325911;
             yield return optF;
 
@@ -326,7 +326,7 @@ namespace NanoStorage
             optX.hotKey = KeyBindingDefOf.Misc3; //Y
             optX.activateSound = SoundDef.Named("Click");
             optX.action = SwitchInputOutput;
-            optX.disabled = false;
+            optX.Disabled = false;
             optX.groupKey = 31325912;
             yield return optX;
 

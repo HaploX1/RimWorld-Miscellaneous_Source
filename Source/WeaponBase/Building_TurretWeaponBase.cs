@@ -321,10 +321,10 @@ namespace TurretWeaponBase
                     this.ResetForcedTarget();
 
                 bool flag = (this.powerComp == null || this.powerComp.PowerOn) && (this.mannableComp == null || this.mannableComp.MannedNow);
-                if (flag && base.Spawned)
+                if (flag && base.Spawned && !base.IsStunned)
                 {
                     this.GunCompEq.verbTracker.VerbsTick();
-                    if (!this.stunner.Stunned && this.GunCompEq.PrimaryVerb.state != VerbState.Bursting)
+                    if (this.GunCompEq.PrimaryVerb.state != VerbState.Bursting)
                     {
                         if (this.WarmingUp)
                         {
@@ -337,7 +337,7 @@ namespace TurretWeaponBase
                             if (this.burstCooldownTicksLeft > 0)
                                 this.burstCooldownTicksLeft--;
 
-                            if (this.burstCooldownTicksLeft <= 0)
+                            if (this.burstCooldownTicksLeft <= 0 && this.IsHashIntervalTick(10))
                                 this.TryStartShootSomething(true);
                         }
                         if (top != null)
@@ -704,12 +704,12 @@ namespace TurretWeaponBase
 
         #region Drawing
 
-        public override void Draw()
+        protected override void DrawAt(Vector3 drawLoc, bool flip = false)
         {
+            base.DrawAt(drawLoc, flip);
+
             if (top != null)
                 top.DrawTurret();
-
-            base.Draw();
         }
 
         public override void DrawExtraSelectionOverlays()

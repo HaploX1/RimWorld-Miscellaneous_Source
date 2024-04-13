@@ -637,7 +637,7 @@ namespace NanoPrinter
             if ((status == NanoPrinterStatus.Idle || status == NanoPrinterStatus.Paused || status == NanoPrinterStatus.Error) && PowerOk)
             {
                 Command_Action ca1 = new Command_Action();
-                ca1.disabled = (status == NanoPrinterStatus.Error);
+                ca1.Disabled = (status == NanoPrinterStatus.Error);
                 ca1.disabledReason = txtError.Translate();
                 ca1.defaultDesc = txtStart.Translate();
                 ca1.icon = UI_NanoPrinterButtonStart;
@@ -652,7 +652,7 @@ namespace NanoPrinter
             if (status != NanoPrinterStatus.Idle && status != NanoPrinterStatus.Error)
             {
                 Command_Action ca2 = new Command_Action();
-                ca2.disabled = false;
+                ca2.Disabled = false;
                 ca2.disabledReason = "";
                 ca2.defaultDesc = txtStop.Translate();
                 ca2.icon = UI_NanoPrinterButtonStop;
@@ -667,7 +667,7 @@ namespace NanoPrinter
             if (status == NanoPrinterStatus.Error)
             {
                 Command_Action ca0 = new Command_Action();
-                ca0.disabled = false;
+                ca0.Disabled = false;
                 ca0.disabledReason = "";
                 ca0.defaultDesc = txtErrorDescr.Translate();
                 ca0.icon = UI_NanoPrinterButtonError;
