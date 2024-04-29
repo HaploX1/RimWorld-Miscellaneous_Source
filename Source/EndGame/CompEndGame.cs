@@ -169,7 +169,7 @@ namespace EndGame
                     StringBuilder stringBuilder = new StringBuilder();
                     string victoryText = "EndGame_Victory".Translate(GameVictoryUtility.PawnsLeftBehind());
 
-                    GameVictoryUtility.ShowCredits(victoryText,);
+                    GameVictoryUtility.ShowCredits(victoryText, SongDefOf.EndCreditsSong, true);
 
                     //GenGameEnd.EndGameDialogMessage(victoryText, true);
 
