@@ -186,9 +186,19 @@ namespace MapGenerator
                 if (blueprint.TriggerLetterMessageText != null)
                 {
                     if (blueprint.TriggerLetterLabel != null)
-                        signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
+                    {
+                        signalAction_Letter.letterDef = LetterDefOf.NeutralEvent;
+                        signalAction_Letter.letterLabelKey = blueprint.TriggerLetterLabel;
+                        signalAction_Letter.letterMessageKey = blueprint.TriggerLetterMessageText;
+                        signalAction_Letter.lookTargets = new GlobalTargetInfo(mapRect.CenterCell, map, false);
+                    }
                     else
-                        signalAction_Letter.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                    {
+                        signalAction_Letter.letterDef = blueprint.TriggerLetterDef;
+                        signalAction_Letter.letterLabelKey = "";
+                        signalAction_Letter.letterMessageKey = blueprint.TriggerLetterMessageText;
+                        signalAction_Letter.lookTargets = new GlobalTargetInfo(mapRect.CenterCell, map);
+                    }
 
                     GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
                 }
@@ -216,7 +226,7 @@ namespace MapGenerator
                 return;
             }
             
-            IntVec3 spawnBaseCell = new IntVec3(mapRect.BottomLeft.x, mapRect.TopRight.y, mapRect.TopRight.z);
+            IntVec3 spawnBaseCell = new IntVec3(mapRect.Min.x, mapRect.Max.y, mapRect.Max.z);
             IntVec3 spawnCell;
 
             foreach (IntVec3 cell in mapRect)
@@ -294,7 +304,10 @@ namespace MapGenerator
                 string signalTag = "ancientTempleApproached-" + nextSignalTagID;
                 SignalAction_Letter signalAction_Letter = (SignalAction_Letter)ThingMaker.MakeThing(ThingDefOf.SignalAction_Letter, null);
                 signalAction_Letter.signalTag = signalTag;
-                signalAction_Letter.letter = LetterMaker.MakeLetter("LetterLabelAncientShrineWarning".Translate(), "AncientShrineWarning".Translate(), LetterDefOf.NeutralEvent, new TargetInfo(mapRect.CenterCell, map, false));
+                signalAction_Letter.letterDef = LetterDefOf.NeutralEvent;
+                signalAction_Letter.letterLabelKey = "LetterLabelAncientShrineWarning";
+                signalAction_Letter.letterMessageKey = "AncientShrineWarning";
+                signalAction_Letter.lookTargets = new TargetInfo(mapRect.CenterCell, map, false);
                 GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
                 RectTrigger rectTrigger = (RectTrigger)ThingMaker.MakeThing(ThingDefOf.RectTrigger, null);
                 rectTrigger.signalTag = signalTag;
@@ -312,16 +325,31 @@ namespace MapGenerator
                 {
                     if (blueprint.factionSelection == FactionSelection.friendly)
                     {
+                        if (allSpawnedPawns[0].Faction?.RelationWith(Faction.OfPlayer)?.kind == null || allSpawnedPawns[0].Faction.RelationWith(Faction.OfPlayer).kind == FactionRelationKind.Hostile)
+                        {
+                            allSpawnedPawns[0].Faction.SetRelation(new FactionRelation(Faction.OfPlayer, FactionRelationKind.Ally));
+                        }
+
                         lordJob = new LordJob_AssistColony(allSpawnedPawns[0].Faction, allSpawnedPawns[0].Position);
                     }
                     else
                     {
                         if (Rand.Value < 0.5f)
                         {
+                            if (allSpawnedPawns[0].Faction?.RelationWith(Faction.OfPlayer)?.kind == null)
+                            {
+                                allSpawnedPawns[0].Faction.SetRelation(new FactionRelation(Faction.OfPlayer, FactionRelationKind.Hostile));
+                            }
+
                             lordJob = new LordJob_DefendPoint(allSpawnedPawns[0].Position);
                         }
                         else
                         {
+                            if (allSpawnedPawns[0].Faction?.RelationWith(Faction.OfPlayer)?.kind == null || allSpawnedPawns[0].Faction.RelationWith(Faction.OfPlayer).kind == FactionRelationKind.Ally)
+                            {
+                                allSpawnedPawns[0].Faction.SetRelation(new FactionRelation(Faction.OfPlayer, FactionRelationKind.Hostile));
+                            }
+
                             lordJob = new LordJob_AssaultColony(allSpawnedPawns[0].Faction, false, false, false, false, false);
                         }
                     }
@@ -574,6 +602,9 @@ namespace MapGenerator
             // 4th step - work with the Pawn
             if (pawnKindDef != null && blueprint.pawnSpawnChance / 100 > Rand.Value)
             {
+                if (pawnKindDef.defaultFactionType == FactionDefOf.Mechanoid)
+                    this.faction = Faction.OfMechanoids;
+
                 if (this.faction == null)
                     this.faction = Find.FactionManager.FirstFactionOfDef(blueprint.factionDef);
 
@@ -586,7 +617,7 @@ namespace MapGenerator
                     {
                         case FactionSelection.friendly:
                             faction = (from fac in Find.FactionManager.AllFactions
-                                       where !fac.HostileTo(Faction.OfPlayer) && fac.PlayerGoodwill > 0 && !(fac == Faction.OfPlayer)
+                                       where fac != null && !fac.HostileTo(Faction.OfPlayer) && fac.PlayerGoodwill > 0 && !(fac == Faction.OfPlayer)
                                        select fac)
                                       .RandomElementByWeight((Faction fac) => 101 - fac.def.RaidCommonalityFromPoints(pointsForRaid));
 
@@ -597,7 +628,7 @@ namespace MapGenerator
 
                         case FactionSelection.hostile:
                             faction = (from fac in Find.FactionManager.AllFactions
-                                       where fac.HostileTo(Faction.OfPlayer)
+                                       where fac != null && fac.HostileTo(Faction.OfPlayer)
                                        select fac)
                                       .RandomElementByWeight((Faction fac) => 101 - fac.def.RaidCommonalityFromPoints(pointsForRaid));
 

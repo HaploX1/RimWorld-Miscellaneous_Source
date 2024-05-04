@@ -73,7 +73,7 @@ namespace TrainingFacility
             if (!pawn.CanReach(t, PathEndMode, Danger.Deadly))
                 return false;
 
-            if (JobDriver_Archery.isTooTired(pawn))
+            if (Utility_Tired.IsTooTired(pawn))
                 return false;
 
 

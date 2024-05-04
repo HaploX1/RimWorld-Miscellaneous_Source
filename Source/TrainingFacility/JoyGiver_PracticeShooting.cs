@@ -76,7 +76,7 @@ namespace TrainingFacility
                 {
                     return false;
                 }
-                if (JobDriver_Archery.isTooTired(pawn))
+                if (Utility_Tired.IsTooTired(pawn))
                 {
                     return false;
                 }

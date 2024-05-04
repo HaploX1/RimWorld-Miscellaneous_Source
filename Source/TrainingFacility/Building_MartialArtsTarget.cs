@@ -86,7 +86,7 @@ namespace TrainingFacility
                 yield return new FloatMenuOption("CannotUseNoPath".Translate(), null);
                 yield break;
             }
-            if (JobDriver_Archery.isTooTired(selPawn))
+            if (Utility_Tired.IsTooTired(selPawn))
             {
                 yield return new FloatMenuOption("TrainingFacility_CannotUseTooTired".Translate(), null);
                 yield break;

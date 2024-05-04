@@ -43,8 +43,15 @@ namespace TrainingFacility
             }
             if (curJob.def != null && curJob.def.joySkill != null && curJob.def.joyXpPerTick != 0 && pawn.skills != null && pawn.skills.GetSkill(curJob.def.joySkill) != null)
             {
-                pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                if (pawn.skills.GetSkill(pawn.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                {
+                    pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                }
             }
+
+            if (Utility_Tired.IsTooTired(pawn))
+                pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
+
             if (joyCanEndJob)
             {
                 if (pawn.GetTimeAssignment() != null && !pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment
@@ -67,7 +74,7 @@ namespace TrainingFacility
             this.EndOnDespawnedOrNull(TargetIndex.A);
             this.FailOnForbidden(TargetIndex.A);
             this.FailOnDestroyedOrNull(TargetIndex.A);
-            JobDriver_Archery.EndOnTired(this);
+            Utility_Tired.EndOnTired(this);
 
             yield return Toils_Reserve.Reserve(TargetIndex.A, 1);
 
@@ -85,7 +92,7 @@ namespace TrainingFacility
             toil.defaultCompleteMode = ToilCompleteMode.Delay;
             toil.defaultDuration = this.job.def.joyDuration;
             toil.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn));
-            toil.AddFailCondition(() => JobDriver_Archery.isTooTired(this.GetActor()));
+            toil.AddFailCondition(() => Utility_Tired.IsTooTired(this.GetActor()));
             toil.socialMode = RandomSocialMode.SuperActive;
             return toil;
 
@@ -141,8 +148,12 @@ namespace TrainingFacility
             lastTick = GenTicks.TicksAbs;
             if (ticksSinceLastShot > 2000)
                 ticksSinceLastShot = 0;
-            if (fighter.CurJob.def.joySkill != null)
+
+            if (fighter?.CurJob?.def?.joySkill != null &&
+                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+            {
                 fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
+            }
         }
         private int lastTick;
 

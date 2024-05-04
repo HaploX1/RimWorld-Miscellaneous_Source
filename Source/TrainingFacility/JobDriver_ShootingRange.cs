@@ -39,7 +39,7 @@ namespace TrainingFacility
             //this.FailOnForbidden(TargetIndex.A);
             this.FailOnForbidden(TargetIndex.B);
             this.FailOnDestroyedOrNull(TargetIndex.A);
-            JobDriver_Archery.EndOnTired(this);
+            Utility_Tired.EndOnTired(this);
 
             yield return Toils_Reserve.Reserve(TargetIndex.A, this.job.def.joyMaxParticipants, 0);
             yield return Toils_Reserve.Reserve(TargetIndex.B);
@@ -62,7 +62,7 @@ namespace TrainingFacility
             toil.defaultCompleteMode = ToilCompleteMode.Delay;
             toil.defaultDuration = this.job.def.joyDuration;
             toil.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(shooter));
-            toil.AddFailCondition(() => JobDriver_Archery.isTooTired(this.GetActor()));
+            toil.AddFailCondition(() => Utility_Tired.IsTooTired(this.GetActor()));
             toil.socialMode = RandomSocialMode.SuperActive;
             return toil;
 
@@ -136,7 +136,7 @@ namespace TrainingFacility
             // Done because the mod CE likes to throw errors in .GainJoy! Why?
             try
             {
-                if (pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
+                if (pawn?.needs?.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
                 {
                     pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * joyGainRateBase, curJob.def.joyKind);
                 }
@@ -147,9 +147,12 @@ namespace TrainingFacility
             }
             try
             {
-                if (curJob.def.joySkill != null && pawn.skills != null && pawn.skills.GetSkill(curJob.def.joySkill) != null)
+                if (curJob?.def?.joySkill != null && pawn?.skills?.GetSkill(curJob.def.joySkill) != null)
                 {
-                    pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                    if (pawn.skills.GetSkill(pawn.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                    {
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                    }
                 }
             }
             catch (Exception ex)
@@ -157,6 +160,9 @@ namespace TrainingFacility
                 Log.Warning("Could not assign gained skill.." + "\n" + ex.StackTrace);
                 //Log.ErrorOnce("Could not assign gained skill!" + "\n" + ex.StackTrace, 31385972);
             }
+
+            if (Utility_Tired.IsTooTired(pawn))
+                pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
 
             if (joyCanEndJob)
             {
@@ -177,15 +183,19 @@ namespace TrainingFacility
             if (attackVerb != null)
                 attackVerb.TryStartCastOn(targetInfo);
 
-
+            //Log.ErrorOnce("Max Allowed Training Level" + Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn).ToString(), 95485456);
 
             // increase the experienced xp
             int ticksSinceLastShot = GenTicks.TicksAbs - lastTick;
             lastTick = GenTicks.TicksAbs;
             if (ticksSinceLastShot > 2000)
                 ticksSinceLastShot = 0;
-            if (shooter.CurJob.def.joySkill != null)
+
+            if (shooter?.CurJob?.def?.joySkill != null &&
+                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+            {
                 shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
+            }
         }
         private int lastTick;
     }

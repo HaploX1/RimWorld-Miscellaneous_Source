@@ -104,9 +104,19 @@ namespace MapGenerator
                     if (blueprint.TriggerLetterMessageText != null)
                     {
                         if (blueprint.TriggerLetterLabel != null)
-                            signalAction_Letter.letter = LetterMaker.MakeLetter(blueprint.TriggerLetterLabel.Translate(), blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map, false));
+                        {
+                            signalAction_Letter.letterDef = LetterDefOf.NeutralEvent;
+                            signalAction_Letter.letterLabelKey = blueprint.TriggerLetterLabel;
+                            signalAction_Letter.letterMessageKey = blueprint.TriggerLetterMessageText;
+                            signalAction_Letter.lookTargets = new GlobalTargetInfo(mapRect.CenterCell, map, false);
+                        }
                         else
-                            signalAction_Letter.letter = LetterMaker.MakeLetter("", blueprint.TriggerLetterMessageText.Translate(), blueprint.TriggerLetterDef, new GlobalTargetInfo(mapRect.CenterCell, map));
+                        {
+                            signalAction_Letter.letterDef = blueprint.TriggerLetterDef;
+                            signalAction_Letter.letterLabelKey = " ";
+                            signalAction_Letter.letterMessageKey = blueprint.TriggerLetterMessageText;
+                            signalAction_Letter.lookTargets = new GlobalTargetInfo(mapRect.CenterCell, map);
+                        }
 
                         GenSpawn.Spawn(signalAction_Letter, mapRect.CenterCell, map);
                     }
@@ -177,7 +187,8 @@ namespace MapGenerator
                 return;
             }
 
-            IntVec3 spawnBaseCell = new IntVec3(mapRect.BottomLeft.x, mapRect.TopRight.y, mapRect.TopRight.z);
+            //IntVec3 spawnBaseCell = new IntVec3(mapRect.BottomLeft.x, mapRect.TopRight.y, mapRect.TopRight.z);
+            IntVec3 spawnBaseCell = new IntVec3(mapRect.Min.x, mapRect.Max.y, mapRect.Max.z);
             IntVec3 spawnCell;
 
             // Check all cells and abort if there is something indestructible found
