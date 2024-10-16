@@ -141,7 +141,7 @@ namespace TacticalComputer
             opt1.hotKey = KeyBindingDefOf.Misc4; //N
             opt1.activateSound = SoundDef.Named("Click");
             opt1.action = CallColonistsToArmsToThisTerminal;
-            opt1.disabled = (!(power == null || power.PowerOn)) ||
+            opt1.Disabled = (!(power == null || power.PowerOn)) ||
                             (foundTacticalComputers == null || foundTacticalComputers.Count() == 0);
             opt1.disabledReason = txtOffline;
             opt1.groupKey = baseGroupKey + 5;
@@ -155,7 +155,7 @@ namespace TacticalComputer
             opt2.hotKey = KeyBindingDefOf.Misc5; //J
             opt2.activateSound = SoundDef.Named("Click");
             opt2.action = CallColonistsToArmsToTacticalComputer;
-            opt2.disabled = (!(power == null || power.PowerOn)) ||
+            opt2.Disabled = (!(power == null || power.PowerOn)) ||
                             (foundTacticalComputers == null || foundTacticalComputers.Count() == 0);
             opt2.disabledReason = txtOffline;
             opt2.groupKey = baseGroupKey + 6;
@@ -169,7 +169,7 @@ namespace TacticalComputer
             opt4.hotKey = KeyBindingDefOf.Misc7; //M
             opt4.activateSound = SoundDef.Named("Click");
             opt4.action = CallColonistsNotArmedToThisTerminal;
-            opt4.disabled = (!(power == null || power.PowerOn)) ||
+            opt4.Disabled = (!(power == null || power.PowerOn)) ||
                             (foundTacticalComputers == null || foundTacticalComputers.Count() == 0);
             opt4.disabledReason = txtOffline;
             opt4.groupKey = baseGroupKey + 7;
@@ -183,7 +183,7 @@ namespace TacticalComputer
             opt5.hotKey = KeyBindingDefOf.Misc8; //K
             opt5.activateSound = SoundDef.Named("Click");
             opt5.action = CallColonistsNotArmedToTacticalComputer;
-            opt5.disabled = (!(power == null || power.PowerOn)) ||
+            opt5.Disabled = (!(power == null || power.PowerOn)) ||
                             (foundTacticalComputers == null || foundTacticalComputers.Count() == 0);
             opt5.disabledReason = txtOffline;
             opt5.groupKey = baseGroupKey + 8;

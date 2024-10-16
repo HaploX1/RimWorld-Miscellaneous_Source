@@ -47,13 +47,22 @@ namespace TacticalComputer
                 {
                     possibleSitePartsInt = new List<SitePartDef>();
                     //possibleSitePartsInt.Add(SitePartDefOf.Manhunters);
-                    possibleSitePartsInt.Add(SitePartDefOf.SleepingMechanoids);
-                    possibleSitePartsInt.Add(SitePartDefOf.Outpost);
-                    possibleSitePartsInt.Add(SitePartDefOf.Outpost);
-                    possibleSitePartsInt.Add(SitePartDefOf.Turrets);
+                    possibleSitePartsInt.Add(SitePartDefOf.AncientAltar);
+                    possibleSitePartsInt.Add(SitePartDefOf.BanditCamp);
+                    possibleSitePartsInt.Add(SitePartDefOf.BanditCamp);
+                    possibleSitePartsInt.Add(SitePartDefOf.WorshippedTerminal);
                     possibleSitePartsInt.Add(SitePartDefOf.PreciousLump);
-                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("BanditCamp"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("AmbushEdge"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("AmbushHidden"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("AmbushHidden"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("Manhunters"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("Manhunters"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("Outpost"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("Outpost"));
                     possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("ItemStash"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("ItemStash"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("SleepingMechanoids"));
+                    possibleSitePartsInt.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("SleepingMechanoids"));
                     possibleSitePartsInt.Add(SitePartDefOf.PossibleUnknownThreatMarker);
                     possibleSitePartsInt.Add(SitePartDefOf.PossibleUnknownThreatMarker);
 
@@ -73,9 +82,9 @@ namespace TacticalComputer
                     list.Add(sitePartDef);
 
                     // Outpost may also have turrets
-                    if (sitePartDef == SitePartDefOf.Outpost && Rand.Value < 0.4f)
+                    if (sitePartDef == DefDatabase<SitePartDef>.GetNamedSilentFail("Outpost") && Rand.Value < 0.4f)
                     {
-                        list.Add(SitePartDefOf.Turrets);
+                        list.Add(DefDatabase<SitePartDef>.GetNamedSilentFail("Turrets"));
                         break;
                     }
 

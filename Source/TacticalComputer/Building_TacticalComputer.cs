@@ -202,7 +202,7 @@ namespace TacticalComputer
             opt2.hotKey = KeyBindingDefOf.Misc2; //H
             opt2.activateSound = SoundDef.Named("Click");
             opt2.action = JumpTarget0;
-            opt2.disabled = !(power == null || power.PowerOn);
+            opt2.Disabled = !(power == null || power.PowerOn);
             opt2.disabledReason = txtOffline;
             opt2.groupKey = baseGroupKey + 0;
             yield return opt2;
@@ -215,7 +215,7 @@ namespace TacticalComputer
             opt5.hotKey = KeyBindingDefOf.Misc5; //J
             opt5.activateSound = SoundDef.Named("Click");
             opt5.action = JumpTarget1;
-            opt5.disabled = !(power == null || power.PowerOn);
+            opt5.Disabled = !(power == null || power.PowerOn);
             opt5.disabledReason = txtOffline;
             opt5.groupKey = baseGroupKey + 1;
             yield return opt5;
@@ -228,7 +228,7 @@ namespace TacticalComputer
             opt8.hotKey = KeyBindingDefOf.Misc8; //K
             opt8.activateSound = SoundDef.Named("Click");
             opt8.action = JumpTarget2;
-            opt8.disabled = !(power == null || power.PowerOn);
+            opt8.Disabled = !(power == null || power.PowerOn);
             opt8.disabledReason = txtOffline;
             opt8.groupKey = baseGroupKey + 2;
             yield return opt8;
@@ -241,7 +241,7 @@ namespace TacticalComputer
             opt10.hotKey = KeyBindingDefOf.Misc10; //L
             opt10.activateSound = SoundDef.Named("Click");
             opt10.action = JumpTarget3;
-            opt10.disabled = !(power == null || power.PowerOn);
+            opt10.Disabled = !(power == null || power.PowerOn);
             opt10.disabledReason = txtOffline;
             opt10.groupKey = baseGroupKey + 3;
             yield return opt10;
@@ -254,7 +254,7 @@ namespace TacticalComputer
             opt12.hotKey = KeyBindingDefOf.Misc11; //O
             opt12.activateSound = SoundDef.Named("Click");
             opt12.action = JumpTarget4;
-            opt12.disabled = !(power == null || power.PowerOn);
+            opt12.Disabled = !(power == null || power.PowerOn);
             opt12.disabledReason = txtOffline;
             opt12.groupKey = baseGroupKey + 4;
             yield return opt12;
