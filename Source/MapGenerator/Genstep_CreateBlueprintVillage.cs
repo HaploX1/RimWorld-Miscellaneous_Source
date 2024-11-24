@@ -106,13 +106,13 @@ namespace MapGenerator
 
                 if (!allowCenter)
                 {
-                    // Check if the loc is near the spawn location -> move loc by +20, 0, -20
+                    // Check if the loc is near the spawn location -> move loc by -5, 0, -5
                     //IntVec2 nogoCenter = new IntVec2(map.Size.x / 2, map.Size.z / 2);
-                    IntVec2 nogoCenter = new IntVec2(map.Size.x / 10, map.Size.z / 10);
+                    IntVec2 nogoCenter = new IntVec2(map.Size.x / 5, map.Size.z / 5);
                     CellRect nogoCenterRect = new CellRect(nogoCenter.x, nogoCenter.z, 1, 1);
-                    nogoCenterRect = nogoCenterRect.ExpandedBy(10);
+                    nogoCenterRect = nogoCenterRect.ExpandedBy(5);
                     if (nogoCenterRect.Contains(loc))
-                        loc = new IntVec3(loc.x + 20, loc.y, loc.z - 20);
+                        loc = new IntVec3(loc.x - 5, loc.y, loc.z - 5);
                 }
 
                 int placement = Rand.RangeInclusive(0, 7);

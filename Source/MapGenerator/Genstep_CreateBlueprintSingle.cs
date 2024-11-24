@@ -26,8 +26,8 @@ namespace MapGenerator
             if (mapCenterBlueprintUsed)
                 return;
 
-            // After 5 min reset the saved cells!
-            if (usedCells_lastChange.AddMinutes(5) < DateTime.UtcNow)
+            // After 3 min reset the saved cells!
+            if (usedCells_lastChange.AddMinutes(3) < DateTime.UtcNow)
             {
                 usedCells.Clear();
                 usedCells_lastChange = DateTime.UtcNow;
@@ -52,7 +52,7 @@ namespace MapGenerator
             {
                 // Check if the loc is near the spawn location
                 //IntVec2 nogoCenter = new IntVec2((int)(Find.World.info.initialMapSize.x / 2.5f), (int)(Find.World.info.initialMapSize.z / 2.5f));
-                IntVec2 nogoCenter = new IntVec2((int)(Find.World.info.initialMapSize.x / 10f), (int)(Find.World.info.initialMapSize.z / 10f));
+                IntVec2 nogoCenter = new IntVec2((int)(Find.World.info.initialMapSize.x / 5f), (int)(Find.World.info.initialMapSize.z / 5f));
                 CellRect nogoCenterRect = new CellRect(nogoCenter.x, nogoCenter.z, 1, 1);
                 //nogoCenterRect = nogoCenterRect.ExpandedBy(20);
                 nogoCenterRect = nogoCenterRect.ExpandedBy(5);

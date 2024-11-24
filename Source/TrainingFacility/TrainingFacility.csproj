@@ -56,6 +56,7 @@
     <Compile Include="Building_MartialArtsTarget.cs" />
     <Compile Include="Building_Archery.cs" />
     <Compile Include="Building_ShootingRange.cs" />
+    <Compile Include="Utility_Hungry.cs" />
     <Compile Include="Utility_MaxAllowedTrainingLevel.cs" />
     <Compile Include="Utility_Tired.cs" />
     <Compile Include="Graphic_RandomMote.cs" />
