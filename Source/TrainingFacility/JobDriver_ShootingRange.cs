@@ -20,7 +20,13 @@ namespace TrainingFacility
         public float joyGainRateBase = 0.000144f * 1.5f;
         public float skillGainRateHeavyWeapon = 6f;
 
+        public float restReductionForcedPerTick = 0.0015f * GenTicks.SecondsPerTick; // around 6h training possible
+
         private static bool messageUsedStonesWasShown = false;
+
+        private bool nearbyPawnFound = false;
+        private int nearbyPawnDistance = 5;
+        private int nearbyPawnSearchCountdown = 0;
 
         public JobDriver_ShootingRange() {}
 
@@ -121,6 +127,21 @@ namespace TrainingFacility
                     // Alternate: Shoot some arrows?
                     //JobDriver_Archery.ShootArrow(pawn, TargetA.Cell);
                 }
+
+                nearbyPawnSearchCountdown += 1;
+                if (nearbyPawnSearchCountdown >= 3)
+                {
+                    nearbyPawnSearchCountdown = 0;
+                    nearbyPawnFound = false;
+                    foreach (Pawn p in this.pawn.MapHeld.mapPawns.AllHumanlikeSpawned)
+                    {
+                        if (Utility_PositionFinder.IsCellInRadius(this.pawn.PositionHeld, p.PositionHeld, nearbyPawnDistance))
+                        {
+                            nearbyPawnFound = true;
+                            break;
+                        }
+                    }
+                }
             }
 
 
@@ -136,33 +157,54 @@ namespace TrainingFacility
             // Done because the mod CE likes to throw errors in .GainJoy! Why?
             try
             {
-                if (pawn?.needs?.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
+                // added joyCanEndJob her, so that only non-forced jobs can get joy from it
+                if (joyCanEndJob && pawn?.needs?.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
                 {
                     pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * joyGainRateBase, curJob.def.joyKind);
                 }
-            } catch (Exception ex)
-            {
-                Log.Warning("Could not assign gained joy.." + "\n" + ex.StackTrace);
-                //Log.ErrorOnce("Could not assign gained joy!" + "\n" + ex.StackTrace, 31385971);
-            }
-            try
-            {
+
                 if (curJob?.def?.joySkill != null && pawn?.skills?.GetSkill(curJob.def.joySkill) != null)
                 {
-                    if (pawn.skills.GetSkill(pawn.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                    if (!nearbyPawnFound)
                     {
-                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                        if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                        {
+                            // normal leveling
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 1.1f : curJob.def.joyXpPerTick * 0.8f);
+                        }
+                        else
+                        {
+                            // this pawn level is > max -> REDUCE skill
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(-(curJob.def.joyXpPerTick / 2f));
+                        }
                     }
+                    if (nearbyPawnFound)
+                    {
+                        if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                        {
+                            // 2nd pawn is nearby > increase skill gain
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 2.5f : curJob.def.joyXpPerTick * 1.8f);
+                        }
+                    }
+
                 }
             }
             catch (Exception ex)
             {
-                Log.Warning("Could not assign gained skill.." + "\n" + ex.StackTrace);
-                //Log.ErrorOnce("Could not assign gained skill!" + "\n" + ex.StackTrace, 31385972);
+                Log.Warning("Could not assign gained joy or skill.." + Environment.NewLine + ex.Message + Environment.NewLine + ex.StackTrace);
             }
 
-            if (Utility_Tired.IsTooTired(pawn))
-                pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
+            // If forced, this job will reduce the rest of the pawn
+            if (!joyCanEndJob)
+            {
+                if (pawn?.needs?.rest != null)
+                {
+                    pawn.needs.rest.CurLevel -= restReductionForcedPerTick;
+                }
+            }
+
+            if (Utility_Tired.IsTooTired(pawn) || Utility_Hungry.IsTooHungry(pawn))
+                pawn.jobs.curDriver.EndJobWith(JobCondition.InterruptForced);
 
             if (joyCanEndJob)
             {
@@ -192,9 +234,9 @@ namespace TrainingFacility
                 ticksSinceLastShot = 0;
 
             if (shooter?.CurJob?.def?.joySkill != null &&
-                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
             {
-                shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
+                shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(joyCanEndJob ? shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.2f : shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
             }
         }
         private int lastTick;

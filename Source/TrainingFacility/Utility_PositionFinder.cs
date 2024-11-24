@@ -110,5 +110,14 @@ namespace TrainingFacility
             return foundIntVec3;
         }
 
+
+        public static bool IsCellInRadius(IntVec3 checkCell, IntVec3 centerOfRadius, float radius)
+        {
+            // True when '<' means it is inside the radius
+            // True when '==' means it is on the radius border
+            // True when '>' means it is outside the radius
+
+            return Mathf.Pow(checkCell.x - centerOfRadius.x, 2) + Mathf.Pow(checkCell.z - centerOfRadius.z, 2) <= Mathf.Pow(radius, 2);
+        }
     }
 }

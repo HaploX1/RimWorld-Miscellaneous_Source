@@ -17,14 +17,35 @@ namespace TrainingFacility
         private const int UpdateInterval = 250;
         protected bool joyCanEndJob = true;
 
+        public float restReductionForcedPerTick = 0.0015f * GenTicks.SecondsPerTick; // around 6h training possible
+
+        private int nearbyPawnSearchCountdown = 0;
+        private bool nearbyPawnFound = false;
+        private int nearbyPawnDistance = 5;
+
         public JobDriver_MartialArtsTarget() {}
 
         protected override void WatchTickAction()
         {
-            
+
             if (this.pawn.IsHashIntervalTick(UpdateInterval))
             {
                 FightTarget(this.pawn, base.TargetA.Cell);
+
+                nearbyPawnSearchCountdown += 1;
+                if (nearbyPawnSearchCountdown >= 3)
+                {
+                    nearbyPawnSearchCountdown = 0;
+                    nearbyPawnFound = false;
+                    foreach (Pawn p in this.pawn.MapHeld.mapPawns.AllHumanlikeSpawned)
+                    {
+                        if (Utility_PositionFinder.IsCellInRadius(this.pawn.PositionHeld, p.PositionHeld, nearbyPawnDistance))
+                        {
+                            nearbyPawnFound = true;
+                            break;
+                        }
+                    }
+                }
             }
 
             //base.StandTickAction(); // disabled and fully extracted. Changes are needed because of the second usage by FloatMenu -> NonJoy
@@ -37,20 +58,48 @@ namespace TrainingFacility
             //JoyUtility.JoyTickCheckEnd(this.pawn, false, 1f); // changed; => needs to be disabled when not joy activity or it will end the job!
 
             Job curJob = pawn.CurJob;
-            if (pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error if joy is full: joyKind NullRef ???
+
+            // added joyCanEndJob her, so that only non-forced jobs can get joy from it
+            if (joyCanEndJob && pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error if joy is full: joyKind NullRef ???
             {
                 pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f, curJob.def.joyKind);
             }
             if (curJob.def != null && curJob.def.joySkill != null && curJob.def.joyXpPerTick != 0 && pawn.skills != null && pawn.skills.GetSkill(curJob.def.joySkill) != null)
             {
-                if (pawn.skills.GetSkill(pawn.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                if (!nearbyPawnFound)
                 {
-                    pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick);
+                    if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                    {
+                        // normal leveling
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 1.1f : curJob.def.joyXpPerTick * 0.8f);
+                    }
+                    else
+                    {
+                        // this pawn level is > max -> REDUCE skill
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(-(curJob.def.joyXpPerTick / 2f));
+                    }
+                }
+                if (nearbyPawnFound)
+                {
+                    if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                    {
+                        // 2nd pawn is nearby > increase skill gain
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 2.5f : curJob.def.joyXpPerTick * 1.8f);
+                    }
                 }
             }
 
-            if (Utility_Tired.IsTooTired(pawn))
-                pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
+            // If forced, this job will reduce the rest of the pawn
+            if (!joyCanEndJob)
+            {
+                if (pawn?.needs?.rest != null)
+                {
+                    pawn.needs.rest.CurLevel -= restReductionForcedPerTick;
+                }
+            }
+
+            if (Utility_Tired.IsTooTired(pawn) || Utility_Hungry.IsTooHungry(pawn))
+                pawn.jobs.curDriver.EndJobWith(JobCondition.InterruptForced);
 
             if (joyCanEndJob)
             {
@@ -150,9 +199,9 @@ namespace TrainingFacility
                 ticksSinceLastShot = 0;
 
             if (fighter?.CurJob?.def?.joySkill != null &&
-                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).GetLevel() < Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
             {
-                fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
+                fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(joyCanEndJob ? fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.2f : fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
             }
         }
         private int lastTick;

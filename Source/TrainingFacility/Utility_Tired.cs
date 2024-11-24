@@ -22,7 +22,7 @@ namespace TrainingFacility
 
         public static bool IsTooTired(Pawn actor)
         {
-            if (actor != null & actor.needs != null && actor.needs.rest != null && actor.needs.rest.CurLevel < Need_Rest.ThreshTired - (Need_Rest.ThreshVeryTired / 2) + 0.03)
+            if (actor?.needs?.rest != null && actor.needs.rest.CurLevel < (Need_Rest.ThreshTired - (Need_Rest.ThreshVeryTired / 2)) + 0.03)
             {
                 return true;
             }

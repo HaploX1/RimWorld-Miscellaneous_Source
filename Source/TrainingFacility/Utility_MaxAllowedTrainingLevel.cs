@@ -14,13 +14,13 @@ namespace TrainingFacility
         public static int GetMaxAllowedTrainingLevel(Pawn pawn)
         {
             Vector2 v1 = new Vector2( 0,   1);
-            Vector2 v2 = new Vector2( 6,   5);
-            Vector2 v3 = new Vector2( 12,  8);
-            Vector2 v4 = new Vector2( 15, 12);
+            Vector2 v2 = new Vector2( 6,   6);
+            Vector2 v3 = new Vector2( 12,  9);
+            Vector2 v4 = new Vector2( 15, 15);
 
             if (pawn?.ageTracker?.AgeBiologicalYears == null)
             {
-                return 100;
+                return 18;
             }
             if (pawn.ageTracker.AgeBiologicalYears < v2.x)
                 return (int)Lerp(pawn.ageTracker.AgeBiologicalYears, v1, v2);
@@ -29,7 +29,7 @@ namespace TrainingFacility
             if (pawn.ageTracker.AgeBiologicalYears < v4.x)
                 return (int)Lerp(pawn.ageTracker.AgeBiologicalYears, v3, v4);
 
-            return 100;
+            return 17;
         }
 
         static public double Lerp(float x, Vector2 v0, Vector2 v1)
