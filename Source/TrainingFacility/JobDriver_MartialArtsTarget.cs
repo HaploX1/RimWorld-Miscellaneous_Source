@@ -63,6 +63,10 @@ namespace TrainingFacility
             if (joyCanEndJob && pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error if joy is full: joyKind NullRef ???
             {
                 pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f, curJob.def.joyKind);
+            }            // added joyCanEndJob her, so that only non-forced jobs can get joy from it
+            if (!joyCanEndJob && pawn.needs != null && pawn.needs.joy != null && pawn.needs.joy.CurLevel <= 0.9999f) // changed, else it would throw an error if joy is full: joyKind NullRef ???
+            {
+                pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * 0.000144f * 0.5f, curJob.def.joyKind);
             }
             if (curJob.def != null && curJob.def.joySkill != null && curJob.def.joyXpPerTick != 0 && pawn.skills != null && pawn.skills.GetSkill(curJob.def.joySkill) != null)
             {

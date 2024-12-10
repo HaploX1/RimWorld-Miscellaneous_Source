@@ -162,6 +162,10 @@ namespace TrainingFacility
                 {
                     pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * joyGainRateBase, curJob.def.joyKind);
                 }
+                if (!joyCanEndJob && pawn?.needs?.joy != null && pawn.needs.joy.CurLevel <= 0.999f) // changed, else it would throw an error: joyKind NullRef ???
+                {
+                    pawn.needs.joy.GainJoy(1f * curJob.def.joyGainRate * joyGainRateBase * 0.5f, curJob.def.joyKind);
+                }
 
                 if (curJob?.def?.joySkill != null && pawn?.skills?.GetSkill(curJob.def.joySkill) != null)
                 {
