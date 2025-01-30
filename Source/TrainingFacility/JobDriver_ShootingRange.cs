@@ -25,7 +25,7 @@ namespace TrainingFacility
         private static bool messageUsedStonesWasShown = false;
 
         private bool nearbyPawnFound = false;
-        private int nearbyPawnDistance = 5;
+        private int nearbyPawnDistance = 10;
         private int nearbyPawnSearchCountdown = 0;
 
         public JobDriver_ShootingRange() {}
@@ -178,8 +178,8 @@ namespace TrainingFacility
                         }
                         else
                         {
-                            // this pawn level is > max -> REDUCE skill
-                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(-(curJob.def.joyXpPerTick / 2f));
+                            // this pawn level is > max -> reduced learning 
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.5f);
                         }
                     }
                     if (nearbyPawnFound)
@@ -188,6 +188,11 @@ namespace TrainingFacility
                         {
                             // 2nd pawn is nearby > increase skill gain
                             pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 2.5f : curJob.def.joyXpPerTick * 1.8f);
+                        }
+                        else
+                        {
+                            // this pawn level is > max -> reduced learning 
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.8f);
                         }
                     }
 
