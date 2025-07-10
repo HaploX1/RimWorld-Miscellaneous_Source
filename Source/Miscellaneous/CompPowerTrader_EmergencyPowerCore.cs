@@ -287,9 +287,9 @@ namespace EmergencyPowerCore
             this.flickableComp = this.parent.GetComp<CompFlickable>();
         }
 
-        public override void PostDeSpawn(Map map)
+        public override void PostDeSpawn(Map map, DestroyMode mode = DestroyMode.Vanish)
         {
-            base.PostDeSpawn(map);
+            base.PostDeSpawn(map, mode);
             this.EndSustainerPoweredIfActive();
             this.powerOutputInt = 0f;
         }

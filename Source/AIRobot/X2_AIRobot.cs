@@ -151,7 +151,7 @@ namespace AIRobot
                 Log.Warning("Tried to spawn robot resources without an active map. Nothing spawned!");
                 return;
             }
-            if ( oldPos == null || oldPos == IntVec3.Invalid)
+            if ( oldPos == default || oldPos == IntVec3.Invalid)
             {
                 Log.Warning("Tried to spawn robot resources without a valid position. Nothing spawned!");
                 return;
@@ -219,7 +219,7 @@ namespace AIRobot
         #region Tick
         bool isSleepModeActive = false;
         float oldRestLevel = 1f;
-        public override void Tick()
+        protected override void Tick()
         {
 
             // If idle at station, don't loose charge
@@ -279,8 +279,8 @@ namespace AIRobot
         }
         private bool IsInDistanceToStation(float distance)
         {
-            if (Position != null && Position != IntVec3.Invalid &&
-                rechargeStation != null && rechargeStation.Position != null && rechargeStation.Position != IntVec3.Invalid)
+            if (Position != default && Position != IntVec3.Invalid &&
+                rechargeStation != null && rechargeStation.Position != default && rechargeStation.Position != IntVec3.Invalid)
             {
                 return AIRobot_Helper.IsInDistance(Position, rechargeStation.Position, distance);
             }
@@ -296,8 +296,8 @@ namespace AIRobot
             string workString = base.GetInspectString() ;
             if (DebugSettings.godMode)
             {
-                if (Position != null && Position != IntVec3.Invalid &&
-                    rechargeStation != null && rechargeStation.Position != null && rechargeStation.Position != IntVec3.Invalid)
+                if (Position != default && Position != IntVec3.Invalid &&
+                    rechargeStation != null && rechargeStation.Position != default && rechargeStation.Position != IntVec3.Invalid)
                 {
                     if (!workString.NullOrEmpty())
                         workString += "\n";

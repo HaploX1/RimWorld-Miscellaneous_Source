@@ -195,7 +195,7 @@ namespace NanoStorage
         /// This is used, when the Ticker is set to Normal
         /// This Tick is done often (60 times per second)
         /// </summary>
-        public override void Tick()
+        protected override void Tick()
         {
             if (destroyedFlag)
                 return;

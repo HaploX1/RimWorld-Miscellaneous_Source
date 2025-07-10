@@ -18,7 +18,7 @@ namespace Miscellaneous
             base.Impact(hitThing, blockedByShield);
 
             ThingDef def = this.def;
-            GenExplosion.DoExplosion(Position, Map, this.def.projectile.explosionRadius, this.def.projectile.damageDef, launcher, -1, -1, null, def, this.equipmentDef, null, null, 0f, 1, null, false, null, 0f, 1, 0f, false);
+            GenExplosion.DoExplosion(Position, Map, this.def.projectile.explosionRadius, this.def.projectile.damageDef, launcher, -1, -1, null, def, this.equipmentDef, null, null, 0f, 1, null, null, 0, false, null, 0f, 1, 0f, false);
             CellRect cellRect = CellRect.CenteredOn(base.Position, 3);
             cellRect.ClipInsideMap(base.Map);
             for (int i = 0; i < 5; i++)
@@ -31,7 +31,7 @@ namespace Miscellaneous
         protected void IceExplosion(IntVec3 pos, float radius)
         {
             ThingDef def = this.def;
-            GenExplosion.DoExplosion(Position, Map, radius, DamageDefOf.Frostbite, launcher, -1, -1, null, def, this.equipmentDef, null, null, 0f, 1, null, false, null, 0f, 1, 0f, false);
+            GenExplosion.DoExplosion(Position, Map, radius, DamageDefOf.Frostbite, launcher, -1, -1, null, def, this.equipmentDef, null, null, 0f, 1, null, null, 0, false, null, 0f, 1, 0f, false);
 
             float depth = 3f;
             IEnumerable<IntVec3> iceCells = GenRadial.RadialPatternInRadius(radius);

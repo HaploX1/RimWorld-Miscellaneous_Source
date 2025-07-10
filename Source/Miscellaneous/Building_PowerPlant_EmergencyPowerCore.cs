@@ -52,7 +52,7 @@ namespace EmergencyPowerCore
             }
         }
 
-        public override void Tick()
+        protected override void Tick()
         {
             base.Tick();
             if ((this.breakdownableComp != null && this.breakdownableComp.BrokenDown) || (this.refuelableComp != null && !this.refuelableComp.HasFuel) || (this.flickableComp != null && !this.flickableComp.SwitchIsOn) || (this.powerComp != null && !this.powerComp.PowerOn))

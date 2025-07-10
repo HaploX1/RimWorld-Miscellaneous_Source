@@ -8,6 +8,7 @@ using UnityEngine;
 using RimWorld;
 using Verse;
 using Verse.AI;
+using static System.Collections.Specialized.BitVector32;
 
 namespace AIRobot
 {
@@ -329,14 +330,30 @@ namespace AIRobot
         private bool updateGraphicForceNeeded = false;
         private void UpdateGraphic()
         {
+            if (Current.ProgramState != ProgramState.Playing)
+                return;
+
             if (Graphic != graphicOld || updateGraphicForceNeeded)
             {
                 updateGraphicForceNeeded = false;
 
+                IntVec3 pos = new IntVec3();
+
+                if (this.Position != IntVec3.Invalid && this.Position != default)
+                {
+                    pos = this.Position;
+                }
+                if (pos == default && this.PositionHeld != default)
+                {
+                    pos = this.PositionHeld;
+                }
+
+                Map map = this.Map ?? MapHeld;
+
                 //Log.Error("Update Graphic");
                 graphicOld = Graphic;
                 Notify_ColorChanged();
-                Map.mapDrawer.MapMeshDirty(this.Position, (ulong)MapMeshFlagDefOf.Things, true, false);
+                map.mapDrawer.MapMeshDirty(pos, (ulong)MapMeshFlagDefOf.Things, true, false);
             }
         }
 
@@ -344,7 +361,7 @@ namespace AIRobot
 
         #region Ticker
 
-        public override void Tick()
+        protected override void Tick()
         {
             base.Tick();
 

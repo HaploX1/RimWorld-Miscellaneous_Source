@@ -25,7 +25,7 @@ namespace TrainingFacility
 
         public JobDriver_MartialArtsTarget() {}
 
-        protected override void WatchTickAction()
+        protected override void WatchTickAction(int delta)
         {
 
             if (this.pawn.IsHashIntervalTick(UpdateInterval))
@@ -53,7 +53,7 @@ namespace TrainingFacility
             if (pawn.rotationTracker != null)
                 this.pawn.rotationTracker.FaceCell(base.TargetA.Cell);
 
-            this.pawn.GainComfortFromCellIfPossible();
+            this.pawn.GainComfortFromCellIfPossible(delta);
             
             //JoyUtility.JoyTickCheckEnd(this.pawn, false, 1f); // changed; => needs to be disabled when not joy activity or it will end the job!
 
@@ -146,7 +146,10 @@ namespace TrainingFacility
         {
             Toil toil = new Toil();
 
-            toil.tickAction = () => WatchTickAction();
+            toil.tickIntervalAction = delegate (int delta)
+            {
+                WatchTickAction(delta);
+            };
             toil.defaultCompleteMode = ToilCompleteMode.Delay;
             toil.defaultDuration = this.job.def.joyDuration;
             toil.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn));

@@ -264,7 +264,7 @@ namespace TurretWeaponBase
         }
         private void DeconstructGunAndReset()
         {
-            if (gun != null && PositionHeld != null && MapHeld != null)
+            if (gun != null && PositionHeld != default && MapHeld != null)
             {
                 Thing resultingThing;
                 //GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
@@ -287,7 +287,7 @@ namespace TurretWeaponBase
 
         #region Ticker
 
-        public override void Tick()
+        protected override void Tick()
         {
             base.Tick();
 
@@ -571,7 +571,7 @@ namespace TurretWeaponBase
 
             // only guns inside the home area are valid 
             List<IntVec3> HomeAreaCells = null;
-            if (Map.areaManager.Home.ActiveCells.FirstOrDefault<IntVec3>() != null)
+            if (Map.areaManager.Home.ActiveCells.FirstOrDefault<IntVec3>() != default)
                 HomeAreaCells = Map.areaManager.Home.ActiveCells.ToList();
             
             List<Thing> availableGuns = new List<Thing>();

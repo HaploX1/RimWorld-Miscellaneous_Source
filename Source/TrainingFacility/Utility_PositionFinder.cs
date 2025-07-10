@@ -18,7 +18,7 @@ namespace TrainingFacility
         {
             chair = null;
 
-            if (standDistanceRange.Equals(IntRange.zero))
+            if (standDistanceRange.Equals(IntRange.Zero))
                 return building.Position;
 
             List<IntVec3> foundCells = FindAllWatchBuildingCells(building, standDistanceRange);

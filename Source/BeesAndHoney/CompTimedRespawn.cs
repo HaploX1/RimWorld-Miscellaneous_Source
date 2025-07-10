@@ -27,7 +27,7 @@ namespace BeeAndHoney
         {
             get
             {
-                if (parent.Map == null || parent.Position == null)
+                if (parent.Map == null || parent.Position == default)
                     return false;
 
                 return _active;
@@ -64,7 +64,7 @@ namespace BeeAndHoney
         {
             get
             {
-                if (parent.PositionHeld == null || parent.MapHeld == null)
+                if (parent.PositionHeld == default || parent.MapHeld == null)
                     return int.MaxValue;
 
                 float tempCell = GenTemperature.GetTemperatureForCell(parent.PositionHeld, parent.MapHeld);

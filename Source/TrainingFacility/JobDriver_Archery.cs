@@ -13,13 +13,13 @@ namespace TrainingFacility
 
         public JobDriver_Archery() {}
 
-        protected override void WatchTickAction()
+        protected override void WatchTickAction(int delta)
         {
             if (this.pawn.IsHashIntervalTick(ArrowShootInterval))
             {
                 ShootArrow(this.pawn, base.TargetA.Cell);
             }
-            base.WatchTickAction();
+            base.WatchTickAction(delta);
         }
 
         public override bool TryMakePreToilReservations(bool errorOnFailed)
@@ -48,11 +48,17 @@ namespace TrainingFacility
             yield return Toils_Goto.GotoCell(TargetIndex.B, PathEndMode.OnCell);
 
             Toil play = new Toil();
-            play.tickAction = () => WatchTickAction();
+            play.tickIntervalAction = delegate (int delta)
+            {
+                WatchTickAction(delta);
+            };
             play.defaultCompleteMode = ToilCompleteMode.Delay;
             play.defaultDuration = this.job.def.joyDuration;
-            play.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn));
-            play.AddFailCondition(() => Utility_Tired.IsTooTired(this.GetActor()));
+            play.AddFinishAction(delegate 
+                                { 
+                                    JoyUtility.TryGainRecRoomThought(pawn); 
+                                });
+            play.AddFailCondition(() => Utility_Tired.IsTooTired(this.GetActor()) || Utility_Hungry.IsTooHungry(this.GetActor()));
             yield return play;
 
             Toil returnWeapon = Toils_Goto.GotoThing(TargetIndex.A, PathEndMode.Touch);

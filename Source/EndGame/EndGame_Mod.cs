@@ -99,29 +99,29 @@ namespace EndGame
             optionsLH.Begin(rectLH);
 
             optionsLH.Gap(24);
-            optionsLH.Label(Text_Option_DaysActive, -1, ToolTip_Option_DaysActive);
+            optionsLH.Label(Text_Option_DaysActive, -1, tooltip: ToolTip_Option_DaysActive);
             optionsLH.Gap(12);
             optionsLH.GapLine(12);
             optionsLH.Gap(24);
-            optionsLH.Label(Text_Option_TicksBetweenIncidents, -1, ToolTip_Option_TicksBetweenIncidents);
+            optionsLH.Label(Text_Option_TicksBetweenIncidents, -1, tooltip: ToolTip_Option_TicksBetweenIncidents);
             optionsLH.Gap(12);
-            optionsLH.Label(Text_Option_RaidPointsFactorRangePercent, -1, ToolTip_Option_RaidPointsFactorRangePercent);
+            optionsLH.Label(Text_Option_RaidPointsFactorRangePercent, -1, tooltip: ToolTip_Option_RaidPointsFactorRangePercent);
             optionsLH.Gap(24);
-            optionsLH.Label(Text_Option_DangerLowUntilDay, -1, ToolTip_Option_DangerLowHighDay);
+            optionsLH.Label(Text_Option_DangerLowUntilDay, -1, tooltip: ToolTip_Option_DangerLowHighDay);
             optionsLH.Gap(12);
-            optionsLH.Label(Text_Option_DangerHighFromDay, -1, ToolTip_Option_DangerLowHighDay);
+            optionsLH.Label(Text_Option_DangerHighFromDay, -1, tooltip: ToolTip_Option_DangerLowHighDay);
             optionsLH.Gap(24);
-            optionsLH.Label(Text_Option_DangerLowTimeFactor, -1, ToolTip_Option_DangerTimeFactor);
+            optionsLH.Label(Text_Option_DangerLowTimeFactor, -1, tooltip: ToolTip_Option_DangerTimeFactor);
             optionsLH.Gap(12);
-            optionsLH.Label(Text_Option_DangerMidTimeFactor, -1, ToolTip_Option_DangerTimeFactor);
+            optionsLH.Label(Text_Option_DangerMidTimeFactor, -1, tooltip: ToolTip_Option_DangerTimeFactor);
             optionsLH.Gap(12);
-            optionsLH.Label(Text_Option_DangerHighTimeFactor, -1, ToolTip_Option_DangerTimeFactor);
+            optionsLH.Label(Text_Option_DangerHighTimeFactor, -1, tooltip: ToolTip_Option_DangerTimeFactor);
             optionsLH.Gap(24);
-            optionsLH.Label(Text_Option_DangerLowRaidPointFactor, -1, ToolTip_Option_DangerRaidPointFactor);
+            optionsLH.Label(Text_Option_DangerLowRaidPointFactor, -1, tooltip: ToolTip_Option_DangerRaidPointFactor);
             optionsLH.Gap(12);
-            optionsLH.Label(Text_Option_DangerMidRaidPointFactor, -1, ToolTip_Option_DangerRaidPointFactor);
+            optionsLH.Label(Text_Option_DangerMidRaidPointFactor, -1, tooltip: ToolTip_Option_DangerRaidPointFactor);
             optionsLH.Gap(12);
-            optionsLH.Label(Text_Option_DangerHighRaidPointFactor, -1, ToolTip_Option_DangerRaidPointFactor);
+            optionsLH.Label(Text_Option_DangerHighRaidPointFactor, -1, tooltip: ToolTip_Option_DangerRaidPointFactor);
             optionsLH.Gap(24);
 
 

@@ -40,7 +40,7 @@ namespace AIRobot
                                 )
                             .FirstOrDefault();
 
-            if (cell == null || cell == IntVec3.Invalid)
+            if (cell == default || cell == IntVec3.Invalid)
                 return ThinkResult.NoJob;
             
             Job jobGoto = new Job(JobDefOf.Goto, cell);

@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 using UnityEngine;
-using RimWorld;
 using Verse;
 using Verse.AI;
 
@@ -166,6 +163,7 @@ namespace NanoPrinter
 
                     //Determine num to take
                     int numToTake = curJob.countQueue[i];
+
                     numToTake = Mathf.Min(numToTake, targetQueue[i].Thing.def.stackLimit - numInHands);
                     numToTake = Mathf.Min(numToTake, actor.carryTracker.AvailableStackSpace(targetQueue[i].Thing.def));
 

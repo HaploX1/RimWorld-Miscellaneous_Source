@@ -32,7 +32,7 @@ namespace AIRobot
 
             if (timeAssignmentDef == TimeAssignmentDefOf.Anything || timeAssignmentDef == TimeAssignmentDefOf.Work)
             {
-                if ((pawn as X2_AIRobot) == null || (pawn as X2_AIRobot).rechargeStation == null || (pawn as X2_AIRobot).rechargeStation.Position == null)
+                if ((pawn as X2_AIRobot) == null || (pawn as X2_AIRobot).rechargeStation == null || (pawn as X2_AIRobot).rechargeStation.Position == default)
                     return 0f;
 
                 double distance = AIRobot_Helper.GetDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position);
