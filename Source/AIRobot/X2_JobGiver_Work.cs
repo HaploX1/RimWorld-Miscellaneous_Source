@@ -162,34 +162,54 @@ namespace AIRobot
                             IEnumerable<IntVec3> allWork4Pawn = scanner.PotentialWorkCellsGlobal(pawn);
                             IList<IntVec3> currWork4Pawn;
 
-                            if ((currWork4Pawn = (allWork4Pawn as IList<IntVec3>)) != null)
+                            var sameZoneWorkFound = false;
+                            if (allWork4Pawn.Count() > 0)
                             {
-                                for (int k = 0; k < currWork4Pawn.Count; k++)
+                                var pawnStandsOnZone = pawn.Map.zoneManager.ZoneAt(pawn.Position);
+                                if (pawnStandsOnZone != null)
                                 {
-                                    ProcessCell(currWork4Pawn[k], ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
-                                        ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
-
-                                    if (bestTargetOfLastPriority != TargetInfo.Invalid)
-                                        break;
-                                    else if (scanner.ToString() != "RimWorld.WorkGiver_GrowerSow")
-                                        maxCheck--;
-                                    if (maxCheck <= 0)
-                                        break;
+                                    foreach (var cell in pawnStandsOnZone.cells
+                                        .Where(cell => cell.x > pawn.Position.x - 3 && cell.x < pawn.Position.x + 3 && cell.z > pawn.Position.z - 3 && cell.z > pawn.Position.z - 3)
+                                        .OrderBy(cell => Math.Pow(cell.x - pawn.Position.x, 2) + Math.Pow(cell.z - pawn.Position.z, 2)))
+                                    {
+                                        sameZoneWorkFound = ProcessCell(cell, ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
+                                            ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
+                                        if (sameZoneWorkFound) break;
+                                    }
                                 }
                             }
-                            else
-                            {
-                                foreach (IntVec3 item in allWork4Pawn)
-                                {
-                                    ProcessCell(item, ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
-                                        ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
 
-                                    if (bestTargetOfLastPriority != TargetInfo.Invalid)
-                                        break;
-                                    else if (scanner.ToString() != "RimWorld.WorkGiver_GrowerSow")
-                                        maxCheck--;
-                                    if (maxCheck <= 0)
-                                        break;
+                            if (!sameZoneWorkFound)
+                            {
+                                if ((currWork4Pawn = (allWork4Pawn as IList<IntVec3>)) != null)
+                                {
+                                    for (int k = 0; k < currWork4Pawn.Count; k++)
+                                    {
+                                        ProcessCell(currWork4Pawn[k], ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
+                                            ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
+
+                                        if (bestTargetOfLastPriority != TargetInfo.Invalid)
+                                            break;
+                                        else if (scanner.ToString() != "RimWorld.WorkGiver_GrowerSow")
+                                            maxCheck--;
+                                        if (maxCheck <= 0)
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    foreach (IntVec3 item in allWork4Pawn)
+                                    {
+                                        ProcessCell(item, ref pawn, ref scanner, ref pawnPosition, prioritized, allowUnreachable, maxPathDanger,
+                                            ref bestTargetOfLastPriority, ref scannerWhoProvidedTarget, ref closestDistSquared, ref bestPriority);
+
+                                        if (bestTargetOfLastPriority != TargetInfo.Invalid)
+                                            break;
+                                        else if (scanner.ToString() != "RimWorld.WorkGiver_GrowerSow")
+                                            maxCheck--;
+                                        if (maxCheck <= 0)
+                                            break;
+                                    }
                                 }
                             }
 
@@ -220,7 +240,7 @@ namespace AIRobot
         }
 
         // 1.4: used ref for 'pawn' and 'scanner' to prevent unneeded copying
-        private void ProcessCell(IntVec3 c, ref Pawn pawn, ref WorkGiver_Scanner scanner, ref IntVec3 pawnPosition, bool prioritized, bool allowUnreachable, Danger maxPathDanger,
+        private bool ProcessCell(IntVec3 c, ref Pawn pawn, ref WorkGiver_Scanner scanner, ref IntVec3 pawnPosition, bool prioritized, bool allowUnreachable, Danger maxPathDanger,
                                     ref TargetInfo bestTargetOfLastPriority, ref WorkGiver_Scanner scannerWhoProvidedTarget, 
                                     ref float closestDistSquared, ref float bestPriority)
         {
@@ -233,7 +253,7 @@ namespace AIRobot
                 {
                     if (!allowUnreachable && !pawn.CanReach(c, scanner.PathEndMode, maxPathDanger))
                     {
-                        return;
+                        return false;
                     }
                     priority = scanner.GetPriority(pawn, c);
                     if (priority > bestPriority || (priority == bestPriority && distSquared < closestDistSquared))
@@ -246,7 +266,7 @@ namespace AIRobot
             {
                 if (!allowUnreachable && !pawn.CanReach(c, scanner.PathEndMode, maxPathDanger))
                 {
-                    return;
+                    return false;
                 }
                 found = true;
             }
@@ -257,6 +277,7 @@ namespace AIRobot
                 closestDistSquared = distSquared;
                 bestPriority = priority;
             }
+            return found;
         }
 
         private bool PawnCanUseWorkGiver(ref Pawn pawn, WorkGiver giver)
