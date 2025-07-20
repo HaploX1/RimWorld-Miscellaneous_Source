@@ -221,6 +221,15 @@ namespace TurretWeaponBase
 
         }
 
+        public override void PostMake()
+        {
+            base.PostMake();
+            burstCooldownTicksLeft = def.building.turretInitialCooldownTime.SecondsToTicks();
+
+            if (gun != null)
+                CreateGunAndTop(gun);
+        }
+
         public override void ExposeData()
         {
 
@@ -243,7 +252,7 @@ namespace TurretWeaponBase
         public override void DeSpawn(DestroyMode mode = DestroyMode.Vanish)
         {
             // DeSpawn -> Deconstruct gun
-            DeconstructGunAndReset();
+            //DeconstructGunAndReset(); <- Makes problems with gunship
 
             base.DeSpawn(mode);
             ResetCurrentTarget();
@@ -255,10 +264,6 @@ namespace TurretWeaponBase
             // If deconstructed, spawn the used gun
             if (mode == DestroyMode.Deconstruct && gun != null)
                 DeconstructGunAndReset();
-            //else if (gun != null)
-            //    gun.Destroy(DestroyMode.Vanish);
-
-            gun = null;
 
             base.Destroy(mode);
         }
@@ -266,9 +271,8 @@ namespace TurretWeaponBase
         {
             if (gun != null && PositionHeld != default && MapHeld != null)
             {
-                Thing resultingThing;
                 //GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
-                GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
+                GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out Thing resultingThing);
             }
             forceCreateGunAndTop = false;
             collectingGunAllowed = false;
@@ -438,25 +442,29 @@ namespace TurretWeaponBase
                 if (this.CanSetForcedTarget && GunCompEq != null && GunCompEq.PrimaryVerb != null)
                 {
                     //Command_VerbTarget_TurretWeaponBase attack = new Command_VerbTarget_TurretWeaponBase();
-                    Command_VerbTarget attack = new Command_VerbTarget();
-                    attack.defaultLabel = "CommandSetForceAttackTarget".Translate();
-                    attack.defaultDesc = "CommandSetForceAttackTargetDesc".Translate();
-                    attack.icon = ContentFinder<Texture2D>.Get("UI/Commands/Attack", true);
-                    attack.verb = GunCompEq.PrimaryVerb;
-                    attack.hotKey = KeyBindingDefOf.Misc4; //N
+                    Command_VerbTarget attack = new Command_VerbTarget
+                    {
+                        defaultLabel = "CommandSetForceAttackTarget".Translate(),
+                        defaultDesc = "CommandSetForceAttackTargetDesc".Translate(),
+                        icon = ContentFinder<Texture2D>.Get("UI/Commands/Attack", true),
+                        verb = GunCompEq.PrimaryVerb,
+                        hotKey = KeyBindingDefOf.Misc4 //N
+                    };
                     yield return attack;
                 }
 
                 if (this.forcedTarget.IsValid)
                 {
-                    Command_Action stop = new Command_Action();
-                    stop.defaultLabel = "CommandStopForceAttack".Translate();
-                    stop.defaultDesc = "CommandStopForceAttackDesc".Translate();
-                    stop.icon = ContentFinder<Texture2D>.Get("UI/Commands/Halt", true);
-                    stop.action = delegate
+                    Command_Action stop = new Command_Action
                     {
-                        ResetForcedTarget();
-                        SoundDefOf.Tick_Low.PlayOneShotOnCamera(null);
+                        defaultLabel = "CommandStopForceAttack".Translate(),
+                        defaultDesc = "CommandStopForceAttackDesc".Translate(),
+                        icon = ContentFinder<Texture2D>.Get("UI/Commands/Halt", true),
+                        action = delegate
+                            {
+                                ResetForcedTarget();
+                                SoundDefOf.Tick_Low.PlayOneShotOnCamera(null);
+                            }
                     };
                     if (!this.forcedTarget.IsValid)
                     {
@@ -486,6 +494,22 @@ namespace TurretWeaponBase
                     };
                 }
             }
+
+            Command_Action ejectWeapon = new Command_Action
+            {
+                defaultLabel = "CommandEjectWeaponFromTurretBase".Translate(),
+                defaultDesc = "CommandEjectWeaponFromTurretBaseDesc".Translate(),
+                icon = ContentFinder<Texture2D>.Get("UI/Commands/UI_EjectWeapon", true),
+                action = delegate
+                {
+                    DeconstructGunAndReset();
+                    SoundDefOf.Tick_High.PlayOneShotOnCamera(null);
+                },
+                hotKey = KeyBindingDefOf.Misc8,
+                Disabled = (gun == default),
+                disabledReason = "NoWeaponFoundForTurretBase".Translate()
+            };
+            yield return ejectWeapon;
         }
 
         // Mostly from original
@@ -541,7 +565,7 @@ namespace TurretWeaponBase
             if (gun != null)
             {
                 if (DebugSettings.godMode)
-                    yield return new FloatMenuOption("DEBUG: Gun is already installed.".Translate(), null, MenuOptionPriority.Low);
+                    yield return new FloatMenuOption("DebugGunAlreadyInstalled".Translate(), null, MenuOptionPriority.Low);
                 yield break;
             }
 
@@ -708,8 +732,7 @@ namespace TurretWeaponBase
         {
             base.DrawAt(drawLoc, flip);
 
-            if (top != null)
-                top.DrawTurret();
+            top?.DrawTurret();
         }
 
         public override void DrawExtraSelectionOverlays()
