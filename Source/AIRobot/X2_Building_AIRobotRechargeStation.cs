@@ -333,13 +333,15 @@ namespace AIRobot
             if (Current.ProgramState != ProgramState.Playing)
                 return;
 
+            if (Graphic == null)
+                return;
+
             if (Graphic != graphicOld || updateGraphicForceNeeded)
             {
-                updateGraphicForceNeeded = false;
 
                 IntVec3 pos = new IntVec3();
 
-                if (this.Position != IntVec3.Invalid && this.Position != default)
+                if (this.Position != default && this.Position != IntVec3.Invalid)
                 {
                     pos = this.Position;
                 }
@@ -348,7 +350,14 @@ namespace AIRobot
                     pos = this.PositionHeld;
                 }
 
+                if (pos == default || pos == IntVec3.Invalid)
+                    return;
+
                 Map map = this.Map ?? MapHeld;
+                if (map == null)
+                    return;
+
+                updateGraphicForceNeeded = false;
 
                 //Log.Error("Update Graphic");
                 graphicOld = Graphic;

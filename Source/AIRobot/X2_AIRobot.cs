@@ -275,6 +275,10 @@ namespace AIRobot
                 // Remove unwanted HeDiffs
                 if (Gen.IsHashIntervalTick(this, 500))
                     RemoveUnwantedHediffs(this);
+
+                // Remove fire on robot
+                if (this.HasAttachment(ThingDefOf.Fire))
+                    this.GetAttachment(ThingDefOf.Fire)?.Destroy(DestroyMode.Vanish);
             }
         }
         private bool IsInDistanceToStation(float distance)

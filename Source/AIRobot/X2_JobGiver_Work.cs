@@ -49,7 +49,7 @@ namespace AIRobot
         {
 
             X2_AIRobot robot = pawn as X2_AIRobot;
-            if (robot == null || !robot.Spawned || robot.Destroyed || robot.GetWorkGivers(false) == null)
+            if (robot == null || !robot.Spawned || robot.Destroyed || robot.GetWorkGivers(false) == null || robot.HasAttachment(ThingDefOf.Fire))
                 return ThinkResult.NoJob;
 
             //Profiler.BeginSample("JobGiver_Work");
@@ -109,7 +109,7 @@ namespace AIRobot
                     {
                         if (scanner.def.scanThings)
                         {
-                            Predicate<Thing> validator = (Thing t) => !t.IsForbidden(pawn) && scanner.HasJobOnThing(pawn, t);
+                            Predicate<Thing> validator = (Thing t) => !t.IsForbidden(pawn) && !t.HasAttachment(ThingDefOf.Fire) && scanner.HasJobOnThing(pawn, t);
                             IEnumerable<Thing> potentialWorkThings = scanner.PotentialWorkThingsGlobal(pawn);
                             Thing thing;
                             try
