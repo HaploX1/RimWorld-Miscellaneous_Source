@@ -8,6 +8,7 @@ using Verse;
 using Verse.AI;
 using Verse.Sound;
 using RimWorld;
+using Verse.Noise;
 //using RimWorld.Planet;
 //using RimWorld.SquadAI;
 
@@ -272,7 +273,13 @@ namespace TurretWeaponBase
             if (gun != null && PositionHeld != default && MapHeld != null)
             {
                 //GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out resultingThing);
-                GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Near, out Thing resultingThing);
+                GenDrop.TryDropSpawn(gun, PositionHeld, MapHeld, ThingPlaceMode.Radius, out Thing resultingThing);
+
+                if (resultingThing.Position == this.PositionHeld)
+                {
+                    if (CellFinder.TryRandomClosewalkCellNear(PositionHeld, MapHeld, 3, out IntVec3 newPosition))
+                        resultingThing.Position = newPosition;
+                }
             }
             forceCreateGunAndTop = false;
             collectingGunAllowed = false;
