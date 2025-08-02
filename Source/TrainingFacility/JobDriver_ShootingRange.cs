@@ -28,7 +28,7 @@ namespace TrainingFacility
         private int nearbyPawnSearchCountdown = 0;
         private bool nearbyPawnFound = false;
 
-        private int lastShotTick;
+        private int lastShotTick = 0;
 
         private readonly int skillLevelToPreventFriendlyFire = 6; // if skill level is higher than this, friendly fire is prevented
 
@@ -234,9 +234,12 @@ namespace TrainingFacility
 
         private void AttackTarget(Pawn shooter, LocalTargetInfo targetInfo)
         {
+            if (lastShotTick == 0)
+                lastShotTick = GenTicks.TicksAbs;
+
             int ticksSinceLastShot = GenTicks.TicksAbs - lastShotTick;
 
-            if (ticksSinceLastShot > 600)
+            if (ticksSinceLastShot > 30)
                 lastShotTick = GenTicks.TicksAbs;
             else
                 return; // do not shoot if not enough time has passed
@@ -256,12 +259,17 @@ namespace TrainingFacility
             //Log.ErrorOnce("Max Allowed Training Level" + Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn).ToString(), 95485456);
 
             // increase the experienced xp
-
-
-            if (shooter?.CurJob?.def?.joySkill != null &&
-                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+            if (shooter?.CurJob?.def?.joySkill != null)
             {
-                shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(joyCanEndJob ? shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.2f : shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
+                if (shooter.skills.GetSkill(shooter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                {
+                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(!joyCanEndJob ? shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 2.25f : shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.5f);
+                }
+                else
+                {
+                    // this pawn level is > max -> reduced learning 
+                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 0.85f);
+                }
             }
         }
     }

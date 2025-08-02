@@ -210,10 +210,17 @@ namespace TrainingFacility
             if (ticksSinceLastShot > 2000)
                 ticksSinceLastShot = 0;
 
-            if (fighter?.CurJob?.def?.joySkill != null &&
-                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+            if (fighter?.CurJob?.def?.joySkill != null)
             {
-                fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(joyCanEndJob ? fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.2f : fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot);
+                if(fighter.skills.GetSkill(fighter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
+                {
+                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(!joyCanEndJob ? fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 2.75f : fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 2f);
+                }
+                else
+                {
+                    // this pawn level is > max -> reduced learning 
+                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.5f);
+                }
             }
         }
         private int lastTick;
