@@ -23,6 +23,8 @@ namespace TrainingFacility
         private bool nearbyPawnFound = false;
         private int nearbyPawnDistance = 5;
 
+        private int lastExpTick;
+
         public JobDriver_MartialArtsTarget() {}
 
         protected override void WatchTickAction(int delta)
@@ -75,12 +77,14 @@ namespace TrainingFacility
                     if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
                     {
                         // normal leveling
-                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 1.1f : curJob.def.joyXpPerTick * 0.8f);
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? 
+                            curJob.def.joyXpPerTick * 1.1f * TrainingFacility_ModSettings.learningXpMultiplierMelee : 
+                            curJob.def.joyXpPerTick * 0.8f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                     }
                     else
                     {
                         // this pawn level is > max -> reduced learning 
-                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.5f);
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.5f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                     }
                 }
                 if (nearbyPawnFound)
@@ -88,12 +92,14 @@ namespace TrainingFacility
                     if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
                     {
                         // 2nd pawn is nearby > increase skill gain
-                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 2.5f : curJob.def.joyXpPerTick * 1.8f);
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? 
+                            curJob.def.joyXpPerTick * 2.5f * TrainingFacility_ModSettings.learningXpMultiplierMelee : 
+                            curJob.def.joyXpPerTick * 1.8f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                     }
                     else
                     {
                         // this pawn level is > max -> reduced learning 
-                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.8f);
+                        pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.8f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                     }
                 }
             }
@@ -144,17 +150,19 @@ namespace TrainingFacility
 
         private Toil GetToil_MeleeFightTarget(Pawn pawn, LocalTargetInfo targetInfo)
         {
-            Toil toil = new Toil();
-
-            toil.tickIntervalAction = delegate (int delta)
+            Toil toil = new Toil()
             {
-                WatchTickAction(delta);
+                tickIntervalAction = delegate (int delta)
+                {
+                    WatchTickAction(delta);
+                },
+                defaultCompleteMode = ToilCompleteMode.Delay,
+                defaultDuration = this.job.def.joyDuration,
+                socialMode = RandomSocialMode.SuperActive,
             };
-            toil.defaultCompleteMode = ToilCompleteMode.Delay;
-            toil.defaultDuration = this.job.def.joyDuration;
             toil.AddFinishAction(() => JoyUtility.TryGainRecRoomThought(pawn));
             toil.AddFailCondition(() => Utility_Tired.IsTooTired(this.GetActor()));
-            toil.socialMode = RandomSocialMode.SuperActive;
+            
             return toil;
 
         }
@@ -162,7 +170,6 @@ namespace TrainingFacility
 
         private void FightTarget(Pawn fighter, LocalTargetInfo targetInfo)
         {
-
             Verb attackVerb = null;
             if (fighter != null)
                 attackVerb = fighter.TryGetAttackVerb(targetInfo.Thing, false);
@@ -180,12 +187,12 @@ namespace TrainingFacility
                 if (Rand.Value >= 0.6f)
                 {
                     soundDef = SoundDef.Named("Pawn_Melee_Punch_HitBuilding");
-                    fighter.skills.Learn(SkillDefOf.Melee, 25f);
+                    fighter.skills.Learn(SkillDefOf.Melee, 25f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                 }
                 else
                 {
                     soundDef = SoundDef.Named("Pawn_Melee_Punch_Miss");
-                    fighter.skills.Learn(SkillDefOf.Melee, 10f);
+                    fighter.skills.Learn(SkillDefOf.Melee, 10f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                 }
                 
                 soundDef.PlayOneShot(new TargetInfo(targetInfo.Cell, Map, false));
@@ -205,25 +212,27 @@ namespace TrainingFacility
 
 
             // increase the experienced xp
-            int ticksSinceLastShot = GenTicks.TicksAbs - lastTick;
-            lastTick = GenTicks.TicksAbs;
+            int ticksSinceLastShot = GenTicks.TicksAbs - lastExpTick;
+            lastExpTick = GenTicks.TicksAbs;
             if (ticksSinceLastShot > 2000)
-                ticksSinceLastShot = 0;
+                ticksSinceLastShot = 1;
 
             if (fighter?.CurJob?.def?.joySkill != null)
             {
                 if(fighter.skills.GetSkill(fighter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
                 {
-                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(!joyCanEndJob ? fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 2.75f : fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 2f);
+                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(!joyCanEndJob ? 
+                        fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.6f * TrainingFacility_ModSettings.learningXpMultiplierMelee : 
+                        fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                 }
                 else
                 {
                     // this pawn level is > max -> reduced learning 
-                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill).Learn(fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.5f);
+                    fighter.skills.GetSkill(fighter.CurJob.def.joySkill)
+                        .Learn(fighter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 0.5f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                 }
             }
         }
-        private int lastTick;
 
 
     }

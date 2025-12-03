@@ -28,9 +28,9 @@ namespace TrainingFacility
         private int nearbyPawnSearchCountdown = 0;
         private bool nearbyPawnFound = false;
 
-        private int lastShotTick = 0;
-
         private readonly int skillLevelToPreventFriendlyFire = 6; // if skill level is higher than this, friendly fire is prevented
+
+        private int lastExpTick = 0;
 
         public JobDriver_ShootingRange() {}
 
@@ -129,7 +129,7 @@ namespace TrainingFacility
                 {
                     // dangerous weapons --> Throw some stones instead
                     FleckMaker.ThrowStone(pawn, TargetA.Cell);
-                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(skillGainRateHeavyWeapon);
+                    pawn.skills.GetSkill(pawn.CurJob.def.joySkill).Learn(skillGainRateHeavyWeapon * TrainingFacility_ModSettings.learningXpMultiplierShooting);
 
                     // Alternate: Shoot some arrows?
                     //JobDriver_Archery.ShootArrow(pawn, TargetA.Cell);
@@ -194,12 +194,14 @@ namespace TrainingFacility
                         if (pawn.skills.GetSkill(curJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
                         {
                             // 2nd pawn is nearby > increase skill gain
-                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? curJob.def.joyXpPerTick * 2.5f : curJob.def.joyXpPerTick * 1.8f);
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(joyCanEndJob ? 
+                                curJob.def.joyXpPerTick * 2.5f * TrainingFacility_ModSettings.learningXpMultiplierShooting : 
+                                curJob.def.joyXpPerTick * 1.8f * TrainingFacility_ModSettings.learningXpMultiplierShooting);
                         }
                         else
                         {
                             // this pawn level is > max -> reduced learning 
-                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.8f);
+                            pawn.skills.GetSkill(curJob.def.joySkill).Learn(curJob.def.joyXpPerTick * 0.8f * TrainingFacility_ModSettings.learningXpMultiplierShooting);
                         }
                     }
 
@@ -234,16 +236,6 @@ namespace TrainingFacility
 
         private void AttackTarget(Pawn shooter, LocalTargetInfo targetInfo)
         {
-            if (lastShotTick == 0)
-                lastShotTick = GenTicks.TicksAbs;
-
-            int ticksSinceLastShot = GenTicks.TicksAbs - lastShotTick;
-
-            if (ticksSinceLastShot > 30)
-                lastShotTick = GenTicks.TicksAbs;
-            else
-                return; // do not shoot if not enough time has passed
-
             Verb attackVerb = null;
             if (shooter != null)
                 attackVerb = shooter.TryGetAttackVerb(targetInfo.Thing, false);
@@ -259,16 +251,25 @@ namespace TrainingFacility
             //Log.ErrorOnce("Max Allowed Training Level" + Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn).ToString(), 95485456);
 
             // increase the experienced xp
+            int ticksSinceLastShot = GenTicks.TicksAbs - lastExpTick;
+            lastExpTick = GenTicks.TicksAbs;
+            if (ticksSinceLastShot > 2000)
+                ticksSinceLastShot = 1;
+
+            // increase the experienced xp
             if (shooter?.CurJob?.def?.joySkill != null)
             {
                 if (shooter.skills.GetSkill(shooter.CurJob.def.joySkill).GetLevel() <= Utility_MaxAllowedTrainingLevel.GetMaxAllowedTrainingLevel(pawn))
                 {
-                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(!joyCanEndJob ? shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 2.25f : shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.5f);
+                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(!joyCanEndJob ? 
+                        shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1.4f * TrainingFacility_ModSettings.learningXpMultiplierShooting : 
+                        shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 1f * TrainingFacility_ModSettings.learningXpMultiplierShooting);
                 }
                 else
                 {
                     // this pawn level is > max -> reduced learning 
-                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill).Learn(shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 0.85f);
+                    shooter.skills.GetSkill(shooter.CurJob.def.joySkill)
+                        .Learn(shooter.CurJob.def.joyXpPerTick * ticksSinceLastShot * 0.5f * TrainingFacility_ModSettings.learningXpMultiplierShooting);
                 }
             }
         }

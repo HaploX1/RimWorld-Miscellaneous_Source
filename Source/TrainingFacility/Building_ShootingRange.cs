@@ -14,6 +14,11 @@ namespace TrainingFacility
     public class Building_ShootingRange : Building
     {
 
+        private bool repairingDisabled = false;
+        private readonly string textRepairing = "Text_Building_Repairing_RepairingHomezone";
+        private readonly string textRepairing_disabled = "Text_Building_Repairing_disabled";
+        private readonly string textRepairing_enabled = "Text_Building_Repairing_enabled";
+
         public JoyGiverDef GetJoyGiverDef()
         {
             return DefDatabase<JoyGiverDef>.GetNamed("PracticeShooting");
@@ -34,6 +39,8 @@ namespace TrainingFacility
 
         private void Setup_Part2()
         {
+            repairingDisabled = !this.Map.areaManager.Home[this.Position];
+
             // Check if we are the first of the training kind
             foreach (Building b in Map.listerBuildings.allBuildingsColonist)
             {
@@ -59,7 +66,6 @@ namespace TrainingFacility
                 pawn.workSettings.SetPriority(workTypeDef, 0);
             }
         }
-
 
 
         public override IEnumerable<FloatMenuOption> GetFloatMenuOptions(Pawn selPawn)
@@ -167,6 +173,24 @@ namespace TrainingFacility
             foreach (Gizmo gizmo in base.GetGizmos())
                 yield return gizmo;
 
+            yield return new Command_Action
+            {
+                icon = ContentFinder<Texture2D>.Get(
+                                (!repairingDisabled ? "UI/Commands/UI_Repair_Active" : "UI/Commands/UI_Repair_NotActive"), true),
+                defaultLabel = (repairingDisabled
+                               ? textRepairing_disabled.Translate()
+                               : textRepairing_enabled.Translate()),
+                defaultDesc = textRepairing.Translate() + ": " + (repairingDisabled
+                               ? textRepairing_disabled.Translate()
+                               : textRepairing_enabled.Translate()),
+                action = delegate
+                {
+                    repairingDisabled = !repairingDisabled;
+                    if (Map != null)
+                        this.Map.areaManager.Home[this.Position] = !repairingDisabled;
+                }
+            };
+
             if (this.CanSetAutoRearm)
                 yield return new Command_Toggle
                 {
@@ -180,8 +204,9 @@ namespace TrainingFacility
                         this.autoRearm = !this.autoRearm;
                     }
                 };
-            
+
             yield break;
         }
+
     }
 }

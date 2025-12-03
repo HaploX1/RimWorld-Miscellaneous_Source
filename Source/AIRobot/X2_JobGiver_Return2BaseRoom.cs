@@ -23,6 +23,7 @@ namespace AIRobot
             X2_Building_AIRobotRechargeStation rechargeStation = robot.rechargeStation;
             if (rechargeStation.DestroyedOrNull()) return ThinkResult.NoJob;
             if (!rechargeStation.Spawned) return ThinkResult.NoJob;
+            if (rechargeStation.Position == IntVec3.Invalid) return ThinkResult.NoJob;
 
             Room roomRecharge = rechargeStation.Position.GetRoom(rechargeStation.Map);
             Room roomRobot = robot.Position.GetRoom(robot.Map);
@@ -47,7 +48,6 @@ namespace AIRobot
             jobGoto.locomotionUrgency = LocomotionUrgency.Amble;
 
             return new ThinkResult(jobGoto, this, JobTag.Misc, false);
-
         }
         
     }

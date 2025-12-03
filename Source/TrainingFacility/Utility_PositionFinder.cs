@@ -119,5 +119,6 @@ namespace TrainingFacility
 
             return Mathf.Pow(checkCell.x - centerOfRadius.x, 2) + Mathf.Pow(checkCell.z - centerOfRadius.z, 2) <= Mathf.Pow(radius, 2);
         }
+
     }
 }
