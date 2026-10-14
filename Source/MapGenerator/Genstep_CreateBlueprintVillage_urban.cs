@@ -16,12 +16,22 @@ namespace MapGenerator
     {
         public override void Generate(Map map, GenStepParams parms)
         {
-            // New: don't do this one, if the biome is NOT XXX_UrbanRuins
+            // Run only on UrbanRuins biomes (see the "Misc. MapGenerator Urban" mod):
+            // that addon is what puts a lot of buildings on a city-ruin map, while the
+            // sparse _normal steps take care of every other biome. A tile can carry a
+            // secondary biome, so all biomes of the tile are checked.
+            bool urbanRuins = false;
             foreach (BiomeDef biomeDef in map.TileInfo.Biomes)
             {
                 if (biomeDef.defName.ToLower().Contains("urbanruin"))
-                    return;
+                {
+                    urbanRuins = true;
+                    break;
+                }
             }
+
+            if (!urbanRuins)
+                return;
 
             base.Generate(map, parms);
         }
