@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- RimWorld 1.7 port: the game runs on .NET 10 (CoreCLR) with Unity reduced to
+       UnityStubs.dll since 1.7, so the legacy net472 ColonistKeys.csproj cannot reference it.
+       ColonistSelections exists only in the original-author Source repo (the AI repo has no
+       copy), so this project builds there against the 1.7 reference DLLs. No UnityEngine
+       InputLegacyModule reference needed any more: the code only uses Verse.KeyBindingDef /
+       DefDatabase lookups, which live in Assembly-CSharp. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>ColonistKeys</AssemblyName>
+    <RootNamespace>ColonistSelections</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <NoWarn>$(NoWarn);CS0414;CS0649;CS0169</NoWarn>
+    <!-- Explicit compile list (legacy parity); disable the SDK default glob. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Same file set as the legacy ColonistKeys.csproj (minus Properties/AssemblyInfo). -->
+  <ItemGroup>
+    <Compile Include="MapComponent_ColonistSelections.cs" />
+    <Compile Include="Mod_ColonistSelections.cs" />
+    <Compile Include="ModSettings_ColonistSelections.cs" />
+    <Compile Include="JobDriver_GotoDraft.cs" />
+  </ItemGroup>
+
+</Project>

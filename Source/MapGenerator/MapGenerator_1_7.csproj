@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- RimWorld 1.7 port: the game engine moved from Mono/net472 to .NET (CoreCLR) in 1.7,
+       so this project replaces the old net471 MSBuild project (kept as MapGenerator.csproj
+       for the 1.6-and-older builds). References point at the 1.7 reference DLLs. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>MapGenerator</AssemblyName>
+    <RootNamespace>MapGenerator</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <NoWarn>$(NoWarn);CS0414;CS0649;CS0169</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- The legacy net471 project keeps its own file list; this one excludes Properties
+       (duplicate assembly attributes would fail the build with GenerateAssemblyInfo=false). -->
+  <ItemGroup>
+    <Compile Remove="Properties\**" />
+    <Compile Remove="bin\**;obj\**" />
+  </ItemGroup>
+
+</Project>

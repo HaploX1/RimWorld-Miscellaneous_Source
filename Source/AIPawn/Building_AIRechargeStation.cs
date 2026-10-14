@@ -196,7 +196,7 @@ namespace AIPawn
 
         #region Ticker
 
-        public override void Tick()
+        protected override void Tick()
         {
             base.Tick();
         }
@@ -238,7 +238,7 @@ namespace AIPawn
             // Key-Binding B - Call owner To rest
             Command_Action opt1;
             opt1 = new Command_Action();
-            opt1.disabled = this.OwnersForReading == null || this.OwnersForReading.Count == 0;
+            opt1.Disabled = this.OwnersForReading == null || this.OwnersForReading.Count == 0;
             opt1.disabledReason = txtNoOwner.Translate();
             opt1.defaultDesc = txtSendOwnerToSleep.Translate();
             opt1.icon = UI_ForceSleepButton;

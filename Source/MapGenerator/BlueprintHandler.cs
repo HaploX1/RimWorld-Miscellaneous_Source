@@ -433,7 +433,7 @@ namespace MapGenerator
         private static bool TrySetCell_prepare_CheckCell(IntVec3 c, Map map)
         {
             // Check the cell information
-            if (c == null || !c.InBounds(map))
+            if (c == default || !c.InBounds(map))
             {
                 Log.Warning("BlueprintHandler: Invalid Target-Cell: cell is null or out of bounds.");
                 return false;

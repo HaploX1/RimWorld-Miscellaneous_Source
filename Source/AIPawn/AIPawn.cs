@@ -189,7 +189,7 @@ namespace AIPawn
             //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
 
             // Load hair graphic (shaved)
-            hairGraphic = GraphicDatabase.Get<Graphic_Multi>(this.story.hairDef.texPath, ShaderDatabase.Cutout, Vector2.one, this.story.hairColor);
+            hairGraphic = GraphicDatabase.Get<Graphic_Multi>(this.story.hairDef.texPath, ShaderDatabase.Cutout, Vector2.one, this.story.HairColor);
             
             //Drawer.renderer.graphics.ResolveAllGraphics(); 
             UpdateGraphics();
@@ -360,7 +360,7 @@ namespace AIPawn
 
         // ================== Ticks ==================
 
-        public override void Tick()
+        protected override void Tick()
         {
 
             base.Tick();

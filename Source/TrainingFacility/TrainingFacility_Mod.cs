@@ -19,6 +19,9 @@ namespace TrainingFacility
         public static string Text_Option_Melee_LearningXpMultiplier = "Text_Option_Melee_LearningXpMultiplier";
         public static string Tooltip_Option_Melee_LearningXpMultiplier = "Text_Option_Melee_LearningXpMultiplier_hint";
 
+        public static string Text_Option_StopWorkJobOnSkillSaturation = "Text_Option_StopWorkJobOnSkillSaturation";
+        public static string Tooltip_Option_StopWorkJobOnSkillSaturation = "Text_Option_StopWorkJobOnSkillSaturation_hint";
+
 
         public TrainingFacility_Mod(ModContentPack mcp) : base(mcp) {
             LongEventHandler.ExecuteWhenFinished(SetTexts);
@@ -34,6 +37,9 @@ namespace TrainingFacility
 
             Text_Option_Melee_LearningXpMultiplier = Text_Option_Melee_LearningXpMultiplier.Translate();
             Tooltip_Option_Melee_LearningXpMultiplier = Tooltip_Option_Melee_LearningXpMultiplier.Translate();
+
+            Text_Option_StopWorkJobOnSkillSaturation = Text_Option_StopWorkJobOnSkillSaturation.Translate();
+            Tooltip_Option_StopWorkJobOnSkillSaturation = Tooltip_Option_StopWorkJobOnSkillSaturation.Translate();
 
         }
         public void GetSettings()
@@ -65,8 +71,11 @@ namespace TrainingFacility
             optionsLH.Gap(24);
             optionsLH.Label(Text_Option_Melee_LearningXpMultiplier, -1, tooltip: Tooltip_Option_Melee_LearningXpMultiplier);
             optionsLH.Gap(8);
-            TrainingFacility_ModSettings.learningXpMultiplierMelee = optionsLH.SliderLabeled(TrainingFacility_ModSettings.learningXpMultiplierMelee.ToString(), 
+            TrainingFacility_ModSettings.learningXpMultiplierMelee = optionsLH.SliderLabeled(TrainingFacility_ModSettings.learningXpMultiplierMelee.ToString(),
                                                                                             TrainingFacility_ModSettings.learningXpMultiplierMelee, 0f, 10f);
+
+            optionsLH.Gap(24);
+            optionsLH.CheckboxLabeled(Text_Option_StopWorkJobOnSkillSaturation, ref TrainingFacility_ModSettings.stopWorkJobOnSkillSaturation, Tooltip_Option_StopWorkJobOnSkillSaturation);
 
             optionsLH.End();
 

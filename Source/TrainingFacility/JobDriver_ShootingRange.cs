@@ -224,6 +224,18 @@ namespace TrainingFacility
             if (Utility_Tired.IsTooTired(pawn) || Utility_Hungry.IsTooHungry(pawn))
                 pawn.jobs.curDriver.EndJobWith(JobCondition.InterruptForced);
 
+            // Opt-in: stop the work-type (NonJoy) job once the trained skill
+            // has hit its daily learning saturation, so the pawn is freed for
+            // other work instead of burning Rest for next-to-no XP.
+            if (!joyCanEndJob
+                && TrainingFacility_ModSettings.stopWorkJobOnSkillSaturation
+                && curJob?.def?.joySkill != null
+                && pawn?.skills?.GetSkill(curJob.def.joySkill) != null
+                && pawn.skills.GetSkill(curJob.def.joySkill).LearningSaturatedToday)
+            {
+                pawn.jobs.curDriver.EndJobWith(JobCondition.Succeeded);
+            }
+
             if (joyCanEndJob)
             {
                 if (pawn.GetTimeAssignment() != null && !pawn.GetTimeAssignment().allowJoy) // changed => disable TimeAssignment

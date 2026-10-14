@@ -227,7 +227,7 @@ namespace MapGenerator
 
                 if (workCell.InBounds(map) && 
                     CanScatterAt(workCell, map) && 
-                    IsPositionValidForBlueprint(workCell, size, invalidCells))
+                    IsPositionValidForBlueprint(workCell, size, invalidCells, map))
                         return workCell;
 
                 searchTry++;
@@ -235,7 +235,7 @@ namespace MapGenerator
             return IntVec3.Invalid;
         }
 
-        private bool IsPositionValidForBlueprint(IntVec3 cell, IntVec2 size, HashSet<IntVec3> invalidCells)
+        private bool IsPositionValidForBlueprint(IntVec3 cell, IntVec2 size, HashSet<IntVec3> invalidCells, Map map)
         {
             // create all needed cells
             CellRect workRect = new CellRect(cell.x, cell.z, size.x, size.z);
@@ -251,6 +251,12 @@ namespace MapGenerator
                         return false;
                 }
             }
+
+            // RimWorld 1.7: keep the village ruins off vanilla large structures (ancient complex,
+            // gravship wreckage, ...) that reserved their footprint via UsedRects / layout sketches.
+            if (OverlapsVanillaStructure(workRect, map))
+                return false;
+
             return true;
         }
 
@@ -629,7 +635,7 @@ namespace MapGenerator
             //Note: Here is no functionality to clear the cell by design, because it is possible to place items that are larger than 1x1
 
             // Check the cell information
-            if (c == null || !c.InBounds(map))
+            if (c == default || !c.InBounds(map))
             {
                 Log.Warning("GenStep_CreateBlueprint: Invalid Target-Cell: cell is null or out of bounds.");
                 return;
@@ -707,7 +713,7 @@ namespace MapGenerator
             // 4th step - work with the Pawn
             if (pawnKindDef != null && blueprint.pawnSpawnChance / 100 > Rand.Value)
             {
-                if (pawnKindDef.defaultFactionType == FactionDefOf.Mechanoid)
+                if (pawnKindDef.defaultFactionDef == FactionDefOf.Mechanoid)
                     this.faction = Faction.OfMechanoids;
 
                 if (this.faction == null)

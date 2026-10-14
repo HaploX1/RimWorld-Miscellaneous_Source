@@ -78,8 +78,8 @@ namespace MapGenerator
             optionsLH.Label(Text_Option_HoleChanceOnWater + "  " + (MapGenerator_ModSettings.chanceForHolesOnWater).ToStringPercent());
             optionsLH.GapLine();
             optionsLH.Gap();
-            optionsLH.Label(Text_Option_ForUrbanCityOnly, -1, Tooltip_Option_ForUrbanCityOnly);
-            optionsLH.Label(Text_Option_UrbanCityChanceMultiplier + "  " + (MapGenerator_ModSettings.chance4UrbanCitiesMultiplier).ToString(), -1, Tooltip_Option_UrbanCityChanceMultiplier);
+            optionsLH.Label(Text_Option_ForUrbanCityOnly, -1, tooltip: Tooltip_Option_ForUrbanCityOnly);
+            optionsLH.Label(Text_Option_UrbanCityChanceMultiplier + "  " + (MapGenerator_ModSettings.chance4UrbanCitiesMultiplier).ToString(), -1, tooltip: Tooltip_Option_UrbanCityChanceMultiplier);
 
 
             optionsLH.End();

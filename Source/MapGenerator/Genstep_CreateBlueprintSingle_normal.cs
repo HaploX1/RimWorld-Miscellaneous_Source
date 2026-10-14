@@ -17,8 +17,11 @@ namespace MapGenerator
         public override void Generate(Map map, GenStepParams parms)
         {
             // New: don't do this one, if the biome is XXX_UrbanRuins
-            if ( map.TileInfo.biome.defName.ToLower().Contains("urbanruin") )
-                return;
+            foreach (BiomeDef biomeDef in map.TileInfo.Biomes)
+            {
+                if (biomeDef.defName.ToLower().Contains("urbanruin"))
+                    return;
+            }
 
             base.Generate(map, parms);
         }

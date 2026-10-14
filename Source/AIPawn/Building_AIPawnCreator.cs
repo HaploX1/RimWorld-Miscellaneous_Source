@@ -37,7 +37,7 @@ namespace AIPawn
         }
 
 
-        public override void Tick()
+        protected override void Tick()
         {
             if (!init)
                 return;

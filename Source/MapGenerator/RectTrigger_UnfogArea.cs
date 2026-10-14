@@ -18,7 +18,7 @@ namespace MapGenerator
             Scribe_Values.Look<bool>(ref this.destroyIfUnfogged, "destroyIfUnfogged", true, false);
         }
         
-        public override void Tick()
+        protected override void Tick()
         {
             if (this.IsHashIntervalTick(60))
             {

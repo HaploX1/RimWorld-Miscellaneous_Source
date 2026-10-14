@@ -129,6 +129,11 @@ namespace MapGenerator
             if (usedCellFound)
                 return;
 
+            // RimWorld 1.7: don't build over vanilla large structures (ancient complex, gravship
+            // wreckage, ...) that reserved their footprint via UsedRects / layout sketches.
+            if (OverlapsVanillaStructure(mapRectCheck4Neighbor, map))
+                return;
+
             // Don't do anything, if there is an cryosleep casket at the building site
             foreach (IntVec3 current in mapRect.Cells)
             {
@@ -514,7 +519,7 @@ namespace MapGenerator
             //Note: Here is no functionality to clear the cell by design, because it is possible to place items that are larger than 1x1
 
             // Check the cell information
-            if (c == null || !c.InBounds(map))
+            if (c == default || !c.InBounds(map))
             {
                 Log.Warning("GenStep_CreateBlueprint: Invalid Target-Cell: cell is null or out of bounds.");
                 return;
@@ -602,7 +607,7 @@ namespace MapGenerator
             // 4th step - work with the Pawn
             if (pawnKindDef != null && blueprint.pawnSpawnChance / 100 > Rand.Value)
             {
-                if (pawnKindDef.defaultFactionType == FactionDefOf.Mechanoid)
+                if (pawnKindDef.defaultFactionDef == FactionDefOf.Mechanoid)
                     this.faction = Faction.OfMechanoids;
 
                 if (this.faction == null)

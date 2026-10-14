@@ -19,7 +19,7 @@ namespace MapGenerator
         }
 
 
-        public override void Tick()
+        protected override void Tick()
         {
             if (this.IsHashIntervalTick(60))
             {

@@ -222,7 +222,7 @@ namespace AIPawn
         {
         }
 
-        public override void Tick()
+        protected override void Tick()
         {
             if (destroyedFlag)
                 return;
@@ -312,7 +312,7 @@ namespace AIPawn
             // Key-Binding B - Start Production
             Command_Action opt1;
             opt1 = new Command_Action();
-            opt1.disabled = productionActive;
+            opt1.Disabled = productionActive;
             opt1.disabledReason = "Production running...";
             if (!productionActive && !gatheringSuppliesActive)
             {

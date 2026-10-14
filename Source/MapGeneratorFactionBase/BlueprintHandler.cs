@@ -304,7 +304,7 @@ namespace MapGenerator
 
 
             // make the appropriate Lord
-            pawnLord = LordMaker.MakeNewLord(faction, new LordJob_DefendBase(faction, mapRect.CenterCell), map, null);
+            pawnLord = LordMaker.MakeNewLord(faction, new LordJob_DefendBase(faction, mapRect.CenterCell, 120), map, null);
             
             // Get points used by current pawns
             float pointsUsed = 0f;
@@ -462,7 +462,7 @@ namespace MapGenerator
         private static bool TrySetCell_prepare_CheckCell(IntVec3 c, Map map)
         {
             // Check the cell information
-            if (c == null || !c.InBounds(map))
+            if (c == default || !c.InBounds(map))
             {
                 Log.Warning("BlueprintHandler: Invalid Target-Cell: cell is null or out of bounds.");
                 return false;
