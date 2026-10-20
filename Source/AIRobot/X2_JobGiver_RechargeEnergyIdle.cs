@@ -28,6 +28,8 @@ namespace AIRobot
             X2_Building_AIRobotRechargeStation rechargeStation = robot.rechargeStation;
             if (rechargeStation.DestroyedOrNull()) return ThinkResult.NoJob;
             if (!rechargeStation.Spawned) return ThinkResult.NoJob;
+            // Never issue a job that targets the station while the robot stands on another map.
+            if (rechargeStation.Map != robot.Map) return ThinkResult.NoJob;
 
 
             Need_Rest needRest = pawn.needs.rest;

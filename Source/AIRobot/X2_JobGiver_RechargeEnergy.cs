@@ -35,6 +35,11 @@ namespace AIRobot
                 if ((pawn as X2_AIRobot) == null || (pawn as X2_AIRobot).rechargeStation == null || (pawn as X2_AIRobot).rechargeStation.Position == default)
                     return 0f;
 
+                // Distances between two different maps are meaningless - the robot is recalled by
+                // X2_AIRobot.IsOffHomeMap/TryRecallToHomeMap instead of walking home.
+                if ((pawn as X2_AIRobot).rechargeStation.Map != pawn.Map)
+                    return 0f;
+
                 double distance = AIRobot_Helper.GetDistance(pawn.Position, (pawn as X2_AIRobot).rechargeStation.Position);
 
                 // Own implementation: When level < 45% && dist > 25

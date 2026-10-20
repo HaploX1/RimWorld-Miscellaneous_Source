@@ -19,6 +19,15 @@ namespace AIRobot
 
         public bool ignoreSpawnRename = false;
 
+        // Set when the pawn was spawned and must check on its first tick whether it is still on the
+        // map of its recharge station (transport pods, gravships, pit gates etc. respawn pawns on
+        // a new map without touching the rechargeStation reference).
+        private bool recallCheckPending = false;
+
+        // Set for the respawn that belongs to a recall, so InitPawn_Setup (skills, story, timetable)
+        // is not re-run on a robot that is already fully initialised.
+        private bool skipPawnSetupOnce = false;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -44,7 +53,14 @@ namespace AIRobot
                 Log.Error("X2_AIRobot -- def2 is null. Missing class definition in xml file?");
 
             //InitPawn_Setup();
-            LongEventHandler.ExecuteWhenFinished(InitPawn_Setup);
+            if (skipPawnSetupOnce)
+                skipPawnSetupOnce = false;
+            else
+                LongEventHandler.ExecuteWhenFinished(InitPawn_Setup);
+
+            // A spawn on another map is detected on the first tick: despawning the pawn inside its
+            // own SpawnSetup would re-enter the spawn code that is currently running.
+            recallCheckPending = true;
         }
         private void InitPawn_Setup()
         {
@@ -247,6 +263,13 @@ namespace AIRobot
                 //Log.Error("I'm destroyed but ticking..");
                 return;
             }
+            // A robot that switched maps (transport pod, gravship, pit gate, caravan re-entry, ...)
+            // still points at the recharge station of the map it came from. It would path to cells
+            // that mean nothing on the new map, could never recharge and would finally destroy
+            // itself when the battery runs dry - so bring it back to the station's map first.
+            if (CheckForeignMapAndRecall())
+                return;
+
             // Downed only destroyes, if health is < 5%
             if (Spawned && (Dead || (Downed && health.summaryHealth.SummaryHealthPercent < 0.05f) || needs.rest.CurLevel <= 0.01f))
             {
@@ -284,12 +307,95 @@ namespace AIRobot
         private bool IsInDistanceToStation(float distance)
         {
             if (Position != default && Position != IntVec3.Invalid &&
-                rechargeStation != null && rechargeStation.Position != default && rechargeStation.Position != IntVec3.Invalid)
+                rechargeStation != null && rechargeStation.Position != default && rechargeStation.Position != IntVec3.Invalid &&
+                rechargeStation.Map == this.Map)
             {
                 return AIRobot_Helper.IsInDistance(Position, rechargeStation.Position, distance);
             }
             else
                 return false;
+        }
+
+        /// <summary>
+        /// True when this robot is spawned on a map that is not the map of the recharge station that
+        /// owns it. Such a robot has no charging source and no valid base to work for.
+        /// </summary>
+        public bool IsOffHomeMap
+        {
+            get
+            {
+                return this.Spawned
+                    && rechargeStation != null
+                    && !rechargeStation.DestroyedOrNull()
+                    && rechargeStation.Spawned
+                    && rechargeStation.Map != null
+                    && rechargeStation.Map != this.Map;
+            }
+        }
+
+        /// <summary>
+        /// Returns true when the robot was recalled to the map of its recharge station during this
+        /// tick. A single attempt is made right after the map switch, afterwards one attempt per
+        /// second until the base offers a free cell (a fully walled-in base can fail for a while).
+        /// </summary>
+        private bool CheckForeignMapAndRecall()
+        {
+            // Not linked to a station yet (fresh save): Tick() re-finds it a few lines below.
+            if (rechargeStation == null)
+                return false;
+
+            if (!IsOffHomeMap)
+            {
+                recallCheckPending = false;
+                return false;
+            }
+
+            if (!recallCheckPending && !this.IsHashIntervalTick(60))
+                return false;
+
+            recallCheckPending = false;
+            return TryRecallToHomeMap();
+        }
+
+        /// <summary>
+        /// Moves this robot from the map it is stranded on to the map of its recharge station.
+        /// Positions of two different maps are unrelated, so the robot is despawned and spawned
+        /// next to its station instead of walking there.
+        /// </summary>
+        private bool TryRecallToHomeMap()
+        {
+            X2_Building_AIRobotRechargeStation station = rechargeStation;
+            if (station.DestroyedOrNull() || !station.Spawned || station.Map == null)
+                return false;   // Base is in a caravan / minified / in transit: retry later.
+
+            Map homeMap = station.Map;
+            if (homeMap == this.Map)
+                return false;
+
+            IntVec3 cell = CellFinder.StandableCellNear(station.Position, homeMap, 8f,
+                                                        c => c.GetFirstPawn(homeMap) == null);
+            if (cell == IntVec3.Invalid)
+                return false;   // No free cell next to the base: retry later.
+
+            Map leftMap = this.Map;
+
+            if (stances != null)
+                stances.CancelBusyStanceHard();
+            if (jobs != null)
+                jobs.StopAll(false);
+            if (pather != null)
+                pather.StopDead();
+
+            DeSpawn(DestroyMode.Vanish);
+
+            skipPawnSetupOnce = true;
+            GenSpawn.Spawn(this, cell, homeMap, WipeMode.Vanish);
+
+            Messages.Message("AIRobot_RecalledToHomeMap".Translate(this.LabelShort), this, MessageTypeDefOf.NeutralEvent);
+
+            Log.Message("AIRobot: recalled " + this.LabelShort + " from map " + leftMap.ToStringSafe()
+                        + " to its recharge station on map " + homeMap.ToStringSafe() + ".");
+            return true;
         }
         #endregion
 
@@ -346,6 +452,22 @@ namespace AIRobot
                 opt0.disabledReason = "Error: No recharge station assigned.";
                 opt0.groupKey = 1234567 + 0;
                 yield return opt0;
+            }
+
+            {
+                // Stop current and queued jobs, then stand still briefly so the think tree does not instantly reissue the same work.
+                Command_Action optStop;
+                optStop = new Command_Action();
+                optStop.icon = X2_Building_AIRobotRechargeStation.UI_ButtonStopJobs;
+                optStop.defaultLabel = X2_Building_AIRobotRechargeStation.lbStopAllJobs.Translate();
+                optStop.defaultDesc = X2_Building_AIRobotRechargeStation.txtStopAllJobs.Translate();
+                optStop.hotKey = KeyBindingDefOf.Misc6;
+                optStop.activateSound = SoundDef.Named("Click");
+                optStop.action = Button_StopAllJobs;
+                optStop.Disabled = !HasActiveJobs();
+                optStop.disabledReason = "AIRobot_NoActiveJobs".Translate();
+                optStop.groupKey = 1234567 + 6;
+                yield return optStop;
             }
 
             {
@@ -422,6 +544,35 @@ namespace AIRobot
                 yield return opt5;
             }
         }
+        private bool HasActiveJobs()
+        {
+            if (jobs == null)
+                return false;
+            if (CurJob != null)
+                return true;
+            if (jobs.jobQueue != null && jobs.jobQueue.Count > 0)
+                return true;
+            return false;
+        }
+
+        private void Button_StopAllJobs()
+        {
+            if (jobs == null)
+                return;
+
+            if (stances != null)
+                stances.CancelBusyStanceHard();
+
+            jobs.StopAll(false);
+
+            if (pather != null)
+                pather.StopDead();
+
+            // Brief wait so the think tree does not immediately restart the interrupted job.
+            Job waitJob = JobMaker.MakeJob(JobDefOf.Wait, 250);
+            jobs.StartJob(waitJob, JobCondition.InterruptForced);
+        }
+
         private void Debug_ForceGotoDistance(int distX, int distZ)
         {
 
@@ -453,7 +604,28 @@ namespace AIRobot
 
             foundBase = allBases.Where(t => t.robot == bot).FirstOrDefault();
 
-            return foundBase;
+            if (foundBase != null)
+                return foundBase;
+
+            // The robot may be on a map that has no station of its own: it switched maps, or the save
+            // was written while it was away from home. Its owning station is still the authority, so
+            // look for it on the other maps - X2_AIRobot recalls the robot to that station's map.
+            if (bot == null)
+                return default(X2_Building_AIRobotRechargeStation);
+
+            List<Map> maps = Find.Maps;
+            for (int i = 0; i < maps.Count; i++)
+            {
+                if (maps[i] == map)
+                    continue;
+
+                foundBase = maps[i].listerBuildings.AllBuildingsColonistOfClass<X2_Building_AIRobotRechargeStation>()
+                                    .Where(t => t.robot == bot).FirstOrDefault();
+                if (foundBase != null)
+                    return foundBase;
+            }
+
+            return default(X2_Building_AIRobotRechargeStation);
         }
 
         private void Debug_Info()

@@ -26,6 +26,13 @@ namespace AIPawn
         private static int startingSkillLevel = 6;
         private static bool enhancedAI = false;
 
+        // RimWorld 1.6: the head is def driven; this name is read from the def in GetXMLData.
+        private static string normalHeadDefName = "MAI_Head_Normal";
+
+        // Skin tone of the AI. 0.1 is the melanin value the 1.3 version set; 1.6 resolves the
+        // colour through the vanilla skin colour genes (shipped by Core, no DLC needed).
+        private const float SkinMelanin = 0.1f;
+
         private static string AIPawn_BaseTraitDefName = "AIPawn_BaseTrait";
         private static int AIPawn_BaseTraitDegree = 1;
         private static string AIPawn_ApparelDefName = "AIPawn_Apparel_BaseShielding";
@@ -36,19 +43,31 @@ namespace AIPawn
             passionLevel = def2.passionLevel;
             startingSkillLevel = def2.startingSkillLevel;
             enhancedAI = def2.enhancedAI;
-        }
+            normalHeadDefName = def2.normalHeadDefName;        }
 
         public static AIPawn GenerateAIPawn(string kindDefName, Faction faction, Map map, Gender gender = Gender.Female)
         {
             //return GeneratePawn(PawnKindDef.Named(kindDefName), faction, map, gender);
-            PawnGenerationRequest request = new PawnGenerationRequest(PawnKindDef.Named(kindDefName), faction, PawnGenerationContext.NonPlayer, -1, true, true, false, false, false, false, 0f, false, false, true, false, false, false, false, false, 0f, 0f, null, 0f, null, null, null, null, null, 0f, 0f, gender, 0.1f, null, null, null); ;
+            // RimWorld 1.6: the constructor gained parameters and turned tile/melanin into nullable
+            // structs, so the old positional call cannot be patched - it is written with named
+            // arguments instead. fixedMelanin is gone completely (see SkinMelanin below).
+            PawnGenerationRequest request = new PawnGenerationRequest(
+                kind: PawnKindDef.Named(kindDefName),
+                faction: faction,
+                context: PawnGenerationContext.NonPlayer,
+                forceGenerateNewPawn: true,
+                allowDead: true,
+                allowDowned: false,
+                canGeneratePawnRelations: false,
+                mustBeCapableOfViolence: false,
+                allowFood: true,
+                fixedGender: gender);
             return GenerateAIPawn(ref request, map);
 
         }
         //public static AIPawn GeneratePawn(PawnKindDef kindDef, Faction faction, Map map, Gender gender = Gender.Female, int tries = 0)
         public static AIPawn GenerateAIPawn(ref PawnGenerationRequest request, Map map, int tries = 0)
         {
-            BackstoryHelper.AddNewBackstoriesToDatabase(); // First add the new backstories to the database
 
             //Log.Error("0");
 
@@ -108,21 +127,33 @@ namespace AIPawn
 
             if (pawnAI.RaceProps.Humanlike)
             {
-                pawnAI.story.melanin = 0.1f;
-                pawnAI.story.crownType = CrownType.Average;
-                pawnAI.story.hairColor = PawnHairColors.RandomHairColor(pawnAI.story.SkinColor, pawnAI.ageTracker.AgeBiologicalYears);
+                // RimWorld 1.6: melanin and crownType are gone. The skin tone is resolved from the
+                // melanin value through the vanilla skin colour genes and written into
+                // skinColorOverride, because that is the field the game scribes - the gene driven
+                // SkinColorBase would be regenerated on load.
+                pawnAI.story.skinColorOverride = PawnSkinColors.GetSkinColor(SkinMelanin);
+                pawnAI.story.HairColor = PawnHairColors.RandomHairColor(pawnAI, pawnAI.story.SkinColor, pawnAI.ageTracker.AgeBiologicalYears);
 
-                pawnAI.story.childhood = GetBackstory();
-                //pawnAI.story.adulthood = GetBackstory();
+                // RimWorld 1.6: the work restriction backstory is a BackstoryDef loaded from XML.
+                // Assigning null would throw, because the Childhood setter dereferences the value.
+                BackstoryDef workRestrictionBackstory = GetBackstory();
+                if (workRestrictionBackstory != null)
+                    pawnAI.story.Childhood = workRestrictionBackstory;
 
-                string headGraphicPath = GraphicDatabaseHeadRecords.GetHeadRandom(pawnAI.gender, pawnAI.story.SkinColor, pawnAI.story.crownType, false).GraphicPath;
-                // With this Reflection you can access a private variable! Here: The private string "headGraphicPath" is set 
-                System.Reflection.FieldInfo fi = typeof(Pawn_StoryTracker).GetField("headGraphicPath", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-                fi.SetValue(pawnAI.story, headGraphicPath);
+                // RimWorld 1.6: the random head and the reflective write into the private
+                // Pawn_StoryTracker.headGraphicPath are obsolete - the head is a HeadTypeDef now
+                // and is applied below and again in AIPawn.UpdateGraphics().
 
                 pawnAI.story.hairDef = GetHair();
 
-                pawnAI.story.bodyType = ((pawnAI.gender != Gender.Female) ? BodyTypeDefOf.Male : BodyTypeDefOf.Female);
+                // Normal look; the drafted (combat mode) head def is applied by AIPawn.UpdateGraphics().
+                // The body type stays vanilla - RimWorld resolves apparel graphics through it and has
+                // no fallback for mod defined body types. The body graphic itself comes from
+                // PawnRenderNode_MAIBody (MAI_Humanlike render tree).
+                pawnAI.story.bodyType = BodyTypeDefOf.Female;
+                HeadTypeDef initialHeadType = DefDatabase<HeadTypeDef>.GetNamedSilentFail(normalHeadDefName);
+                if (initialHeadType != null)
+                    pawnAI.story.headType = initialHeadType;
 
                 MakeSkillsFromBackstory(pawnAI);
                 GiveTraitsTo(pawnAI);
@@ -157,7 +188,7 @@ namespace AIPawn
             return DefDatabase<HairDef>.GetNamed("Shaved");
         }
 
-        private static Backstory GetBackstory()
+        private static BackstoryDef GetBackstory()
         {
             string researchProject;
 
@@ -208,12 +239,13 @@ namespace AIPawn
             if ((DefDatabase<ResearchProjectDef>.GetNamedSilentFail(researchProject) != null) && (!ResearchProjectDef.Named(researchProject).IsFinished))
                 workDisables = workDisables | WorkTags.Mining;
 
-            string backstoryUniqueKey = BackstoryHelper.GetBackstoryUniqueKey(workDisables);
-
-            Backstory bs;
-            if (BackstoryDatabase.TryGetWithIdentifier(backstoryUniqueKey, out bs))
-                return bs;
-            return null;
+            // RimWorld 1.6: the backstories ship as BackstoryDefs in
+            // Defs/BackstoryDefs/AIPawn_Backstories_MAI.xml, so this is a plain def lookup.
+            string backstoryDefName = BackstoryHelper.GetBackstoryUniqueKey(workDisables);
+            BackstoryDef backstory = DefDatabase<BackstoryDef>.GetNamedSilentFail(backstoryDefName);
+            if (backstory == null)
+                Log.Error("AIPawnGenerator: no backstory def " + backstoryDefName + " for work tags " + workDisables);
+            return backstory;
 
         }
 

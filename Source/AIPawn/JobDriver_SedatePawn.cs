@@ -36,9 +36,9 @@ namespace AIPawn
             Toil makeUnconscious = new Toil();
             makeUnconscious.initAction = () =>
             {
-                Takee.health.forceIncap = true;
+                Takee.health.forceDowned = true;
                 Takee.health.AddHediff(HediffDefOf.Anesthetic, null, null);
-                Takee.health.forceIncap = false;
+                Takee.health.forceDowned = false;
             };
             yield return makeUnconscious;
 

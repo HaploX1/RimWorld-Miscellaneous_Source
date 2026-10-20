@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- RimWorld 1.7 port: 1.7 runs on .NET 10 (CoreCLR) with Unity reduced to UnityStubs.dll,
+       so the legacy net472 Miscellaneous.csproj cannot reference the game assemblies.
+       The legacy csproj stays untouched for the <= 1.6 builds. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Miscellaneous</AssemblyName>
+    <RootNamespace>Miscellaneous</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <NoWarn>$(NoWarn);CS0414;CS0649;CS0169</NoWarn>
+    <!-- Explicit compile list (legacy parity); disable the SDK default glob. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Same compile list as the legacy Miscellaneous.csproj (13 sources; AssemblyInfo is generated
+       by the SDK). RecipeInjector.cs and _Test_MethodDetouring.cs are not in the legacy list. -->
+  <ItemGroup>
+    <Compile Include="Building_NanoPrinter.cs" />
+    <Compile Include="Building_NanoStorage.cs" />
+    <Compile Include="Building_PowerPlant_EmergencyPowerCore.cs" />
+    <Compile Include="CompPowerTrader_EmergencyPowerCore.cs" />
+    <Compile Include="CompProperties_Power_EmergencyPowerCore.cs" />
+    <Compile Include="JobDriver_FillingNanoPrinter.cs" />
+    <Compile Include="PlacementRestricter_NextToNanoPrinter.cs" />
+    <Compile Include="Projectile_SnowMaker.cs" />
+    <Compile Include="Template_JobDriver_GotoCellAndDoX.cs" />
+    <Compile Include="Template_Storage.cs" />
+    <Compile Include="ThingDef_NanoPrinter.cs" />
+    <Compile Include="WorkGiver_FillNanoPrinter.cs" />
+    <Compile Include="_Test.cs" />
+  </ItemGroup>
+
+</Project>

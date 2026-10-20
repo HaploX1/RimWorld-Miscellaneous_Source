@@ -41,23 +41,12 @@ namespace AIPawn
         private bool loaded = false;
         //public Pawn_Ownership ai_ownership;
 
-        // holder for the grafics of the head and body
-        public string normalHeadGraphicPathMulti = "Things/Pawns/Naked/Female_Average_MiaHead";
-        public string normalBodyGraphicPathMulti = "Things/Pawns/Naked/Naked_Mia";
-        public string draftedHeadGraphicPathMulti = "Things/Pawns/Drafted/Female_Average_MiaHead";
-        public string draftedBodyGraphicPathMulti = "Things/Pawns/Drafted/Drafted_Mia";
-
-        public static Graphic nakedHeadGraphic;
-        //public static Graphic nakedHeadGraphicHue;
-        public static Graphic nakedBodyGraphic;
-        //public static Graphic nakedBodyGraphicHue;
-
-        //public static Graphic draftedHeadGraphic;
-        //public static Graphic draftedBodyGraphic;
-        //public static Graphic draftedHeadGraphicHue;
-        //public static Graphic draftedBodyGraphicHue;
-
-        public static Graphic hairGraphic;
+        // RimWorld 1.6: the head is def driven - these names point at the HeadTypeDef pair used for
+        // the normal look and for combat mode (drafted); they are read from <ThingDef_AIPawn> in
+        // AIPawn_Races.xml. The body graphic is not swapped here: it comes from
+        // PawnRenderNode_MAIBody, which reads the two graphic paths of the same def.
+        private string normalHeadDefName = "MAI_Head_Normal";
+        private string draftedHeadDefName = "MAI_Head_Drafted";
 
         public bool graphicHueActive = false;
         private bool draftedActiveOld = false;
@@ -92,17 +81,15 @@ namespace AIPawn
         {
             ThingDef_AIPawn def2 = (ThingDef_AIPawn)def;
 
-            //if (!def2.normalHeadGraphicPathMulti.NullOrEmpty())
-            {
-                normalHeadGraphicPathMulti = def2.normalHeadGraphicPathMulti;
-                draftedHeadGraphicPathMulti = def2.draftedHeadGraphicPathMulti;
-                normalBodyGraphicPathMulti = def2.normalBodyGraphicPathMulti;
-                draftedBodyGraphicPathMulti = def2.draftedBodyGraphicPathMulti;
-                refreshBaseInfosMax = def2.refreshBaseInfosMax;
-                refreshQuickMax = def2.refreshQuickMax;
-                incapToExplosionCounterStartValue = def2.incapToExplosionCounter;
-                enhancedAI = def2.enhancedAI;
-            }
+            if (!def2.normalHeadDefName.NullOrEmpty())
+                normalHeadDefName = def2.normalHeadDefName;
+            if (!def2.draftedHeadDefName.NullOrEmpty())
+                draftedHeadDefName = def2.draftedHeadDefName;
+
+            refreshBaseInfosMax = def2.refreshBaseInfosMax;
+            refreshQuickMax = def2.refreshQuickMax;
+            incapToExplosionCounterStartValue = def2.incapToExplosionCounter;
+            enhancedAI = def2.enhancedAI;
         }
 
         /// <summary>
@@ -110,8 +97,6 @@ namespace AIPawn
         /// </summary>
         public override void ExposeData()
         {
-            BackstoryHelper.AddNewBackstoriesToDatabase();
-
             base.ExposeData();
             Scribe_Values.Look<int>(ref refreshBaseInfosCount, "RefreshBaseInfos");
             Scribe_Values.Look<int>(ref refreshQuickCount, "RefreshQuickInfos");
@@ -138,8 +123,6 @@ namespace AIPawn
         /// </summary>
         public override void SpawnSetup(Map map, bool respawnAfterLoad)
         {
-            BackstoryHelper.AddNewBackstoriesToDatabase();
-
             base.SpawnSetup(map, respawnAfterLoad);
 
             LongEventHandler.ExecuteWhenFinished(SpawnSetup_Part2);
@@ -155,45 +138,11 @@ namespace AIPawn
             // Get the data from the extended def
             ReadXmlData();
 
-            // Load base graphics
-            Color colorNormal = Color.white;
-            //nakedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            //nakedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-
-            //draftedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-            //draftedHeadGraphic = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorNormal);
-
-            nakedHeadGraphic = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
-            nakedBodyGraphic = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
-            //////draftedHeadGraphic = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
-            //////draftedBodyGraphic = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
-
-
-            // !!! DISABLED drafted !!! -- TODO: DELETE THIS when working correctly
-            //draftedBodyGraphic = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.CutoutSkin, Vector2.one, colorNormal);
-
-            // Load hue graphics
-            Color colorHue = Color.Lerp(Color.white, Color.red, 0.30f);
-            //nakedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            //nakedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-
-            //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-            //draftedHeadGraphicHue = GraphicDatabase.Get<Graphic_Multi>(draftedHeadGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-
-            //////nakedHeadGraphicHue = GetGraphic<Graphic_Multi>(normalHeadGraphicPathMulti, colorNormal);
-            //////nakedBodyGraphicHue = GetGraphic<Graphic_Multi>(normalBodyGraphicPathMulti, colorNormal);
-            //////draftedHeadGraphicHue = GetGraphic<Graphic_Multi>(draftedHeadGraphicPathMulti, colorNormal);
-            //////draftedBodyGraphicHue = GetGraphic<Graphic_Multi>(draftedBodyGraphicPathMulti, colorNormal);
-
-            // !!! DISABLED drafted !!! -- TODO: DELETE THIS when working correctly
-            //draftedBodyGraphicHue = GraphicDatabase.Get<Graphic_Multi>(normalBodyGraphicPathMulti, ShaderDatabase.Cutout, Vector2.one, colorHue);
-
-            // Load hair graphic (shaved)
-            hairGraphic = GraphicDatabase.Get<Graphic_Multi>(this.story.hairDef.texPath, ShaderDatabase.Cutout, Vector2.one, this.story.HairColor);
-            
-            //Drawer.renderer.graphics.ResolveAllGraphics(); 
+            // RimWorld 1.6: the pawn's look is applied through story.headType and story.bodyType.
+            // Raw graphics (GraphicDatabase / PawnRenderer.graphics) no longer exist, and the hair
+            // is drawn by the humanlike render tree from story.hairDef.
             UpdateGraphics();
-            
+
             draftedActiveOld = this.Drafted;
 
             // Set Incap Counter to base value
@@ -304,56 +253,53 @@ namespace AIPawn
         }
 
         /// <summary>
-        /// Sets the new head and body grafic
+        /// Applies the body and head def for the current stance (normal look vs. combat mode).
         /// </summary>
+        /// <remarks>
+        /// RimWorld 1.6: a humanlike pawn's look is defined by Pawn_StoryTracker.bodyType and
+        /// Pawn_StoryTracker.headType, and swapping it is the supported way to change the head at
+        /// runtime - vanilla's styling station does exactly the same. The head as well as the
+        /// normal mode / combat mode (drafted) switch is applied here; the body graphic lives in
+        /// PawnRenderNode_MAIBody. The 1.3 approach of writing into PawnRenderer.graphics
+        /// (headGraphic, nakedGraphic, ClearCache) does not exist anymore.
+        /// </remarks>
         private void UpdateGraphics()
         {
-            if (nakedHeadGraphic == null)
+            if (story == null)
                 return;
 
-            // reset Hair Graphic
-            if (Drawer.renderer.graphics.hairGraphic == null)
-                Drawer.renderer.graphics.hairGraphic = hairGraphic;
+            // Combat mode is the drafted state
+            bool drafted = this.Drafted;
+            string graphicStateNew = (drafted ? "draft" : "nodraft") + (graphicHueActive ? "-hue" : "-nohue");
 
-            //////// Drafted
-            //////if (this.Drafted)
-            //////{
-            //////    if (!graphicHueActive)
-            //////    {
-            //////        Drawer.renderer.graphics.headGraphic = draftedHeadGraphic;
-            //////        Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphic;
-            //////        graphicState = "draft-nohue";
-            //////    }
-            //////    else
-            //////    {
-            //////        Drawer.renderer.graphics.headGraphic = draftedHeadGraphicHue;
-            //////        Drawer.renderer.graphics.nakedGraphic = draftedBodyGraphicHue;
-            //////        graphicState = "draft-hue";
-            //////    }
-            //////}
-            //////else // Not Drafted
-            //////{
-            //////    if (!graphicHueActive)
-            //////    {
-                    Drawer.renderer.graphics.headGraphic = nakedHeadGraphic;
-                    Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphic;
-                    graphicState = "nodraft-nohue";
-            //////    }
-            //////    else
-            //////    {
-            //////        Drawer.renderer.graphics.headGraphic = nakedHeadGraphicHue;
-            //////        Drawer.renderer.graphics.nakedGraphic = nakedBodyGraphicHue;
-            //////        graphicState = "nodraft-hue";
-            //////    }
-            //////}
+            // Nothing changed, keep the current graphics
+            if (graphicStateOld == graphicStateNew)
+                return;
 
-            // Clear Cache if changed
-            if (graphicStateOld != graphicState)
-            {
-                Drawer.renderer.graphics.ClearCache();
-            }
+            // The body type stays vanilla: RimWorld resolves apparel graphics as
+            // "wornGraphicPath + '_' + bodyType.defName" and has no fallback, so a mod defined body
+            // type would need its own texture set for every apparel item in the game. The body
+            // graphic of the AI pawns comes from PawnRenderNode_MAIBody (MAI_Humanlike render tree),
+            // which also handles the normal mode / combat mode (drafted) switch.
+            //
+            // Pawns saved by an earlier build of this port still carry one of the removed
+            // MAI_Body_* body types, which would break every apparel lookup - migrate them here.
+            if (story.bodyType == null || story.bodyType.defName.StartsWith("MAI_Body"))
+                story.bodyType = BodyTypeDefOf.Female;
 
-            graphicStateOld = graphicState;
+            string headDefName = drafted ? draftedHeadDefName : normalHeadDefName;
+            HeadTypeDef headType = DefDatabase<HeadTypeDef>.GetNamedSilentFail(headDefName);
+            if (headType != null)
+                story.headType = headType;
+            else
+                Log.ErrorOnce("AIPawn: missing HeadTypeDef " + headDefName, 871124);
+
+            // Let the render tree pick up the new defs
+            if (Drawer != null && Drawer.renderer != null)
+                Drawer.renderer.SetAllGraphicsDirty();
+
+            graphicState = graphicStateNew;
+            graphicStateOld = graphicStateNew;
         }
 
 
@@ -370,14 +316,14 @@ namespace AIPawn
             {
                 HelperAIPawn.ReApplyThingToListerThings(this.Position, this);
 
-                Drawer.renderer.graphics.ResolveAllGraphics(); //Causes errors!
                 UpdateGraphics();
 
                 initTicks--;
                 if (initTicks <= 0)
                 {
                     // Replace invalid Mai with valid Mai
-                    if (!story.childhood.identifier.Contains(BackstoryHelper.BackstoryDefNameIdentifier))
+                    // Replace invalid Mai with valid Mai
+                    if (story.Childhood == null || !story.Childhood.defName.StartsWith(BackstoryHelper.BackstoryDefNameIdentifier + BackstoryHelper.BackstoryDefNameIdentifierDisabled))
                     {
                         string savedDefName = def.defName;
                         IntVec3 savedPosition = Position;
@@ -394,7 +340,6 @@ namespace AIPawn
                         return;
                     }
 
-                    BackstoryHelper.RemoveNewBackstoriesFromDatabase();
                     init = true;
                 }
                 return;
@@ -644,8 +589,9 @@ namespace AIPawn
             }
 
             bool anesthetic = false;
-            IEnumerable<HediffWithComps> hediffs = health.hediffSet.GetHediffs<HediffWithComps>();
-            if (hediffs != null && hediffs.Count() > 0)
+            List<HediffWithComps> hediffs = new List<HediffWithComps>();
+            health.hediffSet.GetHediffs(ref hediffs);
+            if (hediffs.Count > 0)
             {
                 foreach (HediffWithComps hediff in hediffs)
                 {
@@ -669,7 +615,9 @@ namespace AIPawn
                                                               where (x is Hediff_Injury) && x.TendableNow(false) //!(x is Hediff_MissingPart) && x.CanHealFromTending() && !x.IsTended()
                                                       select x);
 
-            IEnumerable<Hediff_Injury> hediff_injuries = (from x in this.health.hediffSet.GetHediffs<Hediff_Injury>()
+            List<Hediff_Injury> hediffInjuriesAll = new List<Hediff_Injury>();
+            this.health.hediffSet.GetHediffs(ref hediffInjuriesAll);
+            IEnumerable<Hediff_Injury> hediff_injuries = (from x in hediffInjuriesAll
                                                           where x.CanHealFromTending() || x.CanHealNaturally()
                                                           select x);
 
@@ -686,7 +634,7 @@ namespace AIPawn
             {
                 float quality = (enhancedAI ? 1.0f : Rand.Value);
                 int batchPosition = 0;
-                foreach (Hediff_Injury injury in from x in this.health.hediffSet.GetInjuriesTendable()
+                foreach (Hediff_Injury injury in from x in this.health.hediffSet.GetHediffsTendable().OfType<Hediff_Injury>()
                                                  orderby x.Severity descending
                                                  select x)
                 {
@@ -860,21 +808,6 @@ namespace AIPawn
 
             rechargeStation = map.thingGrid.ThingAt<Building_AIPawnRechargeStation>(Position);
             return (rechargeStation != null);
-        }
-
-        private static T GetGraphic<T>(String path, Color color) where T : Graphic, new()
-        {
-            GraphicRequest req = new GraphicRequest();
-
-            req.color = (Color32)color;
-            req.colorTwo = (Color32)Color.white;
-            req.renderQueue = 0;
-            req.drawSize = Vector2.one;
-            req.path = path;
-            req.shader = ShaderDatabase.Cutout;
-            var value = new T();
-            value.Init(req);
-            return (T)value;
         }
     }
 }

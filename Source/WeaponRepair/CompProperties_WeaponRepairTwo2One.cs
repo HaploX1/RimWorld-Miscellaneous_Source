@@ -10,7 +10,8 @@ namespace WeaponRepair
         public WorkTypeDef workTypeDef;
         public bool compareQuality = true;
         public JobDef jobDef;
-        public float maxRepair = 0.95f;
+        // Fraction of MaxHitPoints a weapon may be repaired up to. 1f = full repair.
+        public float maxRepair = 1f;
 
 
         public CompProperties_WeaponRepairTwo2One()

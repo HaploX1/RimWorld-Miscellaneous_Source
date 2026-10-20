@@ -67,18 +67,35 @@ namespace MapGenerator
             if (blueprint == null)
                 return;
 
+            // Random orientation for this placement: 0, 90, 180 or 270 degrees clockwise.
+            // Non-square blueprints swap their footprint, so the rotated size is used
+            // from here on and the data grid is rotated cell by cell below.
+            int quarterTurns = Rot4.Random.AsInt;
+            IntVec2 placementSize = RotatedSize(blueprint.size, quarterTurns);
+
             // if the blueprint is a map center blueprint, set the loc so that the center is at the map center
             if (blueprint.mapCenterBlueprint)
             {
-                loc = new IntVec3(map.Center.x - (blueprint.size.x / 2), map.Center.y, map.Center.z - (blueprint.size.z / 2));
+                loc = new IntVec3(map.Center.x - (placementSize.x / 2), map.Center.y, map.Center.z - (placementSize.z / 2));
                 mapCenterBlueprintUsed = true;
+            }
+            else
+            {
+                // Keep the whole footprint outside the no-build zone along the map borders.
+                // The anchor is clamped/redistributed into the allowed area instead of being
+                // rejected - a rejected cell would drop the whole placement and leave the map
+                // without blueprints when the random search cannot find a border-far cell.
+                loc = AnchorInNoBuildZone(loc, map, placementSize,
+                                          c => c.SupportsStructureType(map, TerrainAffordanceDefOf.Heavy));
+                if (loc == IntVec3.Invalid)
+                    return;
             }
 
             // place a blueprint ruin
             //ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, this.usedSpots);
             try
             {
-                ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, usedCells);
+                ScatterBlueprintAt(loc, map, blueprint, ref selectedWallStuff, usedCells, quarterTurns, placementSize);
             }
             catch (Exception err)
             {
@@ -94,7 +111,14 @@ namespace MapGenerator
         {
             try
             {
-                return base.CanScatterAt(loc, map) && loc.SupportsStructureType(map, TerrainAffordanceDefOf.Heavy);
+                // KeepsDistanceToPlayerStart is only the pre-check on the anchor cell; the
+                // whole blueprint footprint is verified in ScatterBlueprintAt below. The
+                // no-build border is deliberately NOT checked here: a stricter validator would
+                // shrink the vanilla random cell search (TryFindRandomNotEdgeCellWith) and can
+                // starve it completely on maps where few cells pass the other filters.
+                return base.CanScatterAt(loc, map)
+                    && loc.SupportsStructureType(map, TerrainAffordanceDefOf.Heavy)
+                    && KeepsDistanceToPlayerStart(loc, map);
             }
             catch (Exception err)
             {
@@ -104,16 +128,29 @@ namespace MapGenerator
         }
 
 
-        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, HashSet<IntVec3> listOfUsedCells)
+        private void ScatterBlueprintAt(IntVec3 loc, Map map, MapGeneratorBlueprintDef blueprint, ref ThingDef wallStuff, HashSet<IntVec3> listOfUsedCells,
+                                        int quarterTurns, IntVec2 placementSize)
         {
 
-            CellRect mapRect = new CellRect(loc.x, loc.z, blueprint.size.x, blueprint.size.z);
+            CellRect mapRect = new CellRect(loc.x, loc.z, placementSize.x, placementSize.z);
             CellRect mapRectCheck4Neighbor = mapRect.ExpandedBy(1);
 
             mapRect.ClipInsideMap(map);
 
             // if mapRect was clipped -> the blueprint doesn't fit inside the map...
-            if (mapRect.Width != blueprint.size.x || mapRect.Height != blueprint.size.z)
+            if (mapRect.Width != placementSize.x || mapRect.Height != placementSize.z)
+                return;
+
+            // Hard guarantee for the no-build zone along the map borders (also for
+            // mapCenterBlueprint defs: the rule is about the border, not the start spot).
+            if (!KeepsBorderDistance(mapRect, map))
+                return;
+
+            // Blueprints may be built up to MinDistToPlayerStart cells from the player
+            // start spot, but never closer - the whole footprint is checked here. Defs
+            // with mapCenterBlueprint are exempt: they are meant to sit on the map centre,
+            // which is normally also where the player start spot ends up.
+            if (!blueprint.mapCenterBlueprint && !KeepsDistanceToPlayerStart(mapRect, map))
                 return;
 
             // Check if we will build on a usedCell
@@ -179,7 +216,7 @@ namespace MapGenerator
                     break;
             }
 
-            MakeBlueprintRoom(mapRect, map, blueprint, wallStuff);
+            MakeBlueprintRoom(mapRect, map, blueprint, wallStuff, quarterTurns);
 
             if (blueprint.createTrigger)
             {
@@ -218,7 +255,7 @@ namespace MapGenerator
         }
 
 
-        private void MakeBlueprintRoom(CellRect mapRect, Map map, MapGeneratorBlueprintDef blueprint, ThingDef stuffDef)
+        private void MakeBlueprintRoom(CellRect mapRect, Map map, MapGeneratorBlueprintDef blueprint, ThingDef stuffDef, int quarterTurns)
         {
             blueprint.buildingData = CleanUpBlueprintData(blueprint.buildingData);
             blueprint.floorData = CleanUpBlueprintData(blueprint.floorData);
@@ -241,13 +278,18 @@ namespace MapGenerator
                     return;
             }
 
+            // Cells of the rotated blueprint: every cell of the rotated grid points at the
+            // matching cell of the authored data, so the layout rotates as one block.
+            IntVec2 rotatedSize;
+            int[] sourceIndex = BuildRotatedIndexMap(blueprint.size, quarterTurns, out rotatedSize);
+
             allSpawnedPawns = null;
             try
             {
                 // Work through blueprint. Note: top-left to bottom-right
-                for (int zn = 0; zn < blueprint.size.z; zn++)
+                for (int zn = 0; zn < rotatedSize.z; zn++)
                 {
-                    for (int x = 0; x < blueprint.size.x; x++)
+                    for (int x = 0; x < rotatedSize.x; x++)
                     {
                         //// map can be clipped, don't work with the clipped parts
                         //if (x > mapRect.Width - 1 || zn > mapRect.Height - 1)
@@ -255,9 +297,9 @@ namespace MapGenerator
 
                         spawnCell = spawnBaseCell + new IntVec3(x, 0, -zn);
 
-                        int itemPos = x + blueprint.size.x * zn;
+                        int itemPos = sourceIndex[x + rotatedSize.x * zn];
                         ThingDef thingDef = TryGetThingDefFromBuildingData(blueprint, itemPos);
-                        Rot4 thingRot = TryGetRotationFromBuildingData(blueprint, itemPos);
+                        Rot4 thingRot = RotateWithBlueprint(TryGetRotationFromBuildingData(blueprint, itemPos), quarterTurns);
                         TerrainDef terrainDef = TryGetTerrainDefFromFloorData(blueprint, itemPos);
                         PawnKindDef pawnKindDef = TryGetPawnKindDefFromPawnData(blueprint, itemPos);
                         ThingDef itemDef = TryGetItemDefFromItemData(blueprint, itemPos);
@@ -290,7 +332,7 @@ namespace MapGenerator
                             continue;
                         }
 
-                        TrySetCellAs(spawnCell, map, thingDef, thingRot, stuffDef, terrainDef, pawnKindDef, itemDef, blueprint);
+                        TrySetCellAs(spawnCell, map, thingDef, thingRot, stuffDef, terrainDef, pawnKindDef, itemDef, blueprint, quarterTurns);
                     }
                 }
             }
@@ -303,10 +345,11 @@ namespace MapGenerator
 
 
             // If pawns are spawned, place ancient shrine trigger
+            string signalTag = null;
             if (allSpawnedPawns != null && allSpawnedPawns.Count > 0)
             {
                 int nextSignalTagID = Find.UniqueIDsManager.GetNextSignalTagID();
-                string signalTag = "ancientTempleApproached-" + nextSignalTagID;
+                signalTag = "ancientTempleApproached-" + nextSignalTagID;
                 SignalAction_Letter signalAction_Letter = (SignalAction_Letter)ThingMaker.MakeThing(ThingDefOf.SignalAction_Letter, null);
                 signalAction_Letter.signalTag = signalTag;
                 signalAction_Letter.letterDef = LetterDefOf.NeutralEvent;
@@ -358,7 +401,12 @@ namespace MapGenerator
                             lordJob = new LordJob_AssaultColony(allSpawnedPawns[0].Faction, false, false, false, false, false);
                         }
                     }
-                    LordMaker.MakeNewLord(allSpawnedPawns[0].Faction, lordJob, map, allSpawnedPawns);
+                    LordMaker.MakeNewLord(allSpawnedPawns[0].Faction, lordJob, map,
+                                          allSpawnedPawns.Where(p => !p.RaceProps.IsMechanoid).ToList());
+
+                    // Mechanoids never join the assault/defend lord: they start dormant and wake
+                    // up when the ruin is approached (shrine signal) or when one of them is harmed.
+                    MakeMechanoidsDormant(allSpawnedPawns.Where(p => p.RaceProps.IsMechanoid).ToList(), map, signalTag);
 
                 }
                 catch (Exception ex)
@@ -514,7 +562,8 @@ namespace MapGenerator
 
         // Fill the cell
         private void TrySetCellAs(IntVec3 c, Map map, ThingDef thingDef, Rot4 thingRot, ThingDef stuffDef = null, TerrainDef terrainDef = null, 
-                                        PawnKindDef pawnKindDef = null,  ThingDef itemDef = null, MapGeneratorBlueprintDef blueprint = null)
+                                        PawnKindDef pawnKindDef = null,  ThingDef itemDef = null, MapGeneratorBlueprintDef blueprint = null,
+                                        int quarterTurns = 0)
         {
             //Note: Here is no functionality to clear the cell by design, because it is possible to place items that are larger than 1x1
 
@@ -550,8 +599,12 @@ namespace MapGenerator
                     stuffDef1 = null;
 
                 Thing newThing = ThingMaker.MakeThing(thingDef, stuffDef1);
+
+                // thingRot already carries the blueprint's quarter turns (see
+                // RotateWithBlueprint), so the building faces the way the rotated layout
+                // expects it to. Without rotation data the author meant north.
                 if (thingRot == null || thingRot == Rot4.Invalid)
-                    GenSpawn.Spawn(newThing, c, map);
+                    GenSpawn.Spawn(newThing, c, map, new Rot4(quarterTurns));
                 else
                     GenSpawn.Spawn(newThing, c, map, thingRot);
 
@@ -590,7 +643,9 @@ namespace MapGenerator
 
                 Thing newItem = TryGetTreasure(itemDef, stuffDef2);
 
-                newItem = GenSpawn.Spawn(newItem, c, map);
+                // Loose items follow the blueprint as well: an item the author placed in
+                // its default orientation gets the blueprint's quarter turns.
+                newItem = GenSpawn.Spawn(newItem, c, map, new Rot4(quarterTurns));
                 // Don't forget to set the items to forbidden!
                 if ( newItem.TryGetComp<CompForbiddable>() != null) 
                     newItem.SetForbidden(true, false);
@@ -654,7 +709,9 @@ namespace MapGenerator
                 }
 
                 Pawn pawn = PawnGenerator.GeneratePawn(pawnKindDef, faction);
-                pawn.mindState.Active = false;
+                // Mechanoids get a sleep lord below and must be able to think for its duty, so
+                // the "inactive until the lord exists" trick only applies to ordinary pawns.
+                pawn.mindState.Active = pawn.RaceProps.IsMechanoid;
                 pawn = GenSpawn.Spawn(pawn, c, map) as Pawn;
 
                 if (pawn != null)

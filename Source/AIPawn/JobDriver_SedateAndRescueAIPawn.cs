@@ -67,9 +67,9 @@ namespace AIPawn
                 //Log.Error("Applying Anesthetic");
                 //Takee.healthTracker.ApplyAnesthetic(); Does not work with AIPawn
 
-                Takee.health.forceIncap = true;
+                Takee.health.forceDowned = true;
                 Takee.health.AddHediff(HediffDefOf.Anesthetic, null, null);
-                Takee.health.forceIncap = false;
+                Takee.health.forceDowned = false;
             };
             yield return makeUnconscious;
 

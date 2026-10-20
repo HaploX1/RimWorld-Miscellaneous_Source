@@ -77,7 +77,9 @@ namespace AIRobot
             toil.initAction = delegate
             {
                 X2_AIRobot robot = toil.actor as X2_AIRobot;
-                if (robot != null && robot.rechargeStation != null)
+                // Only a robot standing on the map of this station may be stored in its container -
+                // a robot from another map would vanish into a station it can never reach again.
+                if (robot != null && robot.rechargeStation != null && robot.rechargeStation.Map == robot.Map)
                 {
                     if (doDespawn)
                     {

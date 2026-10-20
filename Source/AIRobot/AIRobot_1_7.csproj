@@ -1,0 +1,80 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- RimWorld 1.7 port (see MapGenerator_1_7.csproj for the rationale): the game runs on
+       .NET 10 (CoreCLR) with Unity reduced to UnityStubs.dll since 1.7, so the legacy
+       net472 AIRobot.csproj cannot reference it. This project builds THIS AI-repo copy of
+       the sources, because the StopAllJobs gizmo (X2_AIRobot.Button_StopAllJobs +
+       X2_Building_AIRobotRechargeStation.lbStopAllJobs/UI_ButtonStopJobs) exists only here
+       and in the shipped 1.6 assembly — the original-author Source repo is behind. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>AIRobot</AssemblyName>
+    <RootNamespace>AIRobot</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <NoWarn>$(NoWarn);CS0414;CS0649;CS0169</NoWarn>
+    <!-- Explicit compile list (legacy parity); disable the SDK default glob. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Same compile list as the legacy AIRobot.csproj / shipped 1.6 assembly (34 files). -->
+  <ItemGroup>
+    <Compile Include="X2_PawnColumnWorker_AllowedAreaWide.cs" />
+    <Compile Include="X2_JobGiver_Return2BaseDespawn.cs" />
+    <Compile Include="X2_JobDriver_GoDespawning.cs" />
+    <Compile Include="X2_JobGiver_Work.cs" />
+    <Compile Include="X2_WorkGiver_AIRobot_RepairRobot.cs" />
+    <Compile Include="X2_JobDriver_GoToCellAndWait.cs" />
+    <Compile Include="X2_JobDriver_GoToCellAndDeconstructDisabledRobot.cs" />
+    <Compile Include="X2_JobDriver_RepairDamagedRobot.cs" />
+    <Compile Include="X2_JobDriver_RepairStationRobot.cs" />
+    <Compile Include="X2_AIRobot_Pawn_WorkSettings.cs" />
+    <Compile Include="X2_AIRobot_disabled.cs" />
+    <Compile Include="X2_AIRobot_Helper.cs" />
+    <Compile Include="X2_Building_AIRobotCreator.cs" />
+    <Compile Include="X2_JobGiver_RechargeEnergyIdle.cs" />
+    <Compile Include="X2_JobGiver_Return2BaseAndWait.cs" />
+    <Compile Include="X2_JobGiver_RepairDamagedRobot.cs" />
+    <Compile Include="X2_JobGiver_LeaveLord.cs" />
+    <Compile Include="X2_JobGiver_Return2BaseRoom.cs" />
+    <Compile Include="X2_MainTabWindow_Robots.cs" />
+    <Compile Include="X2_PawnColumnWorker_IsInRecharge.cs" />
+    <Compile Include="X2_PawnColumnWorker_ShutDownAll.cs" />
+    <Compile Include="X2_PawnColumnWorker_ShutDown.cs" />
+    <Compile Include="X2_PawnColumnWorker_Rename.cs" />
+    <Compile Include="X2_PawnColumnWorker_Charge.cs" />
+    <Compile Include="X2_ThinkNode_Conditional_DoWork.cs" />
+    <Compile Include="X2_JobDriver_GoRecharging.cs" />
+    <Compile Include="X2_JobGiver_RechargeEnergy.cs" />
+    <Compile Include="X2_AIRobot.cs" />
+    <Compile Include="X2_Building_AIRobotRechargeStation.cs" />
+    <Compile Include="MinifiedThing_AIRobot.cs" />
+    <Compile Include="MoteThrowHelper.cs" />
+    <Compile Include="X2_ThingDef_AIRobot_Building_RechargeStation.cs" />
+    <Compile Include="X2_ThingDef_AIRobot.cs" />
+  </ItemGroup>
+
+</Project>

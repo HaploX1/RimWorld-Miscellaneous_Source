@@ -20,7 +20,7 @@ namespace AIPawn
     public class Building_AIPawnCreatorEnhanced : Building_AIPawnCreator
     {
 
-        public override void Tick()
+        protected override void Tick()
         {
             pawnDefName = "AIPawnE";
             base.Tick();

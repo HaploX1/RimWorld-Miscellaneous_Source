@@ -23,7 +23,7 @@ namespace WeaponRepair
 
         public const PathEndMode GotoWeaponPathEndMode = PathEndMode.ClosestTouch;
 
-        public static float maxAllowedRepair = 0.95f;
+        public static float maxAllowedRepair = 1f;
 
         private Thing weaponMaster;
         private Thing weaponIngredient;
@@ -211,8 +211,11 @@ namespace WeaponRepair
                 // Hitpoints will only be increased to XX% of the ingredient hitpoints
                 int newHitpoints = hitpointsMaster + (int)(hitpointsIngredient * gainHitpointMulti);
 
-                if (newHitpoints > hitpointsMasterMax * maxAllowedRepair)
-                    newHitpoints = (int)(hitpointsMasterMax * maxAllowedRepair) + 1;
+                // Never exceed MaxHitPoints: at maxAllowedRepair = 1f the old "+1" would push the
+                // weapon one hit point above its maximum.
+                int maxHitpointsAfterRepair = Mathf.Min((int)(hitpointsMasterMax * maxAllowedRepair), hitpointsMasterMax);
+                if (newHitpoints > maxHitpointsAfterRepair)
+                    newHitpoints = maxHitpointsAfterRepair;
 
                 // repair master
                 master.HitPoints = newHitpoints;

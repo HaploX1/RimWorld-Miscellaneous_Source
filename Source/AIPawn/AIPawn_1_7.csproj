@@ -1,0 +1,75 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- RimWorld 1.7 port (see AIRobot_1_7.csproj / MapGenerator_1_7.csproj): the game runs on
+       .NET 10 (CoreCLR) with Unity reduced to UnityStubs.dll since 1.7, so the legacy
+       net472 AIPawn.csproj cannot reference it. The AI working repo
+       (Rimworld-Miscellaneous_Source_-_AI/AIPawn) carries the newest sources (1.6 render-tree
+       port, backstory defs, spawned-on-map think guard), so this project builds THERE against
+       the 1.7 reference DLLs and is excluded from the legacy project's file list. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>AIPawn</AssemblyName>
+    <RootNamespace>AIPawn</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <NoWarn>$(NoWarn);CS0414;CS0649;CS0169</NoWarn>
+    <!-- Explicit compile list (legacy parity); disable the SDK default glob. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Same file set as the shipped 1.6 assembly (27 files, no CommonMisc reference —
+       the usings are commented out; no Properties, no _Test.cs). -->
+  <ItemGroup>
+    <Compile Include="AIPawn.cs" />
+    <Compile Include="Building_AIPawnCreatorEnhanced_male.cs" />
+    <Compile Include="Building_AIPawnCreator_male.cs" />
+    <Compile Include="CompNeedMaximizing.cs" />
+    <Compile Include="CompProperties_NeedMaximizing.cs" />
+    <Compile Include="JobDriver_FillingConstructor.cs" />
+    <Compile Include="JobGiver_RechargeEnergy.cs" />
+    <Compile Include="JobGiver_SatisfyNeeds.cs" />
+    <Compile Include="BackstoryHelper.cs" />
+    <Compile Include="Building_AIPawnCreatorEnhanced.cs" />
+    <Compile Include="Building_AIPawnCreator.cs" />
+    <Compile Include="Building_AIPawnConstructionStation.cs" />
+    <Compile Include="AIPawnGenerator.cs" />
+    <Compile Include="Building_AIPawnInactive.cs" />
+    <Compile Include="Building_AIRechargeStation.cs" />
+    <Compile Include="HelperAIPawn.cs" />
+    <Compile Include="JobDriver_SedatePawn.cs" />
+    <Compile Include="JobDriver_SedateAndRescueAIPawn.cs" />
+    <Compile Include="JobDriver_GotoTarget.cs" />
+    <Compile Include="PlacementRestrictor_NextToAIRechargeStation.cs" />
+    <Compile Include="PawnKindDef_AIPawn.cs" />
+    <Compile Include="ThingDef_Building_AIPawnConstructionStation.cs" />
+    <Compile Include="ThingDef_AIPawn.cs" />
+    <Compile Include="PawnRenderNode_MAIBody.cs" />
+    <Compile Include="ThinkNode_ConditionalSpawnedOnMap.cs" />
+    <Compile Include="ThingDef_Building_RechargeStation.cs" />
+    <Compile Include="WorkGiver_AIPawn_FillConstructor.cs" />
+  </ItemGroup>
+
+</Project>

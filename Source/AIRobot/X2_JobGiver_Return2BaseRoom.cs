@@ -24,9 +24,15 @@ namespace AIRobot
             if (rechargeStation.DestroyedOrNull()) return ThinkResult.NoJob;
             if (!rechargeStation.Spawned) return ThinkResult.NoJob;
             if (rechargeStation.Position == IntVec3.Invalid) return ThinkResult.NoJob;
+            // The station of another map is no valid destination for this robot.
+            if (rechargeStation.Map != robot.Map) return ThinkResult.NoJob;
 
             Room roomRecharge = rechargeStation.Position.GetRoom(rechargeStation.Map);
             Room roomRobot = robot.Position.GetRoom(robot.Map);
+
+            // A station without a room (outdoors) has no cells to walk back to.
+            if (roomRecharge == null || roomRobot == null)
+                return ThinkResult.NoJob;
 
             if (roomRecharge == roomRobot)
                 return ThinkResult.NoJob;

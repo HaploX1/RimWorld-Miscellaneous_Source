@@ -81,9 +81,10 @@
     <Compile Include="PawnKindDef_AIPawn.cs" />
     <Compile Include="ThingDef_Building_AIPawnConstructionStation.cs" />
     <Compile Include="ThingDef_AIPawn.cs" />
+    <Compile Include="PawnRenderNode_MAIBody.cs" />
     <Compile Include="ThingDef_Building_RechargeStation.cs" />
+    <Compile Include="ThinkNode_ConditionalSpawnedOnMap.cs" />
     <Compile Include="WorkGiver_AIPawn_FillConstructor.cs" />
-    <Compile Include="_Test.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CommonFunctionsMisc\CommonMisc.csproj">

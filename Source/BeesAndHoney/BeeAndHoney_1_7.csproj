@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>BeeAndHoney</AssemblyName>
+    <RootNamespace>BeeAndHoney</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <Nullable>disable</Nullable>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+    <!-- The legacy AssemblyInfo.cs is still part of the <=1.6 build; for 1.7 the
+         assembly attributes come from this project file. -->
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <AssemblyVersion>1.7.0.0</AssemblyVersion>
+    <FileVersion>1.7.0.0</FileVersion>
+    <Version>1.7.0</Version>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- The four mead-barrel sources (Building_FermentingBarrel_Mead,
+         JobDriver_FillFermentingBarrel_MeadWort and both mead work givers) are
+         deliberately not compiled: their defs exist nowhere, nothing references
+         them, and the shipped 1.6 DLL does not contain them either. -->
+    <Compile Include="BeeAndHoneyUtility.cs" />
+    <Compile Include="CompBeeHive.cs" />
+    <Compile Include="CompProperties_CompBeeHive.cs" />
+    <Compile Include="CompProperties_TimedRespawn.cs" />
+    <Compile Include="CompTimedRespawn.cs" />
+    <Compile Include="JobDriver_HarvestHoney.cs" />
+    <Compile Include="Placeworker_ShowBeeRange.cs" />
+    <Compile Include="WorkGiver_Honey.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Waylith">
+      <HintPath>..\_RimWorldDLLs\Waylith.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Waylith.UnityCompat">
+      <HintPath>..\_RimWorldDLLs\Waylith.UnityCompat.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

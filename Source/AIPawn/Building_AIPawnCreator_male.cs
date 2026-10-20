@@ -13,7 +13,7 @@ namespace AIPawn
     public class Building_AIPawnCreator_male : Building_AIPawnCreator
     {
 
-        public override void Tick()
+        protected override void Tick()
         {
             base.gender = Gender.Male;
 

@@ -13,10 +13,17 @@ namespace AIPawn
 {
     public class ThingDef_AIPawn : ThingDef
     {
-        public string normalHeadGraphicPathMulti = null;
-        public string draftedHeadGraphicPathMulti = null;
-        public string normalBodyGraphicPathMulti = null;
-        public string draftedBodyGraphicPathMulti = null;
+        // RimWorld 1.6: body and head graphics are def driven. The head is applied through
+        // story.headType, the body through the render node of the MAI_Humanlike render tree.
+        // See AIPawn.UpdateGraphics().
+        public string normalHeadDefName = "MAI_Head_Normal";
+        public string draftedHeadDefName = "MAI_Head_Drafted";
+        // The body graphic is supplied by PawnRenderNode_MAIBody (see the MAI_Humanlike render
+        // tree); the pawn itself keeps a vanilla body type, because RimWorld resolves apparel
+        // graphics as wornGraphicPath + "_" + bodyType.defName and has no fallback for mod
+        // defined body types. See AIPawn.UpdateGraphics().
+        public string normalBodyGraphicPath = "Things/Pawns/Naked/Naked_Mia";
+        public string draftedBodyGraphicPath = "Things/Pawns/Drafted/Drafted_Mia";
         public int refreshBaseInfosMax = 0;
         public int refreshQuickMax = 0;
         public int incapToExplosionCounter = 0;

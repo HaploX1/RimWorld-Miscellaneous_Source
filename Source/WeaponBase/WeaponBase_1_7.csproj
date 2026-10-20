@@ -1,0 +1,71 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- RimWorld 1.7 port: 1.7 runs on .NET 10 (CoreCLR) with Unity reduced to UnityStubs.dll,
+       so the legacy net472 WeaponBase.csproj cannot reference the game assemblies.
+       Waylith.dll + Waylith.UnityCompat.dll are required on top of Assembly-CSharp/UnityStubs
+       because UnityEngine.Material (TurretTop_TurretWeaponBase.DrawTurret) lives there since 1.7.
+       The legacy csproj stays untouched for the <= 1.6 builds. -->
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>WeaponBase</AssemblyName>
+    <RootNamespace>TurretWeaponBase</RootNamespace>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <OutputPath>bin\1.7\</OutputPath>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <NoWarn>$(NoWarn);CS0414;CS0649;CS0169</NoWarn>
+    <!-- Explicit compile list (legacy parity); disable the SDK default glob. -->
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\_RimWorldDLLs\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityStubs">
+      <HintPath>..\_RimWorldDLLs\UnityStubs.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Waylith">
+      <HintPath>..\_RimWorldDLLs\Waylith.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Waylith.UnityCompat">
+      <HintPath>..\_RimWorldDLLs\Waylith.UnityCompat.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <!-- The legacy csproj used a ProjectReference to CommonMisc.csproj; the sources never touch
+         CommonMisc types (Helper.cs is a local copy), so a reference to the 1.7 build is enough. -->
+    <Reference Include="CommonMisc">
+      <HintPath>..\CommonFunctionsMisc\bin\1.7\CommonMisc.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <!-- Same compile list as the legacy WeaponBase.csproj (10 sources; AssemblyInfo is generated
+       by the SDK, so the old Properties\AssemblyInfo.cs is not compiled). -->
+  <ItemGroup>
+    <Compile Include="Building_TurretWeaponBase.cs" />
+    <Compile Include="Command_Verb_TurretWeaponBase.cs" />
+    <Compile Include="CompProperties_RemainingLifetime.cs" />
+    <Compile Include="CompRemainingLifetime.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="JobDriver_HaulToCellAndDoWork.cs" />
+    <Compile Include="Projectile_ThingSpawner.cs" />
+    <Compile Include="ThingDef_ThingSpawner.cs" />
+    <Compile Include="ThingDef_WeaponBase.cs" />
+    <Compile Include="TurretTop_TurretWeaponBase.cs" />
+  </ItemGroup>
+
+</Project>

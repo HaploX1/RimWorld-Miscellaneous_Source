@@ -43,6 +43,9 @@ namespace AIRobot
         public static string lbFindRobot = "AIRobot_Label_FindRobot";
         public static string txtFindRobot = "AIRobot_FindRobot";
 
+        public static string lbStopAllJobs = "AIRobot_Label_StopAllJobs";
+        public static string txtStopAllJobs = "AIRobot_StopAllJobs";
+
         public Graphic PrimaryGraphic;
         public Graphic SecondaryGraphic;
         public string SecondaryGraphicPath;
@@ -61,6 +64,7 @@ namespace AIRobot
         public static Texture2D UI_ButtonGoLeft = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoLeft");
         public static Texture2D UI_ButtonGoRight = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_GoRight");
         public static Texture2D UI_ButtonInfo = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Info");
+        public static Texture2D UI_ButtonStopJobs = ContentFinder<Texture2D>.Get("UI/Commands/Halt");
 
         private string spawnThingDef = "";
 
@@ -148,6 +152,8 @@ namespace AIRobot
                 UI_ButtonRepair_Active = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_Active");
             if (UI_ButtonRepair_NotActive == null)
                 UI_ButtonRepair_NotActive = ContentFinder<Texture2D>.Get("UI/Commands/Robots/UI_Repair_NotActive");
+            if (UI_ButtonStopJobs == null)
+                UI_ButtonStopJobs = ContentFinder<Texture2D>.Get("UI/Commands/Halt");
 
         }
 
@@ -439,6 +445,15 @@ namespace AIRobot
                     robot.Corpse.Destroy( DestroyMode.Vanish );
                 
                 robotIsDestroyed = true;
+                return;
+            }
+
+            // The robot is on another map: it switched maps and is recalled home by X2_AIRobot.
+            // Positions of two different maps are unrelated, so neither charging nor the
+            // distance-based recall below may touch a robot that is not on this map.
+            if (robot != null && robot.Spawned && robot.Map != Map)
+            {
+                isRechargeActive = false;
                 return;
             }
 

@@ -198,7 +198,9 @@ namespace TrainingFacility
                 SoundDef soundDef;
                 if (Rand.Value >= 0.6f)
                 {
-                    soundDef = SoundDef.Named("Pawn_Melee_Punch_HitBuilding");
+                    // 1.7 split Pawn_Melee_Punch_HitBuilding into _Generic/_Metal/_Stone/_Wood.
+                    // The target can be built from any stuff, so use the material-neutral variant.
+                    soundDef = SoundDef.Named("Pawn_Melee_Punch_HitBuilding_Generic");
                     fighter.skills.Learn(SkillDefOf.Melee, 25f * TrainingFacility_ModSettings.learningXpMultiplierMelee);
                 }
                 else
